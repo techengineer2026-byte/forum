@@ -36,7 +36,7 @@ const name = Astro.url.searchParams.get("name") || "Guest";
 </Layout>
 
 <!-- Keep the exact same <style> from your previous user page here -->
-<style>
+<style is:global>
     .profile-page-layout {
         display: flex;
         justify-content: center;

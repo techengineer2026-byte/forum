@@ -1,9 +1,18 @@
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
+import node from '@astrojs/node';  // ✅ Import the adapter
 
-// https://astro.build/config
 export default defineConfig({
-  // Make sure output: 'server' and adapter: node() are COMPLETELY GONE
-  integrations: [
-    // ... your integrations
-  ],
+  output: 'server',  // SSR mode
+  adapter: node({    // ✅ Call as function, not string
+    mode: 'standalone',
+  }),
+  
+  // SEO settings
+  site: 'https://forum.techengineer.co/',
+  trailingSlash: 'never',
+  
+  build: {
+    inlineStylesheets: 'auto'
+  }
 });

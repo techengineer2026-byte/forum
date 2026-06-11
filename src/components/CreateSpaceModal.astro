@@ -1,0 +1,548 @@
+---
+// src/components/CreateSpaceModal.astro
+---
+
+<div id="createSpaceModal" class="csm-overlay">
+  <div class="csm-modal">
+    <div class="csm-header">
+      <h3>Create a Space</h3>
+      <button class="csm-close" type="button" id="csmClose">&times;</button>
+    </div>
+
+    <form id="createSpaceForm" class="csm-body">
+      <!-- ICON PICKER -->
+      <div class="csm-section">
+        <label class="csm-label">Icon & Color</label>
+        <div class="csm-icon-row">
+          <div class="csm-icon-preview" id="csmIconPreview">
+            <span class="csm-icon-letter">S</span>
+          </div>
+          <div class="csm-color-picker">
+            <label class="csm-small-label">Color</label>
+            <div class="csm-colors">
+              <button
+                type="button"
+                class="csm-color-dot"
+                data-color="#b94a48"
+                style="background: #b94a48;"></button>
+              <button
+                type="button"
+                class="csm-color-dot active"
+                data-color="#2e69ff"
+                style="background: #2e69ff;"></button>
+              <button
+                type="button"
+                class="csm-color-dot"
+                data-color="#1da1f2"
+                style="background: #1da1f2;"></button>
+              <button
+                type="button"
+                class="csm-color-dot"
+                data-color="#8b5cf6"
+                style="background: #8b5cf6;"></button>
+              <button
+                type="button"
+                class="csm-color-dot"
+                data-color="#10b981"
+                style="background: #10b981;"></button>
+              <button
+                type="button"
+                class="csm-color-dot"
+                data-color="#f59e0b"
+                style="background: #f59e0b;"></button>
+              <button
+                type="button"
+                class="csm-color-dot"
+                data-color="#ef4444"
+                style="background: #ef4444;"></button>
+              <button
+                type="button"
+                class="csm-color-dot"
+                data-color="#636466"
+                style="background: #636466;"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NAME -->
+      <div class="csm-section">
+        <label class="csm-label" for="csmName">Space Name *</label>
+        <input
+          type="text"
+          id="csmName"
+          class="csm-input"
+          placeholder="e.g., React Developers"
+          maxlength="50"
+          required
+        />
+        <span class="csm-hint">2-50 characters</span>
+      </div>
+
+      <!-- DESCRIPTION -->
+      <div class="csm-section">
+        <label class="csm-label" for="csmDesc">Description</label>
+        <textarea
+          id="csmDesc"
+          class="csm-textarea"
+          placeholder="What is this space about?"
+          maxlength="300"
+          rows="3"></textarea>
+        <span class="csm-hint">Max 300 characters</span>
+      </div>
+
+      <!-- CATEGORY -->
+      <div class="csm-section">
+        <label class="csm-label" for="csmCategory">Category</label>
+        <select id="csmCategory" class="csm-input">
+          <option value="Technology">Technology</option>
+          <option value="Programming">Programming</option>
+          <option value="Design">Design</option>
+          <option value="Business">Business</option>
+          <option value="Education">Education</option>
+          <option value="General">General</option>
+        </select>
+      </div>
+
+      <!-- PRIVACY -->
+      <div class="csm-section csm-privacy">
+        <label class="csm-checkbox">
+          <input type="checkbox" id="csmPrivate" />
+          <span>Make this space private</span>
+        </label>
+        <span class="csm-hint">Only invited members can join</span>
+      </div>
+
+      <!-- ERROR MESSAGE -->
+      <div id="csmError" class="csm-error hidden"></div>
+
+      <!-- FOOTER -->
+      <div class="csm-footer">
+        <button type="button" class="csm-btn-secondary" id="csmCancel"
+          >Cancel</button
+        >
+        <button type="submit" class="csm-btn-primary" id="csmSubmit" disabled
+          >Create Space</button
+        >
+      </div>
+    </form>
+  </div>
+</div>
+
+<style is:global>
+  .csm-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(0, 0, 0, 0.6) !important;
+    display: none;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    z-index: 9999 !important; /* ✅ Higher than ads */
+    padding: 40px 20px !important;
+    overflow-y: auto !important; /* ✅ Allow scrolling if content is tall */
+  }
+  .csm-overlay.active {
+    display: flex !important;
+  }
+
+  .csm-modal {
+    background: white;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+    max-height: calc(100vh - 80px) !important; /* ✅ Don't exceed viewport */
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden; /* ✅ Important for inner scroll */
+  }
+
+  .csm-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    background: white;
+    flex-shrink: 0; /* ✅ Don't shrink */
+    z-index: 1;
+  }
+  .csm-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+  }
+  .csm-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #6b7280;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.15s;
+  }
+  .csm-close:hover {
+    background: #f3f4f6;
+  }
+
+  /* ✅ SCROLLABLE BODY */
+  .csm-body {
+    padding: 20px 24px;
+    overflow-y: auto; /* ✅ Scroll inside the modal */
+    flex: 1;
+    overscroll-behavior: contain; /* Prevent scroll chaining */
+  }
+
+  .csm-section {
+    margin-bottom: 20px;
+  }
+  .csm-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+  }
+  .csm-small-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #6b7280;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .csm-hint {
+    display: block;
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: 4px;
+  }
+
+  /* ICON PREVIEW */
+  .csm-icon-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .csm-icon-preview {
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
+    background: #2e69ff;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 800;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .csm-color-picker {
+    flex: 1;
+  }
+  .csm-colors {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .csm-color-dot {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.15s;
+  }
+  .csm-color-dot:hover {
+    transform: scale(1.1);
+  }
+  .csm-color-dot.active {
+    border-color: #111827;
+    box-shadow: 0 0 0 2px white inset;
+  }
+
+  /* INPUTS */
+  .csm-input,
+  .csm-textarea {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s;
+    box-sizing: border-box;
+  }
+  .csm-input:focus,
+  .csm-textarea:focus {
+    border-color: #2e69ff;
+  }
+  .csm-textarea {
+    resize: vertical;
+    min-height: 70px;
+    max-height: 200px;
+  }
+
+  /* CHECKBOX */
+  .csm-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #374151;
+    font-weight: 500;
+  }
+  .csm-checkbox input {
+    cursor: pointer;
+  }
+
+  /* ERROR */
+  .csm-error {
+    background: #fef2f2;
+    color: #dc2626;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    border: 1px solid #fecaca;
+  }
+
+  /* ✅ STICKY FOOTER */
+  .csm-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 24px;
+    border-top: 1px solid #e5e7eb;
+    background: #fafafa;
+    flex-shrink: 0; /* ✅ Don't shrink */
+  }
+  .csm-btn-primary {
+    background: #2e69ff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .csm-btn-primary:hover:not([disabled]) {
+    background: #1e5ae6;
+  }
+  .csm-btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .csm-btn-secondary {
+    background: white;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .csm-btn-secondary:hover {
+    background: #f9fafb;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  /* ✅ MOBILE FIX */
+  @media (max-width: 600px) {
+    .csm-overlay {
+      padding: 20px 10px !important;
+    }
+    .csm-modal {
+      max-height: calc(100vh - 40px) !important;
+    }
+  }
+</style>
+<script>
+  const SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbxlZOW0AuGlzMPuNZ5bGKYiK_DNZp8geGUwrYopvp-lezOxlIjb761sS7aDLPJlRrqDHg/exec";
+
+  const modal = document.getElementById("createSpaceModal") as HTMLElement;
+  const form = document.getElementById("createSpaceForm") as HTMLFormElement;
+  const nameInput = document.getElementById("csmName") as HTMLInputElement;
+  const descInput = document.getElementById("csmDesc") as HTMLTextAreaElement;
+  const categorySelect = document.getElementById(
+    "csmCategory",
+  ) as HTMLSelectElement;
+  const privateCheck = document.getElementById(
+    "csmPrivate",
+  ) as HTMLInputElement;
+  const submitBtn = document.getElementById("csmSubmit") as HTMLButtonElement;
+  const errorBox = document.getElementById("csmError") as HTMLElement;
+  const iconPreview = document.getElementById("csmIconPreview") as HTMLElement;
+  const iconLetter = iconPreview?.querySelector(
+    ".csm-icon-letter",
+  ) as HTMLElement;
+
+  let selectedColor = "#2e69ff";
+
+  // ✅ Open modal when "Create Space" button is clicked
+  document.addEventListener("click", (e) => {
+    const target = e.target as HTMLElement;
+    if (
+      target.closest("#createSpaceBtn") ||
+      target.closest(".create-space-btn")
+    ) {
+      e.preventDefault();
+
+      const isLoggedIn = localStorage.getItem("userId") !== null;
+      if (!isLoggedIn) {
+        const loginModal = document.getElementById("loginModal");
+        if (loginModal) loginModal.classList.add("active");
+        return;
+      }
+
+      modal?.classList.add("active");
+    }
+  });
+  // Close modal when clicking on backdrop
+  modal?.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+
+  // Close on Escape key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal?.classList.contains("active")) {
+      closeModal();
+    }
+  });
+  // ✅ Close modal
+  document.getElementById("csmClose")?.addEventListener("click", closeModal);
+  document.getElementById("csmCancel")?.addEventListener("click", closeModal);
+
+  function closeModal() {
+    modal?.classList.remove("active");
+    form?.reset();
+    if (errorBox) {
+      errorBox.classList.add("hidden");
+      errorBox.textContent = "";
+    }
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Create Space";
+    }
+  }
+
+  // ✅ Color picker
+  document.querySelectorAll(".csm-color-dot").forEach((dot) => {
+    dot.addEventListener("click", () => {
+      document
+        .querySelectorAll(".csm-color-dot")
+        .forEach((d) => d.classList.remove("active"));
+      dot.classList.add("active");
+      selectedColor = dot.getAttribute("data-color") || "#2e69ff";
+      if (iconPreview) iconPreview.style.background = selectedColor;
+    });
+  });
+
+  // ✅ Update icon letter as user types name
+  nameInput?.addEventListener("input", () => {
+    if (iconLetter) {
+      iconLetter.textContent = nameInput.value.charAt(0).toUpperCase() || "S";
+    }
+    validateForm();
+  });
+
+  // ✅ Validate form
+  function validateForm() {
+    const name = nameInput?.value.trim() || "";
+    const isValid = name.length >= 2 && name.length <= 50;
+    if (submitBtn) submitBtn.disabled = !isValid;
+  }
+
+  descInput?.addEventListener("input", () => {
+    // Description is optional, no validation needed
+  });
+
+  // ✅ Submit form
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    if (!submitBtn || submitBtn.disabled) return;
+
+    const name = nameInput.value.trim();
+    const description = descInput.value.trim();
+    const category = categorySelect.value;
+    const isPrivate = privateCheck.checked;
+    const userEmail = localStorage.getItem("userId") || "";
+    const userName = localStorage.getItem("currentUser") || "Anonymous";
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Creating...";
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        redirect: "follow",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8",
+        },
+        body: JSON.stringify({
+          action: "createSpace",
+          name,
+          description,
+          category,
+          isPrivate,
+          ownerEmail: userEmail,
+          ownerName: userName,
+          color: selectedColor,
+          icon: "", // Could upload icon image later
+        }),
+      });
+
+      const result = await res.json();
+
+      if (result.status === "success") {
+        alert(`🎉 Space "${name}" created successfully!`);
+        closeModal();
+        // Refresh sidebar to show new space
+        window.dispatchEvent(
+          new CustomEvent("space-created", {
+            detail: { spaceId: result.spaceId, name },
+          }),
+        );
+        // Reload to see new space
+        setTimeout(() => window.location.reload(), 500);
+      } else {
+        showError(result.message || "Could not create space");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Create Space";
+      }
+    } catch (err) {
+      console.error("Create space error:", err);
+      showError("Network error. Please try again.");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Create Space";
+    }
+  });
+
+  function showError(message: string) {
+    if (errorBox) {
+      errorBox.textContent = message;
+      errorBox.classList.remove("hidden");
+    }
+  }
+</script>

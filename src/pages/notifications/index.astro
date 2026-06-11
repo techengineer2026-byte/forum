@@ -3,200 +3,431 @@ import Layout from "../../layouts/Layout.astro";
 ---
 
 <Layout title="Notifications - Tech Engineer" showFooter={false}>
-    <div class="notifications-layout">
-        <!-- LEFT SIDEBAR: FILTERS -->
-        <aside class="filters-sidebar">
-            <div class="sticky-wrapper">
-                <p class="filters-title">Filters</p>
-                <ul class="filters-list">
-                    <li class="active"><a href="/notifications">All</a></li>
-                    <li><a href="/notifications/questions">Questions</a></li>
-                    
-                    <li><a href="/notifications/comments">Comments</a></li>
-                    <li><a href="/notifications/mentions">Mentions</a></li>
-                    <li><a href="/notifications/upvotes">Upvotes</a></li>
-                    <li><a href="/notifications/following">Following</a></li>
-                    <li><a href="/notifications/bookmarks">Bookmarks</a></li>
-                    <li>
-                        <a href="/notifications/announcements">Announcements</a>
-                    </li>
-                </ul>
-            </div>
-        </aside>
+  <div class="notifications-layout">
+    <!-- LEFT SIDEBAR: FILTERS -->
+    <aside class="filters-sidebar">
+      <div class="sticky-wrapper">
+        <p class="filters-title">Filters</p>
+        <ul class="filters-list" id="filtersList">
+          <li class="active" data-filter="all">
+            <a href="/notifications">All</a>
+          </li>
+          <li data-filter="upvote">
+            <a href="/notifications/upvotes">Upvotes</a>
+          </li>
+          <li data-filter="comment">
+            <a href="/notifications/comments">Comments</a>
+          </li>
+          <li data-filter="mention">
+            <a href="/notifications/mentions">Mentions</a>
+          </li>
+          <li data-filter="following">
+            <a href="/notifications/following">Following</a>
+          </li>
+          <li data-filter="bookmark">
+            <a href="/notifications/bookmarks">Bookmarks</a>
+          </li>
+          <li data-filter="announcement">
+            <a href="/notifications/announcements">Announcements</a>
+          </li>
+          <li data-filter="question">
+            <a href="/notifications/questions">Questions</a>
+          </li>
+        </ul>
+      </div>
+    </aside>
 
-        <!-- MAIN CONTENT -->
-        <main class="notifications-main">
-            <div class="notif-header">
-                <h2 class="category-name">All Notifications</h2>
-                <button class="settings-link">Settings</button>
-            </div>
+    <!-- MAIN CONTENT -->
+    <main class="notifications-main">
+      <div class="notif-header">
+        <h2 class="category-name" id="categoryName">All Notifications</h2>
+        <div class="header-actions">
+          <button class="settings-link" id="markAllReadBtn"
+            >Mark all as read</button
+          >
+          <button class="settings-link">⚙</button>
+        </div>
+      </div>
 
-            <!-- List of Demo Notifications -->
-            <div class="notif-list">
-                <div class="notif-item unread">
-                    <div class="notif-icon-blue">▲</div>
-                    <div class="notif-text">
-                        <p>
-                            <b>Anurag Kohli</b> upvoted your answer in <b
-                                >Computer Technology</b
-                            >. <span>· 2h</span>
-                        </p>
-                    </div>
-                    <div class="unread-dot"></div>
-                </div>
-
-                <div class="notif-item">
-                    <div class="notif-icon-red">⭐</div>
-                    <div class="notif-text">
-                        <p>
-                            New questions for you: <b
-                                >"How do I learn CSS fast?"</b
-                            > and 3 more. <span>· 5h</span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="notif-item">
-                    <div class="notif-icon-gray">👥</div>
-                    <div class="notif-text">
-                        <p>
-                            <b>Seck Zhao</b> started following you. <span
-                                >· 1d</span
-                            >
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
+      <div class="notif-list" id="notifList">
+        <div class="empty-state">
+          <div class="empty-icon">🔔</div>
+          <p>Loading notifications...</p>
+        </div>
+      </div>
+    </main>
+  </div>
 </Layout>
 
 <style>
-    /* Use the SAME CSS from your your-profile.astro page to keep them equal */
-    .notifications-layout {
-        display: flex;
-        justify-content: center;
-        gap: 40px;
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: 30px 15px;
-        align-items: flex-start;
-    }
+  .notifications-layout {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 30px 15px;
+    align-items: flex-start;
+  }
 
+  .filters-sidebar {
+    width: 200px;
+  }
+  .sticky-wrapper {
+    position: sticky;
+    top: 70px;
+  }
+  .filters-title {
+    font-weight: bold;
+    font-size: 15px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+  }
+  .filters-list {
+    list-style: none;
+    padding: 0;
+  }
+  .filters-list li {
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #636466;
+    cursor: pointer;
+  }
+  .filters-list li a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  .filters-list li.active {
+    background-color: #f7e8e8;
+    color: #b92b27;
+    font-weight: bold;
+  }
+  .filters-list li:hover:not(.active) {
+    background-color: #e6e6e6;
+  }
+
+  .notifications-main {
+    flex: 1;
+    max-width: 650px;
+  }
+
+  .notif-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+  }
+  .header-actions {
+    display: flex;
+    gap: 12px;
+  }
+  .category-name {
+    font-size: 15px;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+  }
+  .settings-link {
+    background: none;
+    border: none;
+    color: #939598;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .settings-link:hover {
+    color: #2e69ff;
+  }
+
+  .notif-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #f0f0f0;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .notif-item:hover {
+    background-color: #f9f9f9;
+  }
+  .notif-item.unread {
+    background-color: #f0f7ff;
+  }
+
+  .notif-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    flex-shrink: 0;
+    font-size: 18px;
+  }
+  .notif-icon-blue {
+    background: #e7f0ff;
+    color: #2e69ff;
+  }
+  .notif-icon-red {
+    background: #ffe7e7;
+    color: #b92b27;
+  }
+  .notif-icon-gray {
+    background: #f1f2f2;
+    color: #636466;
+  }
+  .notif-icon-green {
+    background: #e7f5e7;
+    color: #2b7a3a;
+  }
+  .notif-icon-yellow {
+    background: #fff8e1;
+    color: #f5a623;
+  }
+
+  .notif-text {
+    flex: 1;
+    min-width: 0;
+  }
+  .notif-text p {
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.4;
+  }
+  .notif-text span {
+    color: #939598;
+    font-size: 13px;
+  }
+
+  .unread-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #2e69ff;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-left: 10px;
+  }
+
+  .empty-state {
+    padding: 60px 20px;
+    text-align: center;
+    color: #939598;
+  }
+  .empty-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+  }
+  .empty-state p {
+    margin: 0;
+    font-size: 14px;
+  }
+
+  @media (max-width: 768px) {
+    .notifications-layout {
+      flex-direction: column;
+      gap: 20px;
+      padding: 15px;
+    }
     .filters-sidebar {
-        width: 200px;
+      width: 100%;
     }
     .sticky-wrapper {
-        position: sticky;
-        top: 70px;
+      position: static;
     }
-    .filters-title {
-        font-weight: bold;
-        font-size: 15px;
-        border-bottom: 1px solid #ddd;
-        padding-bottom: 8px;
-        margin-bottom: 10px;
-    }
-    .filters-list {
-        list-style: none;
-        padding: 0;
-    }
-    .filters-list li {
-        padding: 8px 12px;
-        border-radius: 4px;
-        font-size: 14px;
-        color: #636466;
-        cursor: pointer;
-    }
-    .filters-list li a {
-        text-decoration: none;
-        color: inherit;
-        display: block;
-    }
-
-    .filters-list li.active {
-        background-color: #f7e8e8;
-        color: #b92b27;
-        font-weight: bold;
-    }
-    .filters-list li:hover:not(.active) {
-        background-color: #e6e6e6;
-    }
-
-    .notifications-main {
-        flex: 1;
-        max-width: 650px;
-    }
-
-    .notif-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 10px;
-        margin-bottom: 10px;
-    }
-    .category-name {
-        font-size: 15px;
-        font-weight: bold;
-        color: #333;
-    }
-    .settings-link {
-        background: none;
-        border: none;
-        color: #939598;
-        font-size: 14px;
-        cursor: pointer;
-    }
-
-    /* Notification Items Styling */
-    .notif-item {
-        display: flex;
-        align-items: center;
-        padding: 15px;
-        border-bottom: 1px solid #f0f0f0;
-        position: relative;
-        cursor: pointer;
-    }
-    .notif-item:hover {
-        background-color: #f9f9f9;
-    }
-    .notif-item.unread {
-        background-color: #f0f7ff;
-    }
-
-    .notif-icon-blue {
-        color: #2e69ff;
-        margin-right: 15px;
-        font-size: 18px;
-    }
-    .notif-icon-red {
-        color: #b92b27;
-        margin-right: 15px;
-        font-size: 18px;
-    }
-    .notif-icon-gray {
-        color: #939598;
-        margin-right: 15px;
-        font-size: 18px;
-    }
-
-    .notif-text p {
-        margin: 0;
-        font-size: 14px;
-        color: #333;
-        line-height: 1.4;
-    }
-    .notif-text span {
-        color: #939598;
-    }
-
-    .unread-dot {
-        width: 8px;
-        height: 8px;
-        background-color: #2e69ff;
-        border-radius: 50%;
-        position: absolute;
-        right: 15px;
-    }
+  }
 </style>
+
+<script>
+  const GOOGLE_SHEET_URL =
+    "https://script.google.com/macros/s/AKfycbxlZOW0AuGlzMPuNZ5bGKYiK_DNZp8geGUwrYopvp-lezOxlIjb761sS7aDLPJlRrqDHg/exec";
+
+  // ✅ Get current filter from URL
+  function getCurrentFilter(): string {
+    const path = window.location.pathname;
+    if (path.includes("/upvotes")) return "upvote";
+    if (path.includes("/comments")) return "comment";
+    if (path.includes("/mentions")) return "mention";
+    if (path.includes("/following")) return "following";
+    if (path.includes("/bookmarks")) return "bookmark";
+    if (path.includes("/announcements")) return "announcement";
+    if (path.includes("/questions")) return "question";
+    return "all";
+  }
+
+  // ✅ Get current user email
+  function getCurrentUserEmail(): string {
+    return localStorage.getItem("userId") || "";
+  }
+
+  // ✅ Get time ago
+  function getTimeAgo(date: Date): string {
+    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+    if (seconds < 60) return "Just now";
+    if (seconds < 3600) return Math.floor(seconds / 60) + "m";
+    if (seconds < 86400) return Math.floor(seconds / 3600) + "h";
+    if (seconds < 604800) return Math.floor(seconds / 86400) + "d";
+    return Math.floor(seconds / 604800) + "w";
+  }
+
+  // ✅ Get icon for notification type
+  function getIconForType(type: string): { icon: string; class: string } {
+    const icons: { [key: string]: { icon: string; class: string } } = {
+      upvote: { icon: "▲", class: "notif-icon-blue" },
+      comment: { icon: "💬", class: "notif-icon-red" },
+      mention: { icon: "@", class: "notif-icon-yellow" },
+      following: { icon: "👥", class: "notif-icon-blue" },
+      bookmark: { icon: "🔖", class: "notif-icon-green" },
+      announcement: { icon: "📢", class: "notif-icon-red" },
+      question: { icon: "❓", class: "notif-icon-gray" },
+    };
+    return icons[type] || { icon: "🔔", class: "notif-icon-gray" };
+  }
+
+  // ✅ Render a single notification
+  function renderNotification(notif: any): string {
+    const iconData = getIconForType(notif.type);
+    const timeAgo = notif.timestamp
+      ? getTimeAgo(new Date(notif.timestamp))
+      : "Just now";
+    const unreadClass = !notif.isRead ? "unread" : "";
+    const unreadDot = !notif.isRead ? '<div class="unread-dot"></div>' : "";
+
+    return `
+            <div class="notif-item ${unreadClass}" data-notif-id="${notif.id}" data-type="${notif.type}">
+                <div class="notif-icon ${iconData.class}">${iconData.icon}</div>
+                <div class="notif-text">
+                    <p>${notif.message || "New notification"} <span>· ${timeAgo}</span></p>
+                </div>
+                ${unreadDot}
+            </div>
+        `;
+  }
+
+  // ✅ Load notifications
+  async function loadNotifications() {
+    const userEmail = getCurrentUserEmail();
+    const filter = getCurrentFilter();
+    const notifList = document.getElementById("notifList");
+    const categoryName = document.getElementById("categoryName");
+
+    // Update category name
+    const filterNames: { [key: string]: string } = {
+      all: "All Notifications",
+      upvote: "Upvotes",
+      comment: "Comments",
+      mention: "Mentions",
+      following: "Following",
+      bookmark: "Bookmarks",
+      announcement: "Announcements",
+      question: "Questions",
+    };
+    if (categoryName)
+      categoryName.textContent = filterNames[filter] || "Notifications";
+
+    // Update active filter in sidebar
+    document.querySelectorAll("#filtersList li").forEach((li) => {
+      li.classList.remove("active");
+      if (li.getAttribute("data-filter") === filter) {
+        li.classList.add("active");
+      }
+    });
+
+    if (!userEmail) {
+      if (notifList) {
+        notifList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🔒</div>
+                        <p>Please log in to see your notifications</p>
+                    </div>
+                `;
+      }
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${GOOGLE_SHEET_URL}?action=getNotifications&email=${encodeURIComponent(userEmail)}&filter=${filter}`,
+      );
+      const notifications = await response.json();
+
+      if (!notifList) return;
+
+      if (notifications.length === 0) {
+        notifList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <p>No notifications yet</p>
+                    </div>
+                `;
+        return;
+      }
+
+      notifList.innerHTML = notifications.map(renderNotification).join("");
+
+      // Add click handlers
+      notifList.querySelectorAll(".notif-item").forEach((item) => {
+        item.addEventListener("click", () => {
+          const notifId = item.getAttribute("data-notif-id");
+          if (notifId) {
+            markAsRead(notifId);
+            item.classList.remove("unread");
+            const dot = item.querySelector(".unread-dot");
+            if (dot) dot.remove();
+          }
+        });
+      });
+    } catch (error) {
+      console.error("Error loading notifications:", error);
+      if (notifList) {
+        notifList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">⚠️</div>
+                        <p>Could not load notifications</p>
+                    </div>
+                `;
+      }
+    }
+  }
+
+  // ✅ Mark single notification as read
+  async function markAsRead(notifId: string) {
+    try {
+      await fetch(
+        `${GOOGLE_SHEET_URL}?action=markNotifRead&notifId=${encodeURIComponent(notifId)}`,
+      );
+    } catch (error) {
+      console.error("Error marking as read:", error);
+    }
+  }
+
+  // ✅ Mark all as read
+  document
+    .getElementById("markAllReadBtn")
+    ?.addEventListener("click", async () => {
+      const userEmail = getCurrentUserEmail();
+      if (!userEmail) return;
+
+      try {
+        await fetch(
+          `${GOOGLE_SHEET_URL}?action=markAllNotifRead&email=${encodeURIComponent(userEmail)}`,
+        );
+        loadNotifications();
+      } catch (error) {
+        console.error("Error marking all as read:", error);
+      }
+    });
+
+  // ✅ Initialize
+  loadNotifications();
+
+  // ✅ Listen for new notifications
+  window.addEventListener("user-logged-in", loadNotifications);
+</script>

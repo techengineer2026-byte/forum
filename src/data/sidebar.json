@@ -2,49 +2,41 @@
     {
         "name": "Full-Stack Development",
         "icon": "icon.png",
-        "unread": false,
         "color": "#b94a48"
     },
     {
         "name": "JavaScript & Frameworks",
         "icon": "ct.png",
-        "unread": false,
         "color": "#f59e0b"
     },
     {
         "name": "Python & Data Science",
         "icon": "sm.png",
-        "unread": false,
         "color": "#3b82f6"
     },
     {
         "name": "Web Performance & SEO",
         "icon": "chg.png",
-        "unread": false,
         "color": "#10b981"
     },
     {
         "name": "DevOps & Cloud (AWS)",
         "icon": "ml.png",
-        "unread": false,
         "color": "#8b5cf6"
     },
     {
         "name": "Cybersecurity & InfoSec",
         "icon": "ai.png",
-        "unread": false,
         "color": "#ef4444"
     },
     {
         "name": "Open Source Projects",
         "icon": "ss.png",
-        "unread": false,
         "color": "#636466"
     },
     {
         "name": "Mobile App Dev (Flutter/React Native)",
         "icon": "t.png",
-        "unread": false,
         "color": "#1da1f2"
     }
 ]
