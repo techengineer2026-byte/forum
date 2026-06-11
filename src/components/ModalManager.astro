@@ -1,0 +1,992 @@
+---
+// src/components/ModalManager.astro
+---
+
+<dialog id="question-modal" class="modal">
+    <div id="step-1" class="modal-content">
+        <div class="modal-header">
+            <button class="close-btn" id="close-modal">✕</button>
+            <div class="top-privacy">
+                <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    ><circle cx="12" cy="12" r="10"></circle><line
+                        x1="2"
+                        y1="12"
+                        x2="22"
+                        y2="12"></line><path
+                        d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+                    ></path></svg
+                >
+                <span>Everyone</span> ▾
+            </div>
+            <div class="tabs">
+                <button class="tab-btn active" id="tab-add-question"
+                    >Add Question</button
+                >
+                <button class="tab-btn" id="tab-create-post">Create Post</button
+                >
+            </div>
+        </div>
+
+        <!-- VIEW A: ADD QUESTION -->
+        <div id="add-question-view" class="view">
+            <div class="modal-body">
+                <div class="user-row">
+                    <div class="avatar-small" id="user-avatar-letter">U</div>
+                    <button class="privacy-btn">Public ▾</button>
+                </div>
+                <textarea
+                    id="question-textarea"
+                    placeholder='Start your question with "What", "How", "Why", etc.'
+                ></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="cancel-btn" id="cancel-btn">Cancel</button>
+                <button class="submit-btn" id="to-step-2" disabled
+                    >Add question</button
+                >
+            </div>
+        </div>
+
+        <!-- VIEW B: CREATE POST -->
+        <div id="create-post-view" class="view hidden">
+            <div class="modal-body">
+                <div class="post-user-info">
+                    <div class="avatar-small" id="post-avatar-letter">U</div>
+                    <div class="user-details">
+                        <p class="user-name" id="post-user-name">
+                            Guest Engineer
+                        </p>
+                    </div>
+                </div>
+                <textarea
+                    id="post-textarea"
+                    class="post-textarea"
+                    placeholder="Say something..."></textarea>
+
+                <!-- IMAGE UPLOAD FOR POSTS -->
+                <div class="post-image-upload">
+                    <input type="file" id="post-image-input" accept="image/*" />
+                    <div id="post-image-preview" class="hidden">
+                        <img id="post-preview-img" src="" alt="Preview" />
+                        <button type="button" id="remove-post-image">✕</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer post-footer">
+                <div class="footer-icons">
+                    <button class="icon-btn" id="trigger-upload">Aa</button>
+                    <button class="icon-btn" id="trigger-photo">
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            ><rect
+                                x="3"
+                                y="3"
+                                width="18"
+                                height="18"
+                                rx="2"
+                                ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"
+                            ></circle><polyline points="21 15 16 10 5 21"
+                            ></polyline></svg
+                        >
+                    </button>
+                </div>
+                <button class="post-submit-btn" id="post-submit-btn" disabled
+                    >Post</button
+                >
+            </div>
+        </div>
+    </div>
+
+    <!-- POPUP 2: REQUEST ANSWERS -->
+    <div id="step-2" class="modal-content hidden">
+        <div class="toast" id="toast" style="display: none;">
+            <span class="toast-text"></span>
+            <span class="close-toast">✕</span>
+        </div>
+        <div class="modal-header">
+            <button class="close-btn" id="close-modal-2">✕</button>
+            <div class="request-title">
+                <h3>Request Answers:</h3>
+                <p id="display-question"></p>
+            </div>
+        </div>
+        <div class="tabs-red">
+            <button class="tab-red active" data-tab="suggested">
+                Suggested Writers (<span id="suggested-count">0</span>/25)
+            </button>
+        </div>
+        <div class="search-bar">
+            <input
+                type="text"
+                id="writer-search"
+                placeholder="Search for people or Spaces"
+            />
+        </div>
+        <div class="modal-body-split">
+            <div class="side-topics">
+                <p>Topics</p>
+                <ul class="topic-list" id="topic-list">
+                    <li class="active" data-topic="all">All Topics</li>
+                </ul>
+            </div>
+            <div class="people-list" id="people-list"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="done-btn" id="finish-btn">Done</button>
+        </div>
+    </div>
+</dialog>
+<style>
+    .search-bar {
+        padding: 12px 20px;
+        background: #fafafa;
+        border-bottom: 1px solid #eee;
+    }
+    .search-bar input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #dee0e1;
+        border-radius: 20px;
+        box-sizing: border-box;
+        outline: none;
+    }
+    /* ============ MODAL BASE ============ */
+    .modal {
+        border: none;
+        border-radius: 8px;
+        padding: 0;
+        width: 700px;
+        max-width: 90vw;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+    }
+    .modal::backdrop {
+        background: rgba(0, 0, 0, 0.6);
+    }
+</style>
+<style is:global>
+    .modal-header {
+        padding: 15px 20px;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        min-height: 50px;
+    }
+    .close-btn {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        color: #666;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+    .close-btn:hover {
+        background: #f1f2f2;
+    }
+    .tabs {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        border-bottom: 1px solid #eee;
+    }
+    .tab-btn {
+        flex: 1;
+        background: none;
+        border: none;
+        padding: 15px;
+        font-weight: bold;
+        color: #666;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+    }
+    .tab-btn.active {
+        color: #333;
+        border-bottom-color: #2e69ff;
+    }
+    .top-privacy {
+        position: absolute;
+        left: 50%;
+        top: 18px;
+        transform: translateX(-50%);
+        font-size: 13px;
+        color: #666;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        cursor: pointer;
+    }
+    .modal-body {
+        padding: 20px;
+        min-height: 200px;
+    }
+    .user-row,
+    .post-user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    .avatar-small {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #b92b27;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    .privacy-btn {
+        background: #f7f7f8;
+        border: 1px solid #dee0e1;
+        border-radius: 20px;
+        padding: 5px 12px;
+        font-size: 13px;
+        cursor: pointer;
+    }
+    .user-name {
+        font-weight: bold;
+        margin: 0;
+        font-size: 14px;
+    }
+    textarea {
+        width: 100%;
+        border: none;
+        outline: none;
+        font-size: 18px;
+        resize: none;
+        min-height: 100px;
+        margin-top: 10px;
+        box-sizing: border-box;
+        font-family: inherit;
+    }
+    .post-textarea {
+        font-size: 15px;
+        min-height: 150px;
+    }
+    .modal-footer {
+        padding: 12px 20px;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        background: #fafafa;
+    }
+    .post-footer {
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 15px;
+    }
+    .footer-icons {
+        display: flex;
+        gap: 15px;
+    }
+    .icon-btn {
+        background: none;
+        border: none;
+        font-size: 18px;
+        color: #666;
+        cursor: pointer;
+        padding: 5px;
+    }
+    .cancel-btn {
+        background: none;
+        border: none;
+        color: #636466;
+        font-weight: bold;
+        cursor: pointer;
+        padding: 8px 16px;
+    }
+    .submit-btn {
+        background: #b92b27;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 14px;
+        opacity: 0.5;
+    }
+    .submit-btn:not([disabled]) {
+        opacity: 1;
+        cursor: pointer;
+    }
+    .post-submit-btn {
+        background: #b92b27;
+        color: white;
+        border: none;
+        padding: 8px 25px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 14px;
+        opacity: 0.5;
+    }
+    .post-submit-btn:not([disabled]) {
+        opacity: 1;
+        cursor: pointer;
+    }
+    .request-title {
+        padding: 0 20px;
+        text-align: center;
+    }
+    .request-title h3 {
+        margin: 15px 0 5px 0;
+        font-size: 14px;
+        color: #636466;
+        font-weight: 500;
+    }
+    .request-title p {
+        font-weight: bold;
+        font-size: 18px;
+        color: #181818;
+        margin: 0 0 15px 0;
+    }
+    .tabs-red {
+        display: flex;
+        border-bottom: 1px solid #eee;
+    }
+    .tab-red {
+        flex: 1;
+        padding: 12px 15px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        color: #666;
+        border-bottom: 3px solid transparent;
+    }
+    .tab-red.active {
+        color: #b92b27;
+        border-bottom-color: #b92b27;
+        font-weight: bold;
+    }
+
+    .modal-body-split {
+        display: flex;
+        height: 380px;
+    }
+    .side-topics {
+        width: 180px;
+        border-right: 1px solid #eee;
+        background: #fafafa;
+        overflow-y: auto;
+    }
+    .side-topics p {
+        margin: 0;
+        padding: 12px 16px 8px;
+        font-size: 12px;
+        color: #939598;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    .topic-list {
+        list-style: none;
+        padding: 0 8px;
+        margin: 0;
+    }
+    .topic-list li {
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 14px;
+        border-radius: 4px;
+        margin-bottom: 2px;
+    }
+    .topic-list li.active {
+        color: #2e69ff;
+        background: #e7f0ff;
+        font-weight: 500;
+    }
+    .people-list {
+        flex: 1;
+        overflow-y: auto;
+        background: white;
+    }
+    .people-list-header {
+        padding: 12px 16px 8px;
+        font-size: 12px;
+        color: #939598;
+        font-weight: 600;
+        text-transform: uppercase;
+        border-bottom: 1px solid #f5f5f5;
+    }
+    .person-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        border-bottom: 1px solid #f5f5f5;
+        gap: 12px;
+    }
+    .person-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+        min-width: 0;
+    }
+    .person-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #b92b27;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        flex-shrink: 0;
+    }
+    .person-details {
+        flex: 1;
+        min-width: 0;
+    }
+    .p-name {
+        font-weight: 600;
+        font-size: 14px;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .p-sub {
+        font-size: 12px;
+        color: #939598;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .check-btn {
+        width: 28px;
+        height: 28px;
+        border: 1.5px solid #dee0e1;
+        background: white;
+        cursor: pointer;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .check-btn.checked {
+        background: #2e69ff;
+        color: white;
+        border-color: #2e69ff;
+    }
+    .toast {
+        background: #2b7a3a;
+        color: white;
+        padding: 10px 20px;
+        font-size: 13px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .close-toast {
+        cursor: pointer;
+        padding: 0 6px;
+    }
+    .no-results {
+        padding: 40px 20px;
+        text-align: center;
+        color: #939598;
+    }
+    .done-btn {
+        background: #2e69ff;
+        color: white;
+        border: none;
+        padding: 10px 30px;
+        border-radius: 20px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .view.hidden,
+    .hidden {
+        display: none !important;
+    }
+
+    /* Image Upload Styles */
+    .post-image-upload {
+        margin-top: 10px;
+    }
+    .post-image-upload input[type="file"] {
+        display: none;
+    }
+    #post-image-preview {
+        position: relative;
+        margin-top: 10px;
+    }
+    #post-image-preview img {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 8px;
+        border: 1px solid #eee;
+    }
+    #remove-post-image {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: #e74c3c;
+        color: white;
+        border: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+</style>
+
+<script>
+    // ====== CONFIG ======
+    const GOOGLE_SHEET_URL =
+        "https://script.google.com/macros/s/AKfycbxlZOW0AuGlzMPuNZ5bGKYiK_DNZp8geGUwrYopvp-lezOxlIjb761sS7aDLPJlRrqDHg/exec?action=getPosts";
+
+    // ========== DOM Elements ==========
+    const modal = document.getElementById(
+        "question-modal",
+    ) as HTMLDialogElement | null;
+    const addQuestionTab = document.getElementById(
+        "tab-add-question",
+    ) as HTMLButtonElement | null;
+    const createPostTab = document.getElementById(
+        "tab-create-post",
+    ) as HTMLButtonElement | null;
+    const addQuestionView = document.getElementById(
+        "add-question-view",
+    ) as HTMLElement | null;
+    const createPostView = document.getElementById(
+        "create-post-view",
+    ) as HTMLElement | null;
+    const questionTextarea = document.getElementById(
+        "question-textarea",
+    ) as HTMLTextAreaElement | null;
+    const postTextarea = document.getElementById(
+        "post-textarea",
+    ) as HTMLTextAreaElement | null;
+    const submitBtn = document.getElementById(
+        "to-step-2",
+    ) as HTMLButtonElement | null;
+    const postSubmitBtn = document.getElementById(
+        "post-submit-btn",
+    ) as HTMLButtonElement | null;
+    const displayQuestion = document.getElementById(
+        "display-question",
+    ) as HTMLElement | null;
+    const toast = document.getElementById("toast") as HTMLElement | null;
+    const step1 = document.getElementById("step-1") as HTMLElement | null;
+    const step2 = document.getElementById("step-2") as HTMLElement | null;
+    const cancelBtn = document.getElementById(
+        "cancel-btn",
+    ) as HTMLButtonElement | null;
+    const closeModalBtn = document.getElementById(
+        "close-modal",
+    ) as HTMLButtonElement | null;
+    const closeModalBtn2 = document.getElementById(
+        "close-modal-2",
+    ) as HTMLButtonElement | null;
+    const finishBtn = document.getElementById(
+        "finish-btn",
+    ) as HTMLButtonElement | null;
+    const closeToast = document.querySelector(
+        ".close-toast",
+    ) as HTMLElement | null;
+
+    // Image Upload Elements
+    const postImageInput = document.getElementById(
+        "post-image-input",
+    ) as HTMLInputElement | null;
+    const postImagePreview = document.getElementById(
+        "post-image-preview",
+    ) as HTMLElement | null;
+    const postPreviewImg = document.getElementById(
+        "post-preview-img",
+    ) as HTMLImageElement | null;
+    const removePostImageBtn = document.getElementById(
+        "remove-post-image",
+    ) as HTMLButtonElement | null;
+    const triggerPhoto = document.getElementById(
+        "trigger-photo",
+    ) as HTMLButtonElement | null;
+    const postUserName = document.getElementById(
+        "post-user-name",
+    ) as HTMLElement | null;
+    const userAvatarLetter = document.getElementById(
+        "user-avatar-letter",
+    ) as HTMLElement | null;
+    const postAvatarLetter = document.getElementById(
+        "post-avatar-letter",
+    ) as HTMLElement | null;
+
+    let uploadedImageUrl = "";
+    let currentUserName = "Guest Engineer";
+    let currentUserAvatar = "";
+    let currentUserId = ""; // ✅ NEW: Track the user ID
+
+    // LOAD USER PROFILE INTO MODAL
+    function loadUserProfile() {
+        // ✅ FIX: Use "currentUser" key to match Header.astro
+        currentUserName =
+            localStorage.getItem("currentUser") || "Guest Engineer";
+        currentUserAvatar = localStorage.getItem("userAvatar") || "";
+        currentUserId = localStorage.getItem("userId") || ""; // ✅ Get the ID
+
+        if (postUserName) postUserName.innerText = currentUserName;
+
+        if (currentUserAvatar && userAvatarLetter) {
+            userAvatarLetter.style.backgroundImage = `url(${currentUserAvatar})`;
+            userAvatarLetter.style.backgroundSize = "cover";
+            userAvatarLetter.innerText = "";
+        } else if (userAvatarLetter) {
+            userAvatarLetter.innerText = currentUserName
+                .charAt(0)
+                .toUpperCase();
+        }
+
+        if (currentUserAvatar && postAvatarLetter) {
+            postAvatarLetter.style.backgroundImage = `url(${currentUserAvatar})`;
+            postAvatarLetter.style.backgroundSize = "cover";
+            postAvatarLetter.innerText = "";
+        } else if (postAvatarLetter) {
+            postAvatarLetter.innerText = currentUserName
+                .charAt(0)
+                .toUpperCase();
+        }
+    }
+
+    function slugify(text: string): string {
+        return text
+            .toLowerCase()
+            .trim()
+            .replace(/[^\w ]+/g, "")
+            .replace(/ +/g, "-");
+    }
+
+    function uploadImage(file: File): Promise<string> {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = (error) => reject(error);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function savePostToLocal(postData: any) {
+        const existingPosts = JSON.parse(
+            localStorage.getItem("forumPosts") || "[]",
+        );
+        existingPosts.unshift(postData);
+        localStorage.setItem("forumPosts", JSON.stringify(existingPosts));
+    }
+
+    // ====== STEP 1: SAVE QUESTION ======
+    submitBtn?.addEventListener("click", async () => {
+        if (!questionTextarea) return;
+        const questionText = questionTextarea.value.trim();
+        if (!questionText) return;
+
+        const slug = slugify(questionText);
+
+        const newQuestion = {
+            question: questionText,
+            slug: slug,
+            type: "Question", // ✅ ADD THIS LINE
+
+            name: currentUserName,
+            avatar: currentUserAvatar || "icon.png",
+            author_avatar: currentUserAvatar,
+            role_name: "Tech Engineer",
+            description: "Newly added question",
+            answers: [],
+            upvotes: 0,
+            shares: 0,
+        };
+
+        savePostToLocal(newQuestion);
+
+        window.dispatchEvent(
+            new CustomEvent("question-added", {
+                detail: { question: questionText },
+            }),
+        );
+        window.dispatchEvent(new CustomEvent("post-added"));
+        fetch(GOOGLE_SHEET_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                type: "Question",
+                avatar: currentUserAvatar || "icon.png",
+                name: currentUserName,
+                follow_enabled: false,
+                role_name: "Tech Engineer",
+                updated_time: "Just now",
+                heading: questionText,
+                description: "Newly added question",
+                images: [],
+                upvotes: 0,
+                comments: 0,
+                shares: 0,
+                slug: slug,
+            }),
+        }).catch((err) => console.error("Sheet save error:", err));
+
+        if (displayQuestion) displayQuestion.innerText = questionText;
+
+        if (toast) {
+            toast.style.display = "flex";
+            toast.innerHTML = `<span class="toast-text">✓ Question saved successfully!</span><span class="close-toast">✕</span>`;
+            const newClose = toast.querySelector(".close-toast");
+            if (newClose)
+                newClose.addEventListener(
+                    "click",
+                    () => (toast.style.display = "none"),
+                );
+        }
+
+        if (step1 && step2) {
+            step1.classList.add("hidden");
+            step2.classList.remove("hidden");
+        }
+    });
+
+    // ====== POST SUBMIT (CREATE POST) ======
+    postSubmitBtn?.addEventListener("click", async () => {
+        if (!postTextarea) return;
+        const postText = postTextarea.value.trim();
+        if (!postText) return;
+
+        postSubmitBtn.disabled = true;
+        postSubmitBtn.innerText = "Posting...";
+
+        let imageUrl = "";
+        const file = postImageInput?.files?.[0];
+        if (file) {
+            imageUrl = await uploadImage(file);
+        }
+
+        const slug = slugify(postText);
+
+        const newPost = {
+            question: postText,
+            slug: slug,
+            type: "Post", // ✅ ADD THIS LINE
+
+            description: "Post created from forum",
+            name: currentUserName,
+            avatar: currentUserAvatar || "icon.png",
+            author_avatar: currentUserAvatar,
+            role_name: "Tech Engineer",
+            image_url: imageUrl,
+            images: imageUrl ? [imageUrl] : [],
+            answers: [],
+            upvotes: 0,
+            shares: 0,
+        };
+
+        savePostToLocal(newPost);
+
+        fetch(GOOGLE_SHEET_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                type: "Post",
+                avatar: currentUserAvatar || "icon.png",
+                name: currentUserName,
+                follow_enabled: false,
+                role_name: "Tech Engineer",
+                updated_time: "Just now",
+                heading: postText,
+                description: "Post created from forum",
+                images: [], // We don't send Base64 to sheets to prevent breaking it
+                upvotes: 0,
+                comments: 0,
+                shares: 0,
+                slug: slug,
+            }),
+        }).catch((err) => console.error("Sheet save error:", err));
+
+        window.dispatchEvent(new CustomEvent("post-added"));
+        modal?.close();
+    });
+
+    // ====== UI HANDLERS (No changes needed below) ======
+    triggerPhoto?.addEventListener("click", () => postImageInput?.click());
+    postImageInput?.addEventListener("change", (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (file && postPreviewImg && postImagePreview) {
+            postPreviewImg.src = URL.createObjectURL(file);
+            postImagePreview.classList.remove("hidden");
+        }
+    });
+    removePostImageBtn?.addEventListener("click", () => {
+        if (postImageInput) postImageInput.value = "";
+        if (postImagePreview) postImagePreview.classList.add("hidden");
+        if (postPreviewImg) postPreviewImg.src = "";
+    });
+
+    createPostTab?.addEventListener("click", () => {
+        if (
+            createPostTab &&
+            addQuestionTab &&
+            createPostView &&
+            addQuestionView
+        ) {
+            createPostTab.classList.add("active");
+            addQuestionTab.classList.remove("active");
+            createPostView.classList.remove("hidden");
+            addQuestionView.classList.add("hidden");
+        }
+    });
+    addQuestionTab?.addEventListener("click", () => {
+        if (
+            addQuestionTab &&
+            createPostTab &&
+            addQuestionView &&
+            createPostView
+        ) {
+            addQuestionTab.classList.add("active");
+            createPostTab.classList.remove("active");
+            addQuestionView.classList.remove("hidden");
+            createPostView.classList.add("hidden");
+        }
+    });
+
+    questionTextarea?.addEventListener("input", () => {
+        if (submitBtn && questionTextarea)
+            submitBtn.disabled = questionTextarea.value.trim().length === 0;
+    });
+    postTextarea?.addEventListener("input", () => {
+        if (postSubmitBtn && postTextarea)
+            postSubmitBtn.disabled = postTextarea.value.trim().length === 0;
+    });
+
+    cancelBtn?.addEventListener("click", () => modal?.close());
+    closeModalBtn?.addEventListener("click", () => modal?.close());
+    closeModalBtn2?.addEventListener("click", () => modal?.close());
+    finishBtn?.addEventListener("click", () => modal?.close());
+    closeToast?.addEventListener("click", () => {
+        if (toast) toast.style.display = "none";
+    });
+
+    modal?.addEventListener("close", () => {
+        if (step1 && step2) {
+            step1.classList.remove("hidden");
+            step2.classList.add("hidden");
+        }
+        if (questionTextarea) questionTextarea.value = "";
+        if (postTextarea) postTextarea.value = "";
+        if (submitBtn) submitBtn.disabled = true;
+        if (postSubmitBtn) {
+            postSubmitBtn.disabled = true;
+            postSubmitBtn.innerText = "Post";
+        }
+        if (postImageInput) postImageInput.value = "";
+        if (postImagePreview) postImagePreview.classList.add("hidden");
+        if (addQuestionTab && createPostTab) {
+            addQuestionTab.classList.add("active");
+            createPostTab.classList.remove("active");
+        }
+        if (addQuestionView && createPostView) {
+            addQuestionView.classList.remove("hidden");
+            createPostView.classList.add("hidden");
+        }
+    });
+
+    loadUserProfile();
+
+    import {
+        searchWriters,
+        filterByTopic,
+        getAllTopics,
+        renderWriters,
+    } from "../scripts/writerEngine";
+
+    const writerSearch = document.getElementById(
+        "writer-search",
+    ) as HTMLInputElement | null;
+    const peopleList = document.getElementById(
+        "people-list",
+    ) as HTMLElement | null;
+    const topicList = document.getElementById(
+        "topic-list",
+    ) as HTMLElement | null;
+    const suggestedCount = document.getElementById("suggested-count");
+
+    function renderTopics() {
+        if (!topicList) return;
+        const topics = getAllTopics();
+        topicList.innerHTML =
+            '<li class="active" data-topic="all">All Topics</li>';
+        topics.forEach((topic) => {
+            const li = document.createElement("li");
+            li.setAttribute("data-topic", topic.toLowerCase());
+            li.innerText = topic;
+            topicList.appendChild(li);
+        });
+    }
+
+    function renderPeople(list: any[]) {
+        if (!peopleList) return;
+        peopleList.innerHTML = "";
+        const header = document.createElement("div");
+        header.className = "people-list-header";
+        header.innerText =
+            list.length > 0 ? `${list.length} writers found` : "No writers";
+        peopleList.appendChild(header);
+        if (list.length === 0) {
+            const empty = document.createElement("div");
+            empty.className = "no-results";
+            empty.innerText = "Try a different search or topic";
+            peopleList.appendChild(empty);
+            if (suggestedCount) suggestedCount.innerText = "0";
+            return;
+        }
+        const writers = renderWriters(list);
+        writers.forEach((el) => peopleList.appendChild(el));
+        if (suggestedCount) suggestedCount.innerText = list.length.toString();
+        peopleList.querySelectorAll(".check-btn").forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const target = e.target as HTMLButtonElement;
+                target.classList.toggle("checked");
+                target.innerText = target.classList.contains("checked")
+                    ? "✓"
+                    : "+";
+            });
+        });
+    }
+
+    renderTopics();
+    renderPeople(searchWriters(""));
+    writerSearch?.addEventListener("input", (e) => {
+        renderPeople(searchWriters((e.target as HTMLInputElement).value));
+    });
+    topicList?.addEventListener("click", (e) => {
+        const target = e.target as HTMLElement;
+        if (!target.matches("li")) return;
+        topicList
+            .querySelectorAll("li")
+            .forEach((li) => li.classList.remove("active"));
+        target.classList.add("active");
+        const topic = target.getAttribute("data-topic") || "all";
+        renderPeople(filterByTopic(topic));
+    });
+</script>

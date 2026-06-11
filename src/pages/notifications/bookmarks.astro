@@ -1,0 +1,183 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="Notifications - Tech Engineer" showFooter={false}>
+    <div class="notifications-layout">
+        <!-- LEFT SIDEBAR: FILTERS -->
+        <aside class="filters-sidebar">
+            <div class="sticky-wrapper">
+                <p class="filters-title">Filters</p>
+                <ul class="filters-list">
+                    <li><a href="/notifications">All</a></li>
+                    <li><a href="/notifications/questions">Questions</a></li>
+                    
+                    <li><a href="/notifications/comments">Comments</a></li>
+                    <li><a href="/notifications/mentions">Mentions</a></li>
+                    <li><a href="/notifications/upvotes">Upvotes</a></li>
+                    <li><a href="/notifications/following">Following</a></li>
+                    <li class="active">
+                        <a href="/notifications/bookmarks">Bookmarks</a>
+                    </li>
+                    <li><a href="/notifications/announcements">Announcements</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="notifications-main">
+            <!-- Top Header Area -->
+            <div class="notif-header">
+                <h2 class="category-name">Bookmart</h2>
+                <button class="settings-link">Settings</button>
+            </div>
+
+            <!-- Center Empty State -->
+            <div class="empty-notif-state">
+                <div class="bell-icon">
+                    <svg
+                        width="120"
+                        height="120"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#ccc"
+                        stroke-width="0.5"
+                    >
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"
+                        ></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span class="zero-count">0</span>
+                </div>
+
+                <h3>No New Notifications</h3>
+                <p>
+                    Notifications you received in the last 30 days will show up
+                    here.
+                </p>
+            </div>
+        </main>
+    </div>
+</Layout>
+
+<style>
+    .notifications-layout {
+        display: flex;
+        justify-content: center;
+        gap: 40px; /* Wider gap for this layout */
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 30px 15px;
+        align-items: flex-start;
+    }
+
+    /* LEFT SIDEBAR */
+    .filters-sidebar {
+        width: 200px;
+    }
+    .sticky-wrapper {
+        position: sticky;
+        top: 70px;
+    }
+    .filters-title {
+        font-weight: bold;
+        font-size: 15px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 8px;
+        margin-bottom: 10px;
+        color: #333;
+    }
+    .filters-list {
+        list-style: none;
+        padding: 0;
+    }
+    .filters-list li {
+        padding: 8px 12px;
+        border-radius: 4px;
+        margin-bottom: 2px;
+        font-size: 14px;
+        color: #636466;
+        cursor: pointer;
+    }
+    .filters-list li a {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    /* Active State (Pink Background, Red Text) */
+    .filters-list li.active {
+        background-color: #f7e8e8;
+        color: #b92b27;
+        font-weight: bold;
+    }
+    .filters-list li:hover:not(.active) {
+        background-color: #e6e6e6;
+    }
+
+    /* MAIN AREA */
+    .notifications-main {
+        flex: 1;
+        max-width: 650px;
+    }
+
+    .notif-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+        margin-bottom: 60px;
+    }
+    .category-name {
+        font-size: 15px;
+        font-weight: bold;
+        color: #333;
+        margin: 0;
+    }
+    .settings-link {
+        background: none;
+        border: none;
+        color: #939598;
+        font-size: 14px;
+        cursor: pointer;
+    }
+    .settings-link:hover {
+        text-decoration: underline;
+    }
+
+    /* Empty State */
+    .empty-notif-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .bell-icon {
+        position: relative;
+        margin-bottom: 20px;
+        opacity: 0.6;
+    }
+    .zero-count {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -10%);
+        font-size: 40px;
+        color: #ccc;
+        font-weight: 300;
+    }
+
+    .empty-notif-state h3 {
+        font-size: 18px;
+        color: #636466;
+        margin-bottom: 10px;
+        font-weight: bold;
+    }
+    .empty-notif-state p {
+        font-size: 15px;
+        color: #939598;
+        max-width: 350px;
+        line-height: 1.4;
+    }
+</style>

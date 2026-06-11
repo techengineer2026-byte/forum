@@ -1,0 +1,151 @@
+---
+import Layout from "../layouts/Layout.astro";
+import AnswerQuestionCard from "../components/AnswerQuestionCard.astro";
+import questions from "../data/answer_questions.json";
+---
+
+<!-- Pass showFooter={false} here -->
+<Layout title="Answer - Tech Engineer" showFooter={false}>
+    <div class="page-layout">
+        <!-- LEFT SIDEBAR - Matches Home Page Spacing -->
+        <aside class="sidebar-area">
+            <div class="sticky-wrapper">
+                <p class="nav-title">Questions</p>
+                <ul class="nav-list">
+                    <li class="active">
+                        <a href="/answer">Questions for you</a>
+                    </li>
+                    <li><a href="/answer/requests">Answer requests</a></li>
+                    <li><a href="/answer/drafts">Drafts</a></li>
+                    <li><a href="/answer/ai_interviewer">AI Interviewer</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- CENTER FEED -->
+        <main class="feed-area">
+            <div class="feed-header">
+                <span class="star-icon">⭐</span>
+                <span>Questions for you</span>
+            </div>
+
+            <div class="questions-list">
+                {questions.map((q) => <AnswerQuestionCard {...q} />)}
+            </div>
+        </main>
+
+        <!-- RIGHT SIDEBAR -->
+        <aside class="right-column">
+            <div class="sticky-wrapper">
+                <div class="info-box">
+                    <h4>Add topics you know about</h4>
+                    <p>
+                        Adding topics helps us find questions for you to answer
+                    </p>
+                    <button class="outline-btn">Add topics</button>
+                </div>
+            </div>
+        </aside>
+    </div>
+</Layout>
+
+<style>
+    .page-layout {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-left:50px;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 30px 15px;
+        align-items: flex-start; /* Required for sticky */
+    }
+
+    .sticky-wrapper {
+        position: sticky;
+        top: 70px;
+        height: fit-content;
+    }
+
+    /* LEFT NAV */
+    .sidebar-area {
+        width: 160px;
+    }
+    .nav-title {
+        font-weight: bold;
+        font-size: 15px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 8px;
+        margin-bottom: 10px;
+    }
+    .nav-list {
+        list-style: none;
+        padding: 0;
+    }
+    .nav-list li {
+        padding: 8px;
+        border-radius: 4px;
+        margin-bottom: 2px;
+    }
+    .nav-list li a {
+        text-decoration: none;
+        color: #636466;
+        font-size: 14px;
+        display: block;
+    }
+
+    /* Drafts active state (Pink background, Red text) */
+    .nav-list li.active {
+        background-color: #f7e8e8;
+    }
+    .nav-list li.active a {
+        color: #b92b27;
+        font-weight: bold;
+    }
+    .nav-list li:hover:not(.active) {
+        background-color: #e6e6e6;
+    }
+
+    /* Feed Header */
+    .feed-header {
+        padding: 12px 15px;
+        border-bottom: 1px solid #dee0e1;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: bold;
+        color: #333;
+    }
+    .star-icon {
+        color: #f5a623;
+    }
+
+    /* Right Sidebar */
+    .info-box {
+        background: white;
+        border: 1px solid #dee0e1;
+        padding: 15px;
+        border-radius: 8px;
+    }
+    .info-box h4 {
+        margin: 0;
+        font-size: 14px;
+        color: #333;
+    }
+    .info-box p {
+        font-size: 13px;
+        color: #666;
+        margin: 8px 0;
+        line-height: 1.4;
+    }
+    .outline-btn {
+        width: 100%;
+        background: none;
+        border: 1px solid #2e69ff;
+        color: #2e69ff;
+        padding: 6px;
+        border-radius: 20px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+</style>

@@ -1,0 +1,258 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Search" showFooter={false}>
+  <div class="search-container">
+    <!-- Sidebar / Filters -->
+    <aside class="sidebar">
+      <div class="filter-group type-filters">
+        <h3>By type</h3>
+        <ul class="horizontal-scroll-mobile">
+          <li class="active">All types</li>
+          <li>Questions</li>
+          <li>Answers</li>
+          <li>Posts</li>
+          <li>Profiles</li>
+          <li>Topics</li>
+          <li>Spaces</li>
+        </ul>
+      </div>
+
+      <div class="desktop-only-filters">
+        <section class="filter-group">
+          <h3>By author</h3>
+          <ul>
+            <li class="active">All people</li>
+            <li>People you follow</li>
+          </ul>
+          <div class="search-input-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Author" />
+          </div>
+        </section>
+
+        <section class="filter-group">
+          <h3>By time</h3>
+          <ul>
+            <li class="active">All time</li>
+            <li>Past hour</li>
+            <li>Past day</li>
+            <li>Past week</li>
+            <li>Past month</li>
+            <li>Past year</li>
+          </ul>
+        </section>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="results-header">
+        <span class="query-text"
+          >Results for <strong id="search-query-display">...</strong></span
+        >
+        <div class="sort-dropdown">Most relevant ▾</div>
+      </div>
+
+      <div id="results" class="results-card">
+        <div class="empty-state">
+          <p>
+            We couldn't find any results for '<span id="empty-query"></span>'.
+          </p>
+          <button class="add-question-btn">Add question</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</Layout>
+
+<style>
+  :root {
+    --q-red: #b92b27;
+    --q-blue: #2e69ff;
+    --border-gray: #dee0e1;
+    --text-dark: #282829;
+    --text-light: #636466;
+    --sidebar-active-bg: #fbe9e7;
+    --sidebar-active-text: #b92b27;
+  }
+
+  /* LAYOUT */
+  .search-container {
+    display: flex;
+    max-width: 1000px;
+    margin: 32px auto;
+    gap: 32px;
+    padding: 0 16px;
+    font-family:
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+      sans-serif;
+  }
+
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+  }
+
+  .main-content {
+    flex-grow: 1;
+    min-width: 0; /* Prevents flex items from overflowing */
+  }
+
+  /* SIDEBAR ITEMS */
+  .filter-group {
+    margin-bottom: 24px;
+  }
+  .filter-group h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+    padding-left: 8px;
+    text-transform: capitalize;
+  }
+
+  .sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .sidebar li {
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--text-light);
+    cursor: pointer;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .sidebar li.active {
+    background-color: var(--sidebar-active-bg);
+    color: var(--sidebar-active-text);
+    font-weight: 500;
+  }
+
+  .search-input-wrapper {
+    position: relative;
+    margin: 8px 12px;
+  }
+  .search-input-wrapper input {
+    width: 100%;
+    padding: 6px 10px 6px 30px;
+    border: 1px solid var(--border-gray);
+    border-radius: 3px;
+  }
+
+  /* RESULTS CARD */
+  .results-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border: 1px solid var(--border-gray);
+    background: #fff;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    font-size: 14px;
+  }
+
+  .results-card {
+    background: white;
+    border: 1px solid var(--border-gray);
+    border-top: none;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    padding: 24px;
+  }
+
+  .add-question-btn {
+    background-color: var(--q-blue);
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 12px;
+  }
+
+  /* --- MOBILE RESPONSIVE LOGIC --- */
+
+  @media (max-width: 768px) {
+    .search-container {
+      flex-direction: column; /* Stack sidebar on top of content */
+      margin: 0;
+      padding: 0;
+      gap: 0;
+    }
+
+    .sidebar {
+      width: 100%;
+      background: #fff;
+      border-bottom: 1px solid var(--border-gray);
+      padding-top: 10px;
+    }
+
+    /* Hide less important filters on mobile to save space */
+    .desktop-only-filters {
+      display: none;
+    }
+
+    .filter-group h3 {
+      padding-left: 16px;
+    }
+
+    /* Make the "By type" categories scroll horizontally */
+    .horizontal-scroll-mobile {
+      display: flex;
+      overflow-x: auto;
+      padding: 0 10px 10px 10px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .horizontal-scroll-mobile::-webkit-scrollbar {
+      display: none; /* Hide scrollbar for clean look */
+    }
+
+    .sidebar li {
+      padding: 6px 15px;
+      margin-right: 5px;
+      background: #f0f0f0; /* Give them a pill shape on mobile */
+      border-radius: 20px;
+    }
+
+    .sidebar li.active {
+      background-color: var(--sidebar-active-bg);
+    }
+
+    .main-content {
+      padding: 12px;
+    }
+
+    .results-header,
+    .results-card {
+      border-radius: 8px; /* On mobile, give both parts rounded corners */
+      border: 1px solid var(--border-gray);
+    }
+
+    .results-card {
+      margin-top: 8px;
+    }
+  }
+</style>
+
+<script>
+  import { renderSearchResults } from "../scripts/questionEngine";
+
+  // Logic to show query in the UI
+  const urlParams = new URLSearchParams(window.location.search);
+  const query = urlParams.get("q") || "";
+
+  const queryDisplay = document.getElementById("search-query-display");
+  const emptyQuery = document.getElementById("empty-query");
+
+  if (queryDisplay) queryDisplay.innerText = query;
+  if (emptyQuery) emptyQuery.innerText = query;
+
+  renderSearchResults();
+</script>

@@ -1,0 +1,202 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="My Profile">
+    <div class="profile-container">
+        <div class="profile-card">
+            <h1>Edit Your Profile</h1>
+
+            <div class="avatar-section">
+                <img
+                    id="avatar-preview"
+                    src="https://i.pravatar.cc/150"
+                    class="profile-pic"
+                />
+                <label for="avatar-input" class="upload-label"
+                    >Change Photo</label
+                >
+                <input type="file" id="avatar-input" accept="image/*" />
+            </div>
+
+            <div class="field">
+                <label>Your Name</label>
+                <input
+                    type="text"
+                    id="profile-name"
+                    placeholder="Linus Dovas"
+                />
+            </div>
+
+            <button id="save-profile-btn" class="save-btn">Save Profile</button>
+        </div>
+    </div>
+</Layout>
+
+<style>
+    .profile-container {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 20px;
+    }
+    .profile-card {
+        background: white;
+        border: 1px solid #e3e6ea;
+        padding: 30px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    .profile-card h1 {
+        font-size: 22px;
+        margin-bottom: 20px;
+        color: #282829;
+    }
+    .avatar-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .profile-pic {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #e3e6ea;
+        margin-bottom: 10px;
+    }
+    .upload-label {
+        color: #2e69ff;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+    .upload-label:hover {
+        opacity: 0.7;
+    }
+    /* Hide the ugly default file input */
+    .avatar-section input[type="file"] {
+        display: none;
+    }
+    .field {
+        text-align: left;
+        margin-top: 20px;
+    }
+    .field label {
+        display: block;
+        font-size: 13px;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #636466;
+    }
+    .field input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #dee0e1;
+        border-radius: 4px;
+        font-size: 15px;
+        outline: none;
+        box-sizing: border-box;
+    }
+    .field input:focus {
+        border-color: #2e69ff;
+    }
+    .save-btn {
+        background: #2e69ff;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 24px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 20px;
+        font-size: 15px;
+        transition: background 0.2s;
+    }
+    .save-btn:hover {
+        background: #1e5ae6;
+    }
+    .save-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+</style>
+
+<script>
+    const GOOGLE_SHEET_URL =
+        "https://script.google.com/macros/s/AKfycbxlZOW0AuGlzMPuNZ5bGKYiK_DNZp8geGUwrYopvp-lezOxlIjb761sS7aDLPJlRrqDHg/exec?action=getPosts";
+
+    const avatarInput = document.getElementById(
+        "avatar-input",
+    ) as HTMLInputElement;
+    const avatarPreview = document.getElementById(
+        "avatar-preview",
+    ) as HTMLImageElement;
+    const saveBtn = document.getElementById(
+        "save-profile-btn",
+    ) as HTMLButtonElement;
+    const nameInput = document.getElementById(
+        "profile-name",
+    ) as HTMLInputElement;
+
+    // 1. Load existing data (Fix keys to match Header.astro)
+    const savedName = localStorage.getItem("currentUser");
+    const savedPic = localStorage.getItem("userAvatar");
+
+    if (savedName) nameInput.value = savedName;
+    if (savedPic) avatarPreview.src = savedPic;
+
+    // 2. Preview image before upload
+    avatarInput?.addEventListener("change", (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (file) avatarPreview.src = URL.createObjectURL(file);
+    });
+
+    // 3. Save Profile
+    saveBtn?.addEventListener("click", async () => {
+        const name = nameInput.value.trim();
+        const file = avatarInput.files?.[0];
+        const userId = localStorage.getItem("userId");
+
+        if (!name || name.length < 2) {
+            alert("Please enter a valid name.");
+            return;
+        }
+
+        saveBtn.disabled = true;
+        saveBtn.innerText = "Saving...";
+
+        // Function to finish saving
+        const finishSave = async (avatarUrl: string) => {
+            // Save to localStorage (so Header updates instantly)
+            localStorage.setItem("currentUser", name);
+            if (avatarUrl) localStorage.setItem("userAvatar", avatarUrl);
+
+            // Update Name in Google Sheets
+            try {
+                if (userId) {
+                    await fetch(GOOGLE_SHEET_URL, {
+                        method: "POST",
+                        body: JSON.stringify({ id: userId, username: name }),
+                    });
+                }
+            } catch (err) {
+                console.error("Sheet update error:", err);
+            }
+
+            alert("Profile saved successfully!");
+            window.location.href = "/";
+        };
+
+        // Handle Avatar Upload
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => finishSave(reader.result as string);
+            reader.readAsDataURL(file);
+        } else {
+            finishSave(savedPic || "");
+        }
+    });
+</script>

@@ -1,0 +1,213 @@
+---
+import sidebarData from "../data/sidebar.json";
+
+const defaultColors = ["#b94a48", "#2e69ff", "#1da1f2", "#8b5cf6", "#10b981", "#f59e0b", "#636466", "#ef4444"];
+
+const spaces = sidebarData.map((space, index) => ({
+  ...space,
+  color: space.color || defaultColors[index % defaultColors.length]
+}));
+---
+
+<div class="sidebar-container">
+  <!-- Create Space Button -->
+  <button class="create-space-btn">
+    <span class="plus-icon">+</span>
+    Create Space
+  </button>
+
+  <!-- Navigation List -->
+  <nav class="spaces-list">
+    <ul id="spaces-ul">
+      {spaces.map((space) => (
+        <!-- ✅ data-topic is the magic key that links to user interests -->
+        <li class="space-item" data-topic={space.name}>
+          <div class="icon-wrapper" style={`background-color: ${space.color}; border-radius: 4px;`}>
+            {space.icon ? (
+              <img src={`/assets/${space.icon}`} alt={space.name} />
+            ) : (
+              <span class="letter-icon">{space.name.charAt(0).toUpperCase()}</span>
+            )}
+            {space.unread && <div class="red-dot"></div>}
+          </div>
+          <span class="space-name">{space.name}</span>
+        </li>
+      ))}
+    </ul>
+  </nav>
+
+  <!-- ✅ NEW: Toggle to see all spaces -->
+  <button id="toggle-spaces-btn" class="toggle-btn hidden">
+    Show All Spaces
+  </button>
+
+  <!-- Footer Links -->
+  <footer class="sidebar-footer">
+    <p>About · Careers · Terms · Privacy · Acceptable Use · Advertise · Ad Choices · Grievance Officer</p>
+  </footer>
+</div>
+
+<style>
+  .sidebar-container {
+    width: 100%;
+    max-width: 170px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .create-space-btn {
+    display: flex;
+    align-items: center;
+    background-color: #f1f2f2;
+    border: 1px solid #dee0e1;
+    border-radius: 4px;
+    padding: 8px 12px;
+    color: #636466;
+    font-size: 13px;
+    cursor: pointer;
+    margin-bottom: 8px;
+    transition: background 0.2s;
+  }
+  .create-space-btn:hover { background-color: #e3e5e5; }
+  .plus-icon { font-size: 18px; margin-right: 8px; font-weight: 300; }
+
+  .spaces-list ul { list-style: none; padding: 0; margin: 0; }
+
+  .space-item {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s, opacity 0.3s;
+  }
+  .space-item:hover { background-color: #e6e6e6; }
+
+  /* ✅ NEW: Class to hide uninterested spaces */
+  .space-item.filtered-out {
+    display: none;
+  }
+
+  .icon-wrapper {
+    position: relative;
+    width: 22px;
+    height: 22px;
+    margin-right: 12px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+  .icon-wrapper img { width: 100%; height: 100%; border-radius: 4px; object-fit: cover; }
+  .letter-icon { font-size: 13px; font-weight: 700; color: white; line-height: 1; user-select: none; }
+
+  .red-dot {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 8px;
+    height: 8px;
+    background-color: #cb2027;
+    border: 2px solid white;
+    border-radius: 50%;
+  }
+
+  .space-name {
+    font-size: 13px;
+    color: #636466;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  /* ✅ NEW: Toggle Button */
+  .toggle-btn {
+    background: none;
+    border: none;
+    color: #2e69ff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px;
+    text-align: left;
+    width: 100%;
+  }
+  .toggle-btn:hover { text-decoration: underline; }
+
+  .sidebar-footer { margin-top: 16px; padding-top: 16px; border-top: 1px solid #dee0e1; }
+  .sidebar-footer p { font-size: 12px; color: #939598; line-height: 1.5; cursor: pointer; }
+  
+  .hidden { display: none !important; }
+</style>
+
+<script>
+  // ====== PERSONALIZED SIDEBAR LOGIC ======
+  function filterSidebar() {
+    const userInterests = localStorage.getItem("userInterests") || "";
+    const spaceItems = document.querySelectorAll(".space-item");
+    const toggleBtn = document.getElementById("toggle-spaces-btn");
+
+    // If the user has no interests yet (not logged in or skipped onboarding), show everything.
+    if (!userInterests || userInterests.length === 0) {
+      spaceItems.forEach(item => item.classList.remove("filtered-out"));
+      if (toggleBtn) toggleBtn.classList.add("hidden");
+      return;
+    }
+
+    // Split string "Full-Stack Development, Python" into an array
+    const interestsArray = userInterests.split(",").map(t => t.trim());
+    let hiddenCount = 0;
+
+    spaceItems.forEach(item => {
+      const topic = item.getAttribute("data-topic") || "";
+      
+      // If the topic is NOT in the user's interests, hide it
+      if (!interestsArray.includes(topic)) {
+        item.classList.add("filtered-out");
+        hiddenCount++;
+      } else {
+        item.classList.remove("filtered-out");
+      }
+    });
+
+    // Show "Show All Spaces" button only if there are hidden spaces
+    if (toggleBtn) {
+      if (hiddenCount > 0) {
+        toggleBtn.classList.remove("hidden");
+        toggleBtn.innerText = `Show All Spaces (${hiddenCount})`;
+      } else {
+        toggleBtn.classList.add("hidden");
+      }
+    }
+  }
+
+  // Run on page load
+  filterSidebar();
+
+  // ✅ Toggle button logic to reveal all spaces
+  const toggleBtn = document.getElementById("toggle-spaces-btn");
+  let showingAll = false;
+  
+  toggleBtn?.addEventListener("click", () => {
+    const spaceItems = document.querySelectorAll(".space-item");
+    showingAll = !showingAll;
+
+    spaceItems.forEach(item => {
+      if (showingAll) {
+        item.classList.remove("filtered-out");
+      } else {
+        // Re-apply filter
+        filterSidebar();
+      }
+    });
+
+    if (toggleBtn) {
+      toggleBtn.innerText = showingAll ? "Show Only My Interests" : `Show All Spaces`;
+    }
+  });
+</script>

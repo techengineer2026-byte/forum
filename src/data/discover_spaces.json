@@ -1,0 +1,62 @@
+[
+    {
+        "name": "Instagram Marketing Info",
+        "followers": "32.6K",
+        "desc": "Effective Instagram marketing tips & tricks updates to utilize it for business!",
+        "icon": "IG"
+    },
+    {
+        "name": "All about I.T",
+        "followers": "6.7K",
+        "desc": "Get Expert Advice from all your queries related to IT.",
+        "icon": "IT"
+    },
+    {
+        "name": "Artificial Intelligence Generative AI",
+        "followers": "10.6K",
+        "desc": "Artificial intelligence (AI) is a wide-ranging branch of computer science.",
+        "icon": "AI"
+    },
+    {
+        "name": "Digital Marketing Hub",
+        "followers": "18.4K",
+        "desc": "Latest trends, SEO, PPC, social media, and content marketing strategies.",
+        "icon": "DM"
+    },
+    {
+        "name": "Web Development Community",
+        "followers": "14.2K",
+        "desc": "Learn HTML, CSS, JavaScript, React, and modern web development practices.",
+        "icon": "WD"
+    },
+    {
+        "name": "Cyber Security Updates",
+        "followers": "22.1K",
+        "desc": "Stay informed about cybersecurity threats, tools, and best practices.",
+        "icon": "CS"
+    },
+    {
+        "name": "Data Science Network",
+        "followers": "9.8K",
+        "desc": "Explore data analytics, machine learning, and visualization techniques.",
+        "icon": "DS"
+    },
+    {
+        "name": "Cloud Computing Experts",
+        "followers": "12.5K",
+        "desc": "AWS, Azure, Google Cloud tutorials, news, and certification guidance.",
+        "icon": "CC"
+    },
+    {
+        "name": "Startup & Entrepreneurship",
+        "followers": "15.7K",
+        "desc": "Business growth tips, startup ideas, funding, and entrepreneurship advice.",
+        "icon": "SU"
+    },
+    {
+        "name": "UI/UX Design World",
+        "followers": "11.3K",
+        "desc": "Design inspiration, Figma tutorials, user experience, and interface trends.",
+        "icon": "UX"
+    }
+]

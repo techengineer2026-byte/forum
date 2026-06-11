@@ -1,0 +1,78 @@
+---
+// src/components/AdCard.astro
+const { url, title, description, image } = Astro.props;
+---
+
+<div class="ad-card">
+  <div class="ad-header">
+    <span>Sponsored</span>
+    <button class="ad-options">✕</button>
+  </div>
+
+  <a href={url} target="_blank" class="ad-link">
+    <div class="ad-image-container">
+      <!-- We use a standard img tag here so we can pass the path as a string -->
+      <img src={image} alt={title} class="ad-gif" />
+    </div>
+
+    <div class="ad-content">
+      <h3 class="ad-title">{title}</h3>
+      <p class="ad-desc">{description}</p>
+      <span class="ad-url">techengineer.co</span>
+    </div>
+  </a>
+</div>
+
+<style>
+  /* Keep your existing styles from the previous AdCard code */
+  .ad-card {
+    background: white;
+    border: 1px solid #dee0e1;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 15px;
+  }
+  .ad-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #939598;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .ad-options {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #939598;
+  }
+  .ad-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  .ad-gif {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .ad-content {
+    padding: 12px;
+  }
+  .ad-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: bold;
+    color: #282829;
+  }
+  .ad-desc {
+    margin: 4px 0;
+    font-size: 13px;
+    color: #636466;
+    line-height: 1.4;
+  }
+  .ad-url {
+    font-size: 12px;
+    color: #939598;
+  }
+</style>

@@ -1,0 +1,89 @@
+---
+const { question, stats } = Astro.props;
+---
+
+<div class="answer-card">
+    <div class="card-content">
+        <h3 class="question-text">{question}</h3>
+        <p class="stats-text">{stats}</p>
+    </div>
+    <div class="card-actions">
+        <button class="action-btn">
+            <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                ><path
+                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                ></path><path
+                    d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                ></path></svg
+            >
+            Answer
+        </button>
+        <button class="icon-btn">Follow</button>
+        <button class="icon-btn">Pass</button>
+    </div>
+</div>
+
+<style>
+    .answer-card {
+        background: white;
+        border: 1px solid #dee0e1;
+        border-bottom: none; /* Stack them like a list */
+        padding: 16px;
+    }
+    .answer-card:last-child {
+        border-bottom: 1px solid #dee0e1;
+        border-radius: 0 0 8px 8px;
+    }
+    .answer-card:first-child {
+        border-radius: 8px 8px 0 0;
+    }
+
+    .question-text {
+        font-size: 16px;
+        font-weight: bold;
+        margin: 0 0 4px 0;
+        color: #282829;
+        cursor: pointer;
+    }
+    .question-text:hover {
+        text-decoration: underline;
+    }
+    .stats-text {
+        font-size: 13px;
+        color: #636466;
+        margin-bottom: 12px;
+    }
+
+    .card-actions {
+        display: flex;
+        gap: 15px;
+    }
+    .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: none;
+        border: 1px solid #dee0e1;
+        padding: 6px 15px;
+        border-radius: 20px;
+        font-weight: 500;
+        color: #636466;
+        cursor: pointer;
+    }
+    .action-btn:hover {
+        background: #f1f2f2;
+    }
+    .icon-btn {
+        background: none;
+        border: none;
+        color: #636466;
+        cursor: pointer;
+        font-size: 14px;
+    }
+</style>

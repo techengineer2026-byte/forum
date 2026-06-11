@@ -1,0 +1,82 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Sidebar from "../components/Sidebar.astro";
+import SpaceCard from "../components/SpaceCard.astro";
+import spacesData from "../data/discover_spaces.json";
+---
+
+<Layout title="Following - Tech Engineer" showFooter={false}>
+  <div class="page-layout">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar-area">
+      <div class="sticky-wrapper">
+        <Sidebar />
+      </div>
+    </aside>
+
+    <!-- CENTER FEED -->
+    <main class="feed-area">
+      <!-- "You're all caught up" box -->
+      <div class="caught-up-box">
+        <div class="check-icon">✓</div>
+        <h3>You're all caught up</h3>
+        <p>Follow more Spaces to discover new stories in your feed. You can also visit Home.</p>
+        <button class="discover-btn">Discover Spaces</button>
+      </div>
+
+      <div class="discover-header">
+         <span>Spaces you might like</span>
+      </div>
+
+      <div class="spaces-container">
+        {spacesData.map((space) => (
+          <SpaceCard {...space} />
+        ))}
+      </div>
+    </main>
+
+    <!-- RIGHT SIDEBAR (Invisible but keeps width) -->
+    <aside class="right-column"></aside>
+
+  </div>
+</Layout>
+
+<style>
+  .page-layout {
+    display: flex; justify-content: center; gap: 24px; padding: 20px;
+    background-color: #f1f2f2; min-height: 100vh; align-items: flex-start;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .sidebar-area { width: 160px; }
+  .feed-area { width: 580px; }
+  .right-column { width: 300px; }
+  .sticky-wrapper { position: sticky; top: 70px; }
+
+  /* Caught up Box */
+  .caught-up-box {
+    background: white; border: 1px solid #dee0e1; border-radius: 8px;
+    padding: 30px; text-align: center; margin-bottom: 20px;
+  }
+  .check-icon {
+    width: 50px; height: 50px; background: #e6f4ea; color: #1e8e3e;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 15px; font-size: 24px;
+  }
+  .caught-up-box h3 { margin: 0; font-size: 18px; }
+  .caught-up-box p { color: #636466; font-size: 14px; margin: 10px 0 20px; }
+  .discover-btn {
+    background: #2e69ff; color: white; border: none; padding: 10px 25px;
+    border-radius: 24px; font-weight: bold; cursor: pointer;
+  }
+
+  /* Discover Header */
+  .discover-header {
+    background: white; padding: 12px 15px; border: 1px solid #dee0e1;
+    border-bottom: none; border-radius: 8px 8px 0 0;
+    font-weight: bold; font-size: 15px; color: #333;
+  }
+  .spaces-container {
+    border: 1px solid #dee0e1; border-radius: 0 0 8px 8px; overflow: hidden;
+  }
+</style>

@@ -1,15 +1,33 @@
+---
+const { title, showFooter = true } = Astro.props;
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+const userIsLoggedIn = false;
+---
+
 <!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<title>{title}</title>
+		<script
+			src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"
+		></script>
+		<script
+			src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"
+		></script>
 	</head>
 	<body>
-		<slot />
+		<Header isLoggedIn={userIsLoggedIn} />
+
+		<!-- ✅ ADDED: Spacer for fixed header + main content wrapper -->
+		<div class="main-content">
+			<slot />
+		</div>
+
+		{showFooter && <Footer />}
 	</body>
 </html>
 
@@ -17,7 +35,14 @@
 	html,
 	body {
 		margin: 0;
+		padding: 0;
 		width: 100%;
-		height: 100%;
+		background-color: #f1f2f2;
+		font-family: sans-serif;
+	}
+	/* ✅ NEW: Push content below fixed header */
+	.main-content {
+		padding-top: 60px; /* Same as your header height */
+		min-height: calc(100vh - 60px);
 	}
 </style>

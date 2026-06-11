@@ -1,0 +1,244 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Sidebar from "../components/Sidebar.astro";
+
+// Read from URL query parameter: /user?name=Linus
+const name = Astro.url.searchParams.get("name") || "Guest";
+---
+
+<Layout title={`${name}'s Profile - TechEngineer`}>
+    <div class="profile-page-layout">
+        <aside class="sidebar-area">
+            <Sidebar />
+        </aside>
+
+        <main class="profile-main">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    {name?.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                    <h1 class="profile-name">{name}</h1>
+                    <p class="profile-bio">Member of TechEngineer Forum</p>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" id="tab-questions">Questions</button>
+                <button class="tab" id="tab-posts">Posts</button>
+            </div>
+
+            <div id="activity-feed" class="activity-feed">
+                <div class="loading-text">Loading activity...</div>
+            </div>
+        </main>
+    </div>
+</Layout>
+
+<!-- Keep the exact same <style> from your previous user page here -->
+<style>
+    .profile-page-layout {
+        display: flex;
+        justify-content: center;
+        gap: 24px;
+        padding: 20px;
+        background-color: #f1f2f2;
+        min-height: 100vh;
+        align-items: flex-start;
+    }
+    .sidebar-area {
+        width: 160px;
+        position: sticky;
+        top: 80px;
+        height: fit-content;
+    }
+    .profile-main {
+        width: 580px;
+        max-width: 100%;
+    }
+    .profile-header {
+        background: #ffffff;
+        border: 1px solid #e3e6ea;
+        border-radius: 12px;
+        padding: 24px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    .profile-avatar {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: #b92b27;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        font-weight: bold;
+        flex-shrink: 0;
+    }
+    .profile-name {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0;
+        color: #282829;
+    }
+    .profile-bio {
+        margin: 4px 0 0 0;
+        color: #636466;
+        font-size: 14px;
+    }
+    .tabs {
+        display: flex;
+        background: #ffffff;
+        border: 1px solid #e3e6ea;
+        border-radius: 12px 12px 0 0;
+        border-bottom: none;
+    }
+    .tab {
+        flex: 1;
+        padding: 14px;
+        background: none;
+        border: none;
+        font-weight: 700;
+        color: #636466;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        transition: color 0.2s;
+    }
+    .tab:hover {
+        color: #282829;
+    }
+    .tab.active {
+        color: #b92b27;
+        border-bottom-color: #b92b27;
+    }
+    .activity-feed {
+        background: #ffffff;
+        border: 1px solid #e3e6ea;
+        border-radius: 0 0 12px 12px;
+        padding: 8px 12px;
+        min-height: 200px;
+    }
+    .loading-text {
+        text-align: center;
+        color: #939598;
+        padding: 30px;
+    }
+    .activity-item {
+        padding: 16px 8px;
+        border-bottom: 1px solid #f5f5f5;
+    }
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    .activity-badge {
+        display: inline-block;
+        background: #eef3ff;
+        color: #2e69ff;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 4px;
+        margin-bottom: 8px;
+    }
+    .activity-badge.post-badge {
+        background: #fff3cd;
+        color: #856404;
+    }
+    .activity-text {
+        font-size: 16px;
+        font-weight: 600;
+        color: #282829;
+        line-height: 1.5;
+        margin: 0;
+    }
+    .activity-time {
+        font-size: 12px;
+        color: #939598;
+        margin-top: 6px;
+    }
+    .no-activity {
+        text-align: center;
+        color: #939598;
+        padding: 40px 20px;
+    }
+    @media (max-width: 750px) {
+        .sidebar-area {
+            display: none;
+        }
+        .profile-main {
+            width: 100%;
+        }
+    }
+</style>
+
+<script define:vars={{ name }}>
+    const GOOGLE_SHEET_URL =
+        "https://script.google.com/macros/s/AKfycbxlZOW0AuGlzMPuNZ5bGKYiK_DNZp8geGUwrYopvp-lezOxlIjb761sS7aDLPJlRrqDHg/exec?action=getPosts";
+    const feedContainer = document.getElementById("activity-feed");
+    const tabQuestions = document.getElementById("tab-questions");
+    const tabPosts = document.getElementById("tab-posts");
+
+    let currentFilter = "Question";
+
+    async function loadActivity() {
+        if (!feedContainer) return;
+        feedContainer.innerHTML =
+            '<div class="loading-text">Loading activity...</div>';
+
+        try {
+            // ✅ FIX 1: Changed ?username= to &username=
+            const response = await fetch(
+                `${GOOGLE_SHEET_URL}&username=${encodeURIComponent(name)}`,
+            );
+            const data = await response.json();
+            const filtered = data.filter((item) => item.type === currentFilter);
+
+            if (filtered.length === 0) {
+                feedContainer.innerHTML = `<div class="no-activity">No ${currentFilter === "Question" ? "questions" : "posts"} found for ${name}.</div>`;
+                return;
+            }
+
+            feedContainer.innerHTML = filtered
+                .map((item) => {
+                    const badgeClass =
+                        item.type === "Question" ? "" : "post-badge";
+
+                    // ✅ FIX 2: Use item.heading instead of item.content, and item.updated_time
+                    const timeDisplay = item.updated_time || "Just now";
+
+                    return `
+                    <div class="activity-item">
+                        <span class="activity-badge ${badgeClass}">${item.type}</span>
+                        <p class="activity-text">${item.heading}</p>
+                        <div class="activity-time">${timeDisplay}</div>
+                    </div>
+                `;
+                })
+                .join("");
+        } catch (error) {
+            console.error("Error fetching activity:", error);
+            feedContainer.innerHTML =
+                '<div class="no-activity">Failed to load activity.</div>';
+        }
+    }
+
+    tabQuestions?.addEventListener("click", () => {
+        currentFilter = "Question";
+        tabQuestions.classList.add("active");
+        tabPosts?.classList.remove("active");
+        loadActivity();
+    });
+    tabPosts?.addEventListener("click", () => {
+        currentFilter = "Post";
+        tabPosts.classList.add("active");
+        tabQuestions?.classList.remove("active");
+        loadActivity();
+    });
+
+    loadActivity();
+</script>

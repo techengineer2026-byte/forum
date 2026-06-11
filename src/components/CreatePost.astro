@@ -1,0 +1,531 @@
+---
+// This block runs on the SERVER. Do not put 'document' or 'window' here.
+const userAvatar = "/assets/icon.png";
+---
+
+<div class="create-post-wrapper">
+    <div class="create-post-container">
+        <div class="input-row" id="trigger-modal-input">
+            <img
+                src={userAvatar}
+                alt="User Avatar"
+                class="avatar"
+                id="create-post-avatar"
+            />
+            <div class="fake-input">What do you want to ask or share?</div>
+        </div>
+
+        <div class="buttons-row">
+            <button class="action-btn" id="trigger-modal-ask" type="button">
+                <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <span>Ask</span>
+            </button>
+
+            <div class="divider"></div>
+
+            <a href="/answer" class="action-btn">
+                <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path
+                        d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                    ></path>
+                </svg>
+                <span>Answer</span>
+            </a>
+
+            <div class="divider"></div>
+
+            <button class="action-btn" id="trigger-modal-post" type="button">
+                <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path
+                        d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                    ></path>
+                    <path
+                        d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                    ></path>
+                </svg>
+                <span>Post</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- DYNAMIC RECENTLY ASKED CARD -->
+    <div id="recently-asked-card" class="recent-card hidden">
+        <div class="recent-header">You recently asked</div>
+
+        <a
+            href=""
+            id="recent-question-link"
+            target="_blank"
+            class="recent-question-text"></a>
+
+        <div class="recent-status" id="recent-status">No answers yet.</div>
+
+        <div class="recent-actions">
+            <button
+                class="recent-action-btn"
+                id="recent-share-btn"
+                type="button"
+            >
+                <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                    <polyline points="16 6 12 2 8 6"></polyline>
+                    <line x1="12" y1="2" x2="12" y2="15"></line>
+                </svg>
+                <span>Share</span>
+            </button>
+
+            <button
+                class="recent-action-btn"
+                id="recent-edit-btn"
+                type="button"
+            >
+                <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path
+                        d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                    ></path>
+                    <path
+                        d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                    ></path>
+                </svg>
+                <span>Edit</span>
+            </button>
+
+            <button
+                class="recent-action-btn danger"
+                id="recent-delete-btn"
+                type="button"
+            >
+                <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path
+                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                    ></path>
+                </svg>
+                <span>Delete</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .create-post-wrapper {
+        margin-bottom: 10px;
+    }
+
+    .create-post-container {
+        background: white;
+        border: 1px solid #dee0e1;
+        border-radius: 8px;
+        padding: 12px 14px;
+    }
+
+    .input-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+        cursor: pointer;
+    }
+
+    .avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+        border: 1px solid #f1f2f2;
+        background: #f1f2f2;
+    }
+
+    .fake-input {
+        flex: 1;
+        background: #f7f7f8;
+        border: 1px solid #dee0e1;
+        border-radius: 20px;
+        padding: 9px 16px;
+        color: #939598;
+        font-size: 14px;
+        line-height: 1.4;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .buttons-row {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: none;
+        border: none;
+        color: #636466;
+        font-size: 13.5px;
+        font-weight: 600;
+        cursor: pointer;
+        flex: 1;
+        justify-content: center;
+        padding: 8px;
+        border-radius: 20px;
+        text-decoration: none;
+        transition:
+            background 0.15s ease,
+            color 0.15s ease;
+    }
+
+    .action-btn:hover {
+        background: #f1f2f2;
+        color: #282829;
+    }
+
+    .action-btn svg {
+        flex-shrink: 0;
+    }
+
+    .divider {
+        width: 1px;
+        height: 16px;
+        background: #dee0e1;
+        align-self: center;
+    }
+
+    .recent-card {
+        background: white;
+        border: 1px solid #e3e6ea;
+        border-radius: 8px;
+        margin-top: 10px;
+        padding: 14px 16px;
+        animation: slideDown 0.2s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-5px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .recent-header {
+        font-size: 12px;
+        color: #939598;
+        margin-bottom: 4px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .recent-question-text {
+        font-size: 15.5px;
+        font-weight: 700;
+        color: #282829;
+        text-decoration: none;
+        display: block;
+        margin-bottom: 6px;
+        line-height: 1.3;
+        word-break: break-word;
+    }
+
+    .recent-question-text:hover {
+        text-decoration: underline;
+        color: #2e69ff;
+    }
+
+    .recent-status {
+        font-size: 13px;
+        color: #7a7f87;
+        margin-bottom: 12px;
+        padding-left: 2px;
+    }
+
+    .recent-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .recent-action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #f3f4f6;
+        border: 1px solid #e3e6ea;
+        color: #636466;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 7px 14px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .recent-action-btn:hover {
+        background: #e9edf3;
+        border-color: #ccd0d1;
+    }
+
+    .recent-action-btn.danger {
+        color: #cb2027;
+    }
+
+    .recent-action-btn.danger:hover {
+        background: #fff0f0;
+        border-color: #cb2027;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    @media (max-width: 600px) {
+        .create-post-container {
+            padding: 10px;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+        }
+
+        .fake-input {
+            font-size: 13px;
+            padding: 8px 14px;
+        }
+
+        .action-btn {
+            font-size: 12.5px;
+            gap: 4px;
+            padding: 7px 4px;
+        }
+
+        .action-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .recent-card {
+            padding: 12px;
+        }
+
+        .recent-action-btn {
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+    }
+
+    @media (max-width: 380px) {
+        .fake-input {
+            font-size: 0;
+        }
+
+        .fake-input::after {
+            content: "Ask or share...";
+            font-size: 13px;
+        }
+
+        .recent-actions {
+            gap: 6px;
+        }
+
+        .recent-action-btn span {
+            display: none;
+        }
+    }
+</style>
+
+<script>
+    declare global {
+        interface Window {
+            openModal: (tab: string) => void;
+        }
+    }
+
+    function slugify(text: string) {
+        return text
+            .toLowerCase()
+            .trim()
+            .replace(/[^\w ]+/g, "")
+            .replace(/ +/g, "-");
+    }
+
+    function updateCreatePostAvatar() {
+        const avatarImg = document.getElementById(
+            "create-post-avatar",
+        ) as HTMLImageElement | null;
+
+        const savedAvatar = localStorage.getItem("userAvatar");
+
+        if (savedAvatar && avatarImg) {
+            avatarImg.src = savedAvatar;
+        }
+    }
+
+    function showRecentQuestion(questionText: string) {
+        const card = document.getElementById("recently-asked-card");
+        const link = document.getElementById(
+            "recent-question-link",
+        ) as HTMLAnchorElement | null;
+        const status = document.getElementById("recent-status");
+
+        if (card && link && status) {
+            card.classList.remove("hidden");
+            link.innerText = questionText;
+            link.href = `${window.location.origin}/question/${slugify(questionText)}`;
+            status.innerText = "No answers yet.";
+        }
+    }
+
+    function loadRecentQuestion() {
+        const recentQuestion = localStorage.getItem("recentQuestion");
+        if (recentQuestion) {
+            showRecentQuestion(recentQuestion);
+        }
+    }
+
+    const triggerModal = (tab: string) => {
+        if (typeof window.openModal === "function") {
+            window.openModal(tab);
+        }
+    };
+
+    document
+        .getElementById("trigger-modal-input")
+        ?.addEventListener("click", () => triggerModal("tab-add-question"));
+
+    document
+        .getElementById("trigger-modal-ask")
+        ?.addEventListener("click", () => triggerModal("tab-add-question"));
+
+    document
+        .getElementById("trigger-modal-post")
+        ?.addEventListener("click", () => triggerModal("tab-create-post"));
+
+    window.addEventListener("question-added", (e: any) => {
+        const questionText = e.detail.question;
+
+        localStorage.setItem("recentQuestion", questionText);
+        showRecentQuestion(questionText);
+    });
+
+    document
+        .getElementById("recent-share-btn")
+        ?.addEventListener("click", () => {
+            const link = document.getElementById(
+                "recent-question-link",
+            ) as HTMLAnchorElement | null;
+
+            if (link) {
+                navigator.clipboard.writeText(link.href);
+                alert("Link copied to clipboard!");
+            }
+        });
+
+    document
+        .getElementById("recent-edit-btn")
+        ?.addEventListener("click", () => {
+            triggerModal("tab-add-question");
+
+            setTimeout(() => {
+                const recentQuestion = localStorage.getItem("recentQuestion");
+                const textarea = document.getElementById(
+                    "question-textarea",
+                ) as HTMLTextAreaElement | null;
+
+                const submitBtn = document.getElementById(
+                    "to-step-2",
+                ) as HTMLButtonElement | null;
+
+                if (textarea && recentQuestion) {
+                    textarea.value = recentQuestion;
+                    textarea.focus();
+                    if (submitBtn) submitBtn.disabled = false;
+                }
+            }, 50);
+        });
+
+    document
+        .getElementById("recent-delete-btn")
+        ?.addEventListener("click", () => {
+            const card = document.getElementById("recently-asked-card");
+
+            if (
+                card &&
+                confirm("Are you sure you want to delete this question?")
+            ) {
+                localStorage.removeItem("recentQuestion");
+                card.classList.add("hidden");
+            }
+        });
+
+    updateCreatePostAvatar();
+    loadRecentQuestion();
+
+    window.addEventListener("storage", () => {
+        updateCreatePostAvatar();
+    });
+</script>
