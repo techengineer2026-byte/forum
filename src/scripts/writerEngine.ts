@@ -1,77 +1,109 @@
-import { writers, type Writer } from "../data/writers";
+import { getWriters, type Writer } from "../data/writers";
 
-export function getAllWriters(): Writer[] {
-    return writers;
+/* Ensure we always load fresh data once per session */
+let writersCache: Writer[] | null = null;
+
+async function loadWriters(): Promise<Writer[]> {
+  if (!writersCache) {
+    writersCache = await getWriters();
+  }
+  return writersCache;
 }
 
-export function searchWriters(query: string): Writer[] {
-    const q = query.toLowerCase().trim();
-    if (!q) return writers;
-
-    return writers.filter((w) =>
-        w.name.toLowerCase().includes(q) ||
-        w.expertise.toLowerCase().includes(q) ||
-        w.topics.some((t) => t.toLowerCase().includes(q))
-    );
+/* Clear cache (call after login/logout or when data changes) */
+export function invalidateWritersCache(): void {
+  writersCache = null;
 }
 
-export function filterByTopic(topic: string): Writer[] {
-    if (topic === "all") return writers;
-    return writers.filter((w) =>
-        w.topics.some((t) => t.toLowerCase() === topic.toLowerCase())
-    );
+/* Get all writers */
+export async function getAllWriters(): Promise<Writer[]> {
+  return loadWriters();
 }
 
-export function getAllTopics(): string[] {
-    const topics = new Set<string>();
-    writers.forEach((w) => w.topics.forEach((t) => topics.add(t)));
-    return Array.from(topics);
+/* Search writers by query */
+export async function searchWriters(query: string): Promise<Writer[]> {
+  const writers = await loadWriters();
+  const q = query.toLowerCase().trim();
+  if (!q) return writers;
+
+  return writers.filter(
+    (w) =>
+      w.name.toLowerCase().includes(q) ||
+      w.expertise.toLowerCase().includes(q) ||
+      w.topics.some((t) => t.toLowerCase().includes(q))
+  );
+}
+
+/* Filter writers by topic */
+export async function filterByTopic(topic: string): Promise<Writer[]> {
+  const writers = await loadWriters();
+  if (topic === "all") return writers;
+  return writers.filter((w) =>
+    w.topics.some((t) => t.toLowerCase() === topic.toLowerCase())
+  );
+}
+
+/* Get all unique topics */
+export async function getAllTopics(): Promise<string[]> {
+  const writers = await loadWriters();
+  const topics = new Set<string>();
+  writers.forEach((w) => w.topics.forEach((t) => topics.add(t)));
+  return Array.from(topics);
 }
 
 /* Render using DOM methods (NO innerHTML) */
 export function renderWriters(list: Writer[]): HTMLElement[] {
-    return list.map((w) => {
-        const item = document.createElement("div");
-        item.className = "person-item";
-        item.setAttribute("data-id", w.id);
+  return list.map((w) => {
+    const item = document.createElement("div");
+    item.className = "person-item";
+    item.setAttribute("data-id", w.id);
 
-        /* Person Info Container */
-        const personInfo = document.createElement("div");
-        personInfo.className = "person-info";
+    /* Person Info Container */
+    const personInfo = document.createElement("div");
+    personInfo.className = "person-info";
 
-        /* Avatar */
-        const avatar = document.createElement("div");
-        avatar.className = "person-avatar";
-        avatar.style.backgroundColor = w.color;
-        avatar.textContent = w.initials;
+    /* Avatar */
+    const avatar = document.createElement("div");
+    avatar.className = "person-avatar";
+    avatar.style.backgroundColor = w.color;
+    avatar.textContent = w.initials;
 
-        /* Details */
-        const details = document.createElement("div");
-        details.className = "person-details";
+    /* If writer has a real avatar image, use it */
+    if (w.avatar && w.avatar.startsWith("http")) {
+      const img = document.createElement("img");
+      img.src = w.avatar;
+      img.alt = w.name;
+      img.className = "person-avatar-img";
+      avatar.replaceWith(img);
+    }
 
-        const name = document.createElement("p");
-        name.className = "p-name";
-        name.textContent = w.name;
+    /* Details */
+    const details = document.createElement("div");
+    details.className = "person-details";
 
-        const sub = document.createElement("p");
-        sub.className = "p-sub";
-        sub.textContent = w.expertise;
+    const name = document.createElement("p");
+    name.className = "p-name";
+    name.textContent = w.name;
 
-        details.appendChild(name);
-        details.appendChild(sub);
-        personInfo.appendChild(avatar);
-        personInfo.appendChild(details);
+    const sub = document.createElement("p");
+    sub.className = "p-sub";
+    sub.textContent = w.expertise;
 
-        /* Check Button */
-        const checkBtn = document.createElement("button");
-        checkBtn.className = "check-btn";
-        checkBtn.setAttribute("data-id", w.id);
-        checkBtn.textContent = "+";
-        checkBtn.type = "button";
+    details.appendChild(name);
+    details.appendChild(sub);
+    personInfo.appendChild(avatar);
+    personInfo.appendChild(details);
 
-        item.appendChild(personInfo);
-        item.appendChild(checkBtn);
+    /* Check Button */
+    const checkBtn = document.createElement("button");
+    checkBtn.className = "check-btn";
+    checkBtn.setAttribute("data-id", w.id);
+    checkBtn.textContent = "+";
+    checkBtn.type = "button";
 
-        return item;
-    });
+    item.appendChild(personInfo);
+    item.appendChild(checkBtn);
+
+    return item;
+  });
 }

@@ -3,15 +3,16 @@
 export interface Props {
   title: string;
   description?: string;
-  showFooter?: boolean; // ✅ ADD THIS
+  showFooter?: boolean;
 }
+
 import Header from "../components/Header.astro";
+
 const {
   title,
   description = "Tech Engineer - Community for developers",
-  showFooter = true, // ✅ ADD THIS with default
+  showFooter = true,
 } = Astro.props;
-const userIsLoggedIn = false;
 ---
 
 <!doctype html>
@@ -22,34 +23,379 @@ const userIsLoggedIn = false;
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="icon" type="image/png" href="/assets/icon.png" />
-  </head>
+    <meta
+      name="google-site-verification"
+      content="z6HubTvD3dO5bo7HxpvtRl86cKQdCBsBh65kavbq0ZM"
+    /></head
+  >ss
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"
+  ></script>
+  <script
+    src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"
+  ></script>
+
   <body>
-    <Header isLoggedIn={userIsLoggedIn} />
+    <Header isLoggedIn={false} />
     <div class="main-content">
       <slot />
     </div>
-    {/* ✅ Conditionally show footer */}
+
     {
       showFooter && (
-        <footer>
-          <p>© 2024 Tech Engineer. All rights reserved.</p>
+        <footer class="site-footer">
+          <div class="footer-inner">
+            <div class="footer-brand">
+              <div class="footer-logo">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="16 18 22 12 16 6" />
+                  <polyline points="8 6 2 12 8 18" />
+                </svg>
+                <span>Tech Engineer</span>
+              </div>
+              <p class="footer-tagline">
+                Community for developers to ask, answer, and grow together.
+              </p>
+            </div>
+
+            <div class="footer-links-grid">
+              <div class="footer-col">
+                <h4 class="footer-col-title">Platform</h4>
+                <ul>
+                  <li>
+                    <a href="/">Home</a>
+                  </li>
+                  <li>
+                    <a href="/question">Questions</a>
+                  </li>
+                  <li>
+                    <a href="/user">Users</a>
+                  </li>
+                </ul>
+              </div>
+              <div class="footer-col">
+                <h4 class="footer-col-title">Courses</h4>
+                <ul>
+                  <li>
+                    <a href="https://techengineer.co/video-editing-course-mohali-chandigarh">
+                      Video Editing
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://techengineer.co/ai-machine-learning-course-mohali">
+                      AI & Machine Learning
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://techengineer.co">All Courses</a>
+                  </li>
+                </ul>
+              </div>
+              <div class="footer-col">
+                <h4 class="footer-col-title">Connect</h4>
+                <ul>
+                  <li>
+                    <a
+                      href="http://www.facebook.com/people/TechEngineer/100083472395433/"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      Facebook
+                    </a>
+                  </li>
+
+                  <li>
+                    <a
+                      href="https://x.com/TechEngineer115"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      X (Twitter)
+                    </a>
+                  </li>
+
+                  <li>
+                    <a
+                      href="https://www.youtube.com/@TechEngineerAI/"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      YouTube
+                    </a>
+                  </li>
+
+                  <li>
+                    <a
+                      href="https://www.instagram.com/techengineer_ai/"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      Instagram
+                    </a>
+                  </li>
+
+                  <li>
+                    <a
+                      href="https://wa.me/918544884846"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      WhatsApp
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="footer-bottom">
+            <p>&copy; 2024 Tech Engineer. All rights reserved.</p>
+          </div>
         </footer>
       )
     }
+
   </body>
+
+  <style is:global>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      background-color: #f1f2f2;
+      font-family:
+        "Inter",
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .main-content {
+      padding-top: 60px;
+      min-height: calc(100vh - 60px);
+    }
+
+    /* ===== FOOTER ===== */
+    .site-footer {
+      background: #1a1a2e;
+      color: #c4c4d4;
+      margin-top: 40px;
+    }
+
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 24px 32px;
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 48px;
+    }
+
+    @media (max-width: 700px) {
+      .footer-inner {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        padding: 36px 20px 24px;
+      }
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .footer-logo svg {
+      color: #2e69ff;
+    }
+
+    .footer-tagline {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #8888a4;
+      margin: 0;
+      max-width: 280px;
+    }
+
+    .footer-links-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    @media (max-width: 500px) {
+      .footer-links-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+    }
+
+    .footer-col-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0 0 14px 0;
+    }
+
+    .footer-col ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer-col a {
+      color: #8888a4;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.15s;
+    }
+
+    .footer-col a:hover {
+      color: #2e69ff;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 18px 24px;
+      text-align: center;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .footer-bottom p {
+      font-size: 13px;
+      color: #5a5a7a;
+      margin: 0;
+    }
+  </style>
+
+  <!-- TYPE-SAFE SCRIPT: syncLoginState only, no firebase reference -->
+  <script>
+    function syncLoginState() {
+      const isLoggedIn = !!localStorage.getItem("userId");
+      const header = document.querySelector("header") as HTMLElement;
+      if (!header) return;
+
+      header.setAttribute("data-logged-in", isLoggedIn ? "true" : "false");
+
+      const loginBtn = header.querySelector(".login-btn") as HTMLElement;
+      const userMenu = header.querySelector(".user-menu") as HTMLElement;
+      const userName = header.querySelector(".user-name") as HTMLElement;
+      const userAvatar = header.querySelector(
+        ".user-avatar",
+      ) as HTMLImageElement;
+
+      if (isLoggedIn) {
+        if (loginBtn) loginBtn.style.display = "none";
+        if (userMenu) userMenu.style.display = "flex";
+        if (userName) {
+          const name = localStorage.getItem("currentUser") || "User";
+          userName.textContent = name;
+        }
+        if (userAvatar) {
+          const avatar = localStorage.getItem("userAvatar");
+          if (avatar && avatar !== "icon.png" && avatar !== "null") {
+            userAvatar.src =
+              avatar.startsWith("http") || avatar.startsWith("data:")
+                ? avatar
+                : `/assets/${avatar}`;
+          }
+        }
+      } else {
+        if (loginBtn) loginBtn.style.display = "inline-flex";
+        if (userMenu) userMenu.style.display = "none";
+      }
+
+      document.querySelectorAll(".post-card").forEach((card) => {
+        card.setAttribute("data-guest", isLoggedIn ? "false" : "true");
+      });
+    }
+
+    // Run on initial load
+    syncLoginState();
+
+    // Run after page fully loads
+    window.addEventListener("load", syncLoginState);
+
+    // Run when dynamic content is injected
+    window.addEventListener("post-added", syncLoginState);
+
+    // Listen for storage changes (from other tabs)
+    window.addEventListener("storage", syncLoginState);
+  </script>
+
+  <!-- INLINE SCRIPT: Firebase auth + logout (bypasses TypeScript checking) -->
+  <script is:inline>
+    // ===== FIREBASE AUTH STATE LISTENER =====
+    document.addEventListener("DOMContentLoaded", function () {
+      var checkFirebase = setInterval(function () {
+        if (typeof firebase !== "undefined" && firebase.auth) {
+          clearInterval(checkFirebase);
+          firebase.auth().onAuthStateChanged(function (user) {
+            if (user) {
+              if (!localStorage.getItem("userId")) {
+                localStorage.setItem("userId", user.email || "");
+                localStorage.setItem(
+                  "currentUser",
+                  user.displayName ||
+                    (user.email ? user.email.split("@")[0] : "User"),
+                );
+                if (user.photoURL) {
+                  localStorage.setItem("userAvatar", user.photoURL);
+                }
+              }
+            }
+            // Call the sync function defined in the other script block
+            if (typeof syncLoginState === "function") syncLoginState();
+          });
+        }
+      }, 200);
+    });
+
+    // ===== LOGOUT HANDLER =====
+    window.logout = function () {
+      if (typeof firebase !== "undefined" && firebase.auth) {
+        firebase.auth().signOut();
+      }
+      localStorage.removeItem("userId");
+      localStorage.removeItem("currentUser");
+      localStorage.removeItem("userAvatar");
+      if (typeof syncLoginState === "function") syncLoginState();
+      window.location.reload();
+    };
+  </script>
+
 </html>
-<style>
-  html,
-  body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    background-color: #f1f2f2;
-    font-family: sans-serif;
-  }
-  /* ✅ NEW: Push content below fixed header */
-  .main-content {
-    padding-top: 60px; /* Same as your header height */
-    min-height: calc(100vh - 60px);
-  }
-</style>

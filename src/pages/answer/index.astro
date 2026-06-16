@@ -1,0 +1,635 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="Answer - Tech Engineer" showFooter={false}>
+  <div class="page-layout">
+    <aside class="sidebar-area">
+      <div class="sticky-wrapper">
+        <p class="nav-title">Questions</p>
+        <ul class="nav-list">
+          <li class="active"><a href="/answer">Questions for you</a></li>
+          <li><a href="/answer/requests">Answer requests</a></li>
+          <li><a href="/answer/drafts">Drafts</a></li>
+          <li><a href="/answer/ai_interviewer">AI Interviewer</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="feed-area">
+      <div class="feed-header">
+        <span class="star-icon">⭐</span>
+        <span>Questions for you</span>
+      </div>
+
+      <div id="questionsLoading" class="loading-state">
+        <div class="spinner"></div>
+        <span>Loading questions...</span>
+      </div>
+
+      <div id="questionsList" class="questions-list"></div>
+
+      <div id="questionsEmpty" class="empty-state" style="display:none;">
+        <div class="empty-icon">📝</div>
+        <p>No questions yet. Be the first to ask one!</p>
+        <a href="/" class="ask-btn">Ask a Question</a>
+      </div>
+    </main>
+
+    <aside class="right-column">
+      <div class="sticky-wrapper">
+        <div class="info-box">
+          <h4>Add topics you know about</h4>
+          <p>Adding topics helps us find questions for you to answer</p>
+          <button class="outline-btn" id="addTopicsBtn">Add topics</button>
+        </div>
+        <div class="info-box" style="margin-top:12px;">
+          <h4>💡 Answering Tips</h4>
+          <ul class="tips-list">
+            <li>Be specific and provide examples</li>
+            <li>Share your real experience</li>
+            <li>Use code blocks when relevant</li>
+            <li>Link to reliable sources</li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- TOPICS MODAL -->
+  <div id="topicsModal" class="topics-modal" style="display:none;">
+    <div class="topics-modal-content">
+      <div class="topics-modal-header">
+        <h3>Pick topics you know about</h3>
+        <button class="topics-close" id="closeTopicsModal" type="button"
+          >&times;</button
+        >
+      </div>
+      <div class="topics-grid" id="topicsGrid">
+        <button class="topic-chip" data-topic="JavaScript">JavaScript</button>
+        <button class="topic-chip" data-topic="Python">Python</button>
+        <button class="topic-chip" data-topic="React">React</button>
+        <button class="topic-chip" data-topic="Node.js">Node.js</button>
+        <button class="topic-chip" data-topic="TypeScript">TypeScript</button>
+        <button class="topic-chip" data-topic="Java">Java</button>
+        <button class="topic-chip" data-topic="C++">C++</button>
+        <button class="topic-chip" data-topic="Go">Go</button>
+        <button class="topic-chip" data-topic="Rust">Rust</button>
+        <button class="topic-chip" data-topic="SQL">SQL</button>
+        <button class="topic-chip" data-topic="Machine Learning"
+          >Machine Learning</button
+        >
+        <button class="topic-chip" data-topic="AI">AI</button>
+        <button class="topic-chip" data-topic="Data Science"
+          >Data Science</button
+        >
+        <button class="topic-chip" data-topic="DevOps">DevOps</button>
+        <button class="topic-chip" data-topic="Docker">Docker</button>
+        <button class="topic-chip" data-topic="Kubernetes">Kubernetes</button>
+        <button class="topic-chip" data-topic="AWS">AWS</button>
+        <button class="topic-chip" data-topic="Cybersecurity"
+          >Cybersecurity</button
+        >
+        <button class="topic-chip" data-topic="System Design"
+          >System Design</button
+        >
+        <button class="topic-chip" data-topic="Web Development"
+          >Web Development</button
+        >
+        <button class="topic-chip" data-topic="Mobile Development"
+          >Mobile Development</button
+        >
+        <button class="topic-chip" data-topic="Blockchain">Blockchain</button>
+        <button class="topic-chip" data-topic="Cloud Computing"
+          >Cloud Computing</button
+        >
+        <button class="topic-chip" data-topic="Linux">Linux</button>
+      </div>
+      <div class="topics-modal-footer">
+        <button class="topics-save-btn" id="saveTopicsBtn" type="button"
+          >Save Topics</button
+        >
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style is:global>
+  .page-layout {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px 15px;
+    align-items: flex-start;
+  }
+  .sticky-wrapper {
+    position: sticky;
+    top: 70px;
+    height: fit-content;
+  }
+  .sidebar-area {
+    width: 160px;
+  }
+  .nav-title {
+    font-weight: bold;
+    font-size: 15px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+  }
+  .nav-list {
+    list-style: none;
+    padding: 0;
+  }
+  .nav-list li {
+    padding: 8px;
+    border-radius: 4px;
+    margin-bottom: 2px;
+  }
+  .nav-list li a {
+    text-decoration: none;
+    color: #636466;
+    font-size: 14px;
+    display: block;
+  }
+  .nav-list li.active {
+    background-color: #f7e8e8;
+  }
+  .nav-list li.active a {
+    color: #b92b27;
+    font-weight: bold;
+  }
+  .nav-list li:hover:not(.active) {
+    background-color: #e6e6e6;
+  }
+
+  .feed-area {
+    width: 580px;
+  }
+  .feed-header {
+    padding: 12px 15px;
+    border-bottom: 1px solid #dee0e1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    color: #333;
+    background: white;
+    border-radius: 8px 8px 0 0;
+  }
+  .star-icon {
+    color: #f5a623;
+  }
+
+  .questions-list {
+    border: 1px solid #dee0e1;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+    background: white;
+  }
+  .loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 50px 0;
+    color: #939598;
+    font-size: 14px;
+    border: 1px solid #dee0e1;
+    border-top: none;
+  }
+  .spinner {
+    width: 18px;
+    height: 18px;
+    border: 3px solid #eee;
+    border-top-color: #2e69ff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: #939598;
+    border: 1px solid #dee0e1;
+    border-top: none;
+  }
+  .empty-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
+  .ask-btn {
+    display: inline-block;
+    margin-top: 14px;
+    background: #2e69ff;
+    color: white;
+    padding: 9px 22px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .ask-btn:hover {
+    opacity: 0.85;
+  }
+
+  .right-column {
+    width: 280px;
+  }
+  .info-box {
+    background: white;
+    border: 1px solid #dee0e1;
+    padding: 15px;
+    border-radius: 8px;
+  }
+  .info-box h4 {
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+  }
+  .info-box p {
+    font-size: 13px;
+    color: #666;
+    margin: 8px 0;
+    line-height: 1.4;
+  }
+  .outline-btn {
+    width: 100%;
+    background: none;
+    border: 1px solid #2e69ff;
+    color: #2e69ff;
+    padding: 6px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .outline-btn:hover {
+    background: #eef3ff;
+  }
+  .tips-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
+  }
+  .tips-list li {
+    font-size: 12px;
+    color: #636466;
+    padding: 4px 0;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .tips-list li:last-child {
+    border-bottom: none;
+  }
+  .tips-list li::before {
+    content: "• ";
+    color: #2e69ff;
+    font-weight: bold;
+  }
+
+  /* QUESTION CARDS */
+  .answer-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 18px;
+    border-bottom: 1px solid #f0f0f0;
+    gap: 16px;
+    transition: background 0.15s;
+  }
+  .answer-card:hover {
+    background: #fafbfd;
+  }
+  .answer-card:last-child {
+    border-bottom: none;
+  }
+  .answer-card-body {
+    flex: 1;
+    min-width: 0;
+  }
+  .answer-question {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 5px;
+    line-height: 1.35;
+    cursor: pointer;
+  }
+  .answer-question:hover {
+    color: #2e69ff;
+  }
+  .answer-stats {
+    font-size: 12px;
+    color: #939598;
+    margin: 0;
+  }
+  .answer-card-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .answer-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #eef3ff;
+    color: #2e69ff;
+    border: 1px solid rgba(46, 105, 255, 0.25);
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .answer-btn:hover {
+    background: #e2ebff;
+    border-color: rgba(46, 105, 255, 0.5);
+  }
+  .follow-btn-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: white;
+    color: #636466;
+    border: 1px solid #dee0e1;
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .follow-btn-sm:hover {
+    border-color: #b92b27;
+    color: #b92b27;
+    background: #fef7f7;
+  }
+  .follow-btn-sm.following {
+    background: #b92b27;
+    color: white;
+    border-color: #b92b27;
+  }
+
+  /* TOPICS MODAL */
+  .topics-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    padding: 20px;
+  }
+  .topics-modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 520px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  .topics-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .topics-modal-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #1a1a1a;
+  }
+  .topics-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #6b7280;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .topics-close:hover {
+    background: #f3f4f6;
+  }
+  .topics-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 20px;
+  }
+  .topic-chip {
+    background: #f1f2f2;
+    border: 1px solid #e3e6ea;
+    color: #636466;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .topic-chip:hover {
+    background: #eef3ff;
+    color: #2e69ff;
+    border-color: rgba(46, 105, 255, 0.3);
+  }
+  .topic-chip.selected {
+    background: #2e69ff;
+    color: white;
+    border-color: #2e69ff;
+  }
+  .topics-modal-footer {
+    padding: 14px 20px;
+    border-top: 1px solid #e5e7eb;
+    text-align: right;
+  }
+  .topics-save-btn {
+    background: #2e69ff;
+    color: white;
+    border: none;
+    padding: 10px 28px;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .topics-save-btn:hover {
+    opacity: 0.85;
+  }
+
+  @media (max-width: 600px) {
+    .answer-card {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .answer-card-actions {
+      width: 100%;
+    }
+    .answer-btn,
+    .follow-btn-sm {
+      flex: 1;
+      justify-content: center;
+    }
+  }
+</style>
+
+<script>
+  const SHEET_URL =
+    "https://script.google.com/macros/s/AKfycbywCeoEu7CNLZtgRKyy4wsnvGw8B6wpNrP5ke0RoJ6XrVfwgsmBKAlIKvli79IVAWQJxQ/exec";
+
+  const loadingEl = document.getElementById("questionsLoading");
+  const listEl = document.getElementById("questionsList");
+  const emptyEl = document.getElementById("questionsEmpty");
+
+  // ========== TOPICS MODAL ==========
+  const addTopicsBtn = document.getElementById("addTopicsBtn");
+  const topicsModal = document.getElementById("topicsModal");
+  const closeTopicsModal = document.getElementById("closeTopicsModal");
+  const saveTopicsBtn = document.getElementById("saveTopicsBtn");
+
+  // Load saved topics
+  const savedTopics = JSON.parse(localStorage.getItem("userTopics") || "[]");
+  document.querySelectorAll(".topic-chip").forEach((chip) => {
+    const topic = chip.getAttribute("data-topic") || "";
+    if (savedTopics.includes(topic)) chip.classList.add("selected");
+  });
+
+  addTopicsBtn?.addEventListener("click", () => {
+    if (topicsModal) topicsModal.style.display = "flex";
+  });
+  closeTopicsModal?.addEventListener("click", () => {
+    if (topicsModal) topicsModal.style.display = "none";
+  });
+  topicsModal?.addEventListener("click", (e) => {
+    if (e.target === topicsModal) topicsModal.style.display = "none";
+  });
+
+  document.querySelectorAll(".topic-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      chip.classList.toggle("selected");
+    });
+  });
+
+  saveTopicsBtn?.addEventListener("click", () => {
+    const selected: string[] = [];
+    document.querySelectorAll(".topic-chip.selected").forEach((chip) => {
+      const topic = chip.getAttribute("data-topic") || "";
+      if (topic) selected.push(topic);
+    });
+    localStorage.setItem("userTopics", JSON.stringify(selected));
+    if (topicsModal) topicsModal.style.display = "none";
+    if (addTopicsBtn)
+      addTopicsBtn.textContent = `✓ ${selected.length} topic${selected.length !== 1 ? "s" : ""} selected`;
+    setTimeout(() => {
+      if (addTopicsBtn) addTopicsBtn.textContent = "Add topics";
+    }, 2000);
+  });
+
+  // ========== RENDER QUESTIONS ==========
+  function renderQuestions(questions: any[]) {
+    if (loadingEl) loadingEl.style.display = "none";
+
+    if (!questions || questions.length === 0) {
+      if (listEl) listEl.style.display = "none";
+      if (emptyEl) emptyEl.style.display = "block";
+      return;
+    }
+
+    if (!listEl) return;
+    if (emptyEl) emptyEl.style.display = "none";
+
+    listEl.innerHTML = questions
+      .map(
+        (q) => `
+      <div class="answer-card" data-id="${q.id}" data-slug="${q.slug}">
+        <div class="answer-card-body">
+          <h3 class="answer-question">${q.question}</h3>
+          <p class="answer-stats">${q.stats}</p>
+        </div>
+        <div class="answer-card-actions">
+          <button class="answer-btn" type="button" data-slug="${q.slug}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            Answer
+          </button>
+          <button class="follow-btn-sm" type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+            Follow
+          </button>
+        </div>
+      </div>
+    `,
+      )
+      .join("");
+
+    // Answer button → go to question page
+    listEl.querySelectorAll(".answer-btn").forEach((btn: Element) => {
+      btn.addEventListener("click", () => {
+        const slug = (btn as HTMLButtonElement).getAttribute("data-slug");
+        if (slug) window.location.href = `/question/${slug}`;
+      });
+    });
+
+    // Question title → go to question page
+    listEl.querySelectorAll(".answer-question").forEach((q: Element) => {
+      q.addEventListener("click", () => {
+        const card = q.closest(".answer-card");
+        const slug = card?.getAttribute("data-slug");
+        if (slug) window.location.href = `/question/${slug}`;
+      });
+    });
+
+    // Follow toggle
+    listEl.querySelectorAll(".follow-btn-sm").forEach((btn: Element) => {
+      btn.addEventListener("click", () => {
+        if (!localStorage.getItem("userId")) {
+          window.dispatchEvent(new CustomEvent("show-login-modal"));
+          return;
+        }
+        const b = btn as HTMLButtonElement;
+        if (b.classList.contains("following")) {
+          b.classList.remove("following");
+          b.innerHTML =
+            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg> Follow';
+        } else {
+          b.classList.add("following");
+          b.innerHTML =
+            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg> Following';
+        }
+      });
+    });
+  }
+
+  // ========== LOAD QUESTIONS ==========
+  async function loadQuestions() {
+    try {
+      const email = localStorage.getItem("userId") || "";
+      const res = await fetch(
+        `${SHEET_URL}?action=getAnswerQuestions&userEmail=${encodeURIComponent(email)}`,
+      );
+      const data = await res.json();
+      renderQuestions(data);
+    } catch (err) {
+      console.error("Failed to load questions:", err);
+      if (loadingEl) loadingEl.style.display = "none";
+      if (emptyEl) emptyEl.style.display = "block";
+    }
+  }
+
+  loadQuestions();
+</script>

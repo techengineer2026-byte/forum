@@ -1,82 +1,708 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Sidebar from "../components/Sidebar.astro";
-import SpaceCard from "../components/SpaceCard.astro";
-import spacesData from "../data/discover_spaces.json";
+import AdCard from "../components/AdCard.astro";
 ---
 
 <Layout title="Following - Tech Engineer" showFooter={false}>
   <div class="page-layout">
-    
-    <!-- LEFT SIDEBAR -->
     <aside class="sidebar-area">
       <div class="sticky-wrapper">
         <Sidebar />
       </div>
     </aside>
 
-    <!-- CENTER FEED -->
     <main class="feed-area">
-      <!-- "You're all caught up" box -->
+      <!-- CAUGHT UP BOX -->
       <div class="caught-up-box">
-        <div class="check-icon">✓</div>
+        <div class="check-icon">
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            ><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline
+              points="22 4 12 14.01 9 11.01"></polyline></svg
+          >
+        </div>
         <h3>You're all caught up</h3>
-        <p>Follow more Spaces to discover new stories in your feed. You can also visit Home.</p>
-        <button class="discover-btn">Discover Spaces</button>
+        <p>
+          Follow more Spaces to discover new stories in your feed. You can also
+          visit Home.
+        </p>
+        <button class="discover-btn" id="discoverBtn" type="button">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            ><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8"
+            ></path></svg
+          >
+          Discover Spaces
+        </button>
       </div>
 
+      <!-- DISCOVER HEADER -->
       <div class="discover-header">
-         <span>Spaces you might like</span>
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          ><circle cx="12" cy="12" r="10"></circle><line
+            x1="2"
+            y1="12"
+            x2="22"
+            y2="12"></line><path
+            d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+          ></path></svg
+        >
+        <span>Spaces you might like</span>
       </div>
 
-      <div class="spaces-container">
-        {spacesData.map((space) => (
-          <SpaceCard {...space} />
-        ))}
+      <!-- SKELETON LOADING -->
+      <div id="spacesLoading" class="spaces-container">
+        <div class="space-card skel-card">
+          <div class="skel skel-icon"></div>
+          <div class="skel skel-info">
+            <div
+              class="skel skel-bar"
+              style="width:60%;height:14px;margin-bottom:6px"
+            >
+            </div>
+            <div
+              class="skel skel-bar"
+              style="width:80%;height:11px;margin-bottom:4px"
+            >
+            </div>
+            <div class="skel skel-bar" style="width:40%;height:11px"></div>
+          </div>
+          <div class="skel skel-btn"></div>
+        </div>
+        <div class="space-card skel-card">
+          <div class="skel skel-icon"></div>
+          <div class="skel skel-info">
+            <div
+              class="skel skel-bar"
+              style="width:50%;height:14px;margin-bottom:6px"
+            >
+            </div>
+            <div
+              class="skel skel-bar"
+              style="width:70%;height:11px;margin-bottom:4px"
+            >
+            </div>
+            <div class="skel skel-bar" style="width:35%;height:11px"></div>
+          </div>
+          <div class="skel skel-btn"></div>
+        </div>
+        <div class="space-card skel-card">
+          <div class="skel skel-icon"></div>
+          <div class="skel skel-info">
+            <div
+              class="skel skel-bar"
+              style="width:55%;height:14px;margin-bottom:6px"
+            >
+            </div>
+            <div
+              class="skel skel-bar"
+              style="width:75%;height:11px;margin-bottom:4px"
+            >
+            </div>
+            <div class="skel skel-bar" style="width:45%;height:11px"></div>
+          </div>
+          <div class="skel skel-btn"></div>
+        </div>
+      </div>
+
+      <!-- REAL SPACES -->
+      <div id="spacesContainer" class="spaces-container" style="display:none;">
+      </div>
+
+      <!-- EMPTY STATE -->
+      <div id="spacesEmpty" class="empty-state" style="display:none;">
+        <svg
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#d1d5db"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          ><circle cx="12" cy="12" r="10"></circle><line
+            x1="2"
+            y1="12"
+            x2="22"
+            y2="12"></line><path
+            d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+          ></path></svg
+        >
+        <p>No spaces found. Be the first to create one!</p>
       </div>
     </main>
 
-    <!-- RIGHT SIDEBAR (Invisible but keeps width) -->
-    <aside class="right-column"></aside>
-
+    <aside class="right-column">
+      <AdCard
+        url="https://techengineer.co/video-editing-course-mohali-chandigarh"
+        title="Video Editing Course"
+        description="Master Premiere Pro."
+        image="/assets/videoeditor.gif"
+      />
+      <AdCard
+        url="https://techengineer.co/ai-machine-learning-course-mohali"
+        title="AI Course"
+        description="AI and Machine Learning in Mohali"
+        image="/assets/ALandMLads.gif"
+      />
+    </aside>
   </div>
 </Layout>
 
-<style>
-  .page-layout {
-    display: flex; justify-content: center; gap: 24px; padding: 20px;
-    background-color: #f1f2f2; min-height: 100vh; align-items: flex-start;
-    max-width: 1100px; margin: 0 auto;
+<style is:global>
+  /* ===== SKELETON ===== */
+  .skel {
+    background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+    background-size: 200% 100%;
+    animation: skelPulse 1.5s ease-in-out infinite;
+    border-radius: 4px;
   }
-  .sidebar-area { width: 160px; }
-  .feed-area { width: 580px; }
-  .right-column { width: 300px; }
-  .sticky-wrapper { position: sticky; top: 70px; }
+  @keyframes skelPulse {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+  .skel-card {
+    pointer-events: none;
+  }
+  .skel-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+  .skel-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .skel-btn {
+    width: 70px;
+    height: 34px;
+    border-radius: 20px;
+    flex-shrink: 0;
+  }
 
-  /* Caught up Box */
+  /* ===== LAYOUT ===== */
+  .page-layout {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 20px;
+    background-color: #f1f2f2;
+    min-height: 100vh;
+    align-items: flex-start;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .sidebar-area {
+    width: 160px;
+  }
+  .feed-area {
+    width: 580px;
+    max-width: 100%;
+  }
+  .right-column {
+    width: 300px;
+  }
+  .sticky-wrapper {
+    position: sticky;
+    top: 70px;
+  }
+
+  /* ===== CAUGHT UP BOX ===== */
   .caught-up-box {
-    background: white; border: 1px solid #dee0e1; border-radius: 8px;
-    padding: 30px; text-align: center; margin-bottom: 20px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 36px 28px;
+    text-align: center;
+    margin-bottom: 16px;
   }
   .check-icon {
-    width: 50px; height: 50px; background: #e6f4ea; color: #1e8e3e;
-    border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 15px; font-size: 24px;
+    width: 56px;
+    height: 56px;
+    background: #ecfdf5;
+    color: #059669;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
   }
-  .caught-up-box h3 { margin: 0; font-size: 18px; }
-  .caught-up-box p { color: #636466; font-size: 14px; margin: 10px 0 20px; }
+  .caught-up-box h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: #111827;
+  }
+  .caught-up-box p {
+    color: #6b7280;
+    font-size: 14px;
+    margin: 10px 0 20px;
+    line-height: 1.5;
+  }
   .discover-btn {
-    background: #2e69ff; color: white; border: none; padding: 10px 25px;
-    border-radius: 24px; font-weight: bold; cursor: pointer;
+    background: #2e69ff;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .discover-btn:hover {
+    background: #1e5ae6;
+  }
+  .discover-btn:active {
+    transform: scale(0.97);
   }
 
-  /* Discover Header */
+  /* ===== DISCOVER HEADER ===== */
   .discover-header {
-    background: white; padding: 12px 15px; border: 1px solid #dee0e1;
-    border-bottom: none; border-radius: 8px 8px 0 0;
-    font-weight: bold; font-size: 15px; color: #333;
+    background: white;
+    padding: 14px 16px;
+    border: 1px solid #e5e7eb;
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+    font-weight: 700;
+    font-size: 15px;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
+  .discover-header svg {
+    color: #6b7280;
+  }
+
+  /* ===== SPACES CONTAINER ===== */
   .spaces-container {
-    border: 1px solid #dee0e1; border-radius: 0 0 8px 8px; overflow: hidden;
+    border: 1px solid #e5e7eb;
+    border-radius: 0 0 12px 12px;
+    overflow: hidden;
+    background: white;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: #9ca3af;
+    border: 1px solid #e5e7eb;
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    background: white;
+  }
+  .empty-state p {
+    margin: 12px 0 0;
+    font-size: 14px;
+  }
+
+  /* ===== SPACE CARD ===== */
+  .space-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    border-bottom: 1px solid #f3f4f6;
+    transition: background 0.15s;
+  }
+  .space-card:last-child {
+    border-bottom: none;
+  }
+  .space-card:hover {
+    background: #fafbfc;
+  }
+
+  .space-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    color: white;
+    font-weight: 800;
+  }
+  .space-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .space-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: #111827;
+    margin: 0 0 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .space-meta {
+    font-size: 12px;
+    color: #9ca3af;
+    margin: 0;
+  }
+  .space-desc {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 4px 0 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ===== CATEGORY BADGE (was missing!) ===== */
+  .space-category {
+    display: inline-block;
+    background: #f3f4f6;
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-top: 6px;
+  }
+
+  /* ===== JOIN BUTTON ===== */
+  .join-btn {
+    padding: 8px 20px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    border: 1px solid;
+    min-height: 38px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .join-btn.not-joined {
+    background: #eef3ff;
+    color: #2e69ff;
+    border-color: rgba(46, 105, 255, 0.35);
+  }
+  .join-btn.not-joined:hover {
+    background: #e2ebff;
+  }
+  .join-btn.joined {
+    background: #2e69ff;
+    color: white;
+    border-color: #2e69ff;
+  }
+  .join-btn.joined:hover {
+    background: #1e5ae6;
+  }
+  .join-btn.loading {
+    opacity: 0.5;
+    pointer-events: none;
+    color: transparent;
+    position: relative;
+  }
+  .join-btn.loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: btn-spin 0.6s linear infinite;
+  }
+  .join-btn.not-joined.loading::after {
+    border-top-color: #2e69ff;
+  }
+  @keyframes btn-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* ===== TOAST ===== */
+  .space-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #111827;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  }
+  .space-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 1000px) {
+    .right-column {
+      display: none;
+    }
+  }
+  @media (max-width: 750px) {
+    .sidebar-area {
+      display: none;
+    }
+    .feed-area {
+      width: 100%;
+    }
+    .page-layout {
+      padding: 12px;
+      gap: 0;
+    }
+    .caught-up-box {
+      padding: 24px 16px;
+    }
+    .space-card {
+      padding: 12px;
+      gap: 10px;
+    }
+    .space-icon {
+      width: 40px;
+      height: 40px;
+      font-size: 17px;
+    }
+    .join-btn {
+      padding: 7px 14px;
+      font-size: 12px;
+    }
   }
 </style>
+
+<script>
+  const SHEET_URL =
+    "https://script.google.com/macros/s/AKfycbywCeoEu7CNLZtgRKyy4wsnvGw8B6wpNrP5ke0RoJ6XrVfwgsmBKAlIKvli79IVAWQJxQ/exec";
+
+  const loadingEl = document.getElementById("spacesLoading") as HTMLDivElement;
+  const containerEl = document.getElementById(
+    "spacesContainer",
+  ) as HTMLDivElement;
+  const emptyEl = document.getElementById("spacesEmpty") as HTMLDivElement;
+
+  // ===== TOAST =====
+  function showToast(message: string, duration = 2500) {
+    let toast = document.querySelector(".space-toast") as HTMLDivElement;
+    if (!toast) {
+      toast = document.createElement("div");
+      toast.className = "space-toast";
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), duration);
+  }
+
+  // ===== SHOW LOGIN MODAL =====
+  function showLoginModal() {
+    const loginModal = document.getElementById("loginModal") as HTMLDivElement;
+    if (loginModal) {
+      loginModal.classList.add("active");
+    } else {
+      window.dispatchEvent(new CustomEvent("show-login-modal"));
+    }
+  }
+
+  window.addEventListener("show-login-modal", () => {
+    const loginModal = document.getElementById("loginModal") as HTMLDivElement;
+    if (loginModal) loginModal.classList.add("active");
+  });
+
+  // ===== DISCOVER BUTTON =====
+  document.getElementById("discoverBtn")?.addEventListener("click", () => {
+    const target =
+      document.getElementById("spacesContainer") ||
+      document.getElementById("spacesLoading");
+    target?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ===== RENDER SPACES =====
+  function renderSpaces(spaces: any[]) {
+    loadingEl.style.display = "none";
+
+    if (!spaces || spaces.length === 0) {
+      containerEl.style.display = "none";
+      emptyEl.style.display = "block";
+      return;
+    }
+
+    containerEl.innerHTML = "";
+    containerEl.style.display = "block";
+
+    spaces.forEach((space) => {
+      const card = document.createElement("div");
+      card.className = "space-card";
+      card.setAttribute("data-space-id", space.id);
+
+      // Icon
+      const icon = document.createElement("div");
+      icon.className = "space-icon";
+      icon.style.backgroundColor = space.color || "#2e69ff";
+      icon.textContent = space.icon || space.name.charAt(0).toUpperCase();
+
+      // Info
+      const info = document.createElement("div");
+      info.className = "space-info";
+
+      const name = document.createElement("p");
+      name.className = "space-name";
+      name.textContent = space.name;
+      info.appendChild(name);
+
+      if (space.description) {
+        const desc = document.createElement("p");
+        desc.className = "space-desc";
+        desc.textContent = space.description;
+        info.appendChild(desc);
+      }
+
+      const meta = document.createElement("p");
+      meta.className = "space-meta";
+      const memberText = `${space.members || 0} member${(space.members || 0) !== 1 ? "s" : ""}`;
+      const postText = `${space.posts || 0} post${(space.posts || 0) !== 1 ? "s" : ""}`;
+      meta.textContent = `${memberText} · ${postText}`;
+      info.appendChild(meta);
+
+      // Category badge
+      if (space.category && space.category !== "General") {
+        const badge = document.createElement("span");
+        badge.className = "space-category";
+        badge.textContent = space.category;
+        info.appendChild(badge);
+      }
+
+      // Join button
+      const btn = document.createElement("button");
+      btn.className = `join-btn ${space.isMember ? "joined" : "not-joined"}`;
+      btn.textContent = space.isMember ? "Joined" : "Join";
+      btn.type = "button";
+
+      btn.addEventListener("click", async () => {
+        if (!localStorage.getItem("userId")) {
+          showLoginModal();
+          return;
+        }
+
+        btn.classList.add("loading");
+
+        const isJoining = !space.isMember;
+        const action = isJoining ? "joinSpace" : "leaveSpace";
+        const body: any = {
+          action: action,
+          spaceId: space.id,
+          userEmail: localStorage.getItem("userId"),
+          userName: localStorage.getItem("currentUser") || "Anonymous",
+        };
+
+        try {
+          const res = await fetch(SHEET_URL, {
+            method: "POST",
+            body: JSON.stringify(body),
+          });
+          const result = await res.json();
+
+          if (result.status === "success") {
+            space.isMember = !space.isMember;
+            btn.className = `join-btn ${space.isMember ? "joined" : "not-joined"}`;
+            btn.textContent = space.isMember ? "Joined" : "Join";
+
+            const currentMembers = space.members || 0;
+            space.members = space.isMember
+              ? currentMembers + 1
+              : Math.max(0, currentMembers - 1);
+
+            const metaEl = card.querySelector(".space-meta");
+            if (metaEl) {
+              const mText = `${space.members} member${space.members !== 1 ? "s" : ""}`;
+              const pText = `${space.posts || 0} post${(space.posts || 0) !== 1 ? "s" : ""}`;
+              metaEl.textContent = `${mText} · ${pText}`;
+            }
+
+            showToast(
+              space.isMember ? `Joined ${space.name}` : `Left ${space.name}`,
+            );
+          } else {
+            btn.textContent = space.isMember ? "Joined" : "Join";
+            showToast(result.message || "Action failed");
+          }
+        } catch (err) {
+          console.error("Space action error:", err);
+          btn.textContent = space.isMember ? "Joined" : "Join";
+          showToast("Something went wrong. Try again.");
+        } finally {
+          btn.classList.remove("loading");
+        }
+      });
+
+      card.appendChild(icon);
+      card.appendChild(info);
+      card.appendChild(btn);
+      containerEl.appendChild(card);
+    });
+  }
+
+  // ===== LOAD SPACES =====
+  async function loadSpaces() {
+    try {
+      const email = localStorage.getItem("userId") || "";
+      const url = `${SHEET_URL}?action=getSpaces${email ? "&userEmail=" + encodeURIComponent(email) : ""}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      renderSpaces(data);
+    } catch (err) {
+      console.error("Failed to load spaces:", err);
+      loadingEl.style.display = "none";
+      emptyEl.style.display = "block";
+    }
+  }
+
+  // ===== RELOAD AFTER LOGIN =====
+  window.addEventListener("user-logged-in", () => loadSpaces());
+
+  // ===== START =====
+  loadSpaces();
+</script>

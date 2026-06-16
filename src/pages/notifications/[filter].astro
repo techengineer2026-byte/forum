@@ -1,0 +1,225 @@
+---
+import Layout from "../../layouts/Layout.astro";
+export function getStaticPaths() {
+  return [
+    { params: { filter: 'all' } },
+    { params: { filter: 'questions' } },
+    { params: { filter: 'comments' } },
+    { params: { filter: 'mentions' } },
+    { params: { filter: 'upvotes' } },
+    { params: { filter: 'following' } },
+    { params: { filter: 'bookmarks' } },
+    { params: { filter: 'announcements' } }
+  ];
+}
+const filterParam = Astro.params.filter || "all";
+
+const filterMap: Record<string, string> = {
+  all: "all",
+  questions: "question",
+  comments: "comment",
+  mentions: "mention",
+  upvotes: "upvote",
+  following: "following",
+  bookmarks: "bookmark",
+  announcements: "announcement",
+};
+
+const activeType = filterMap[filterParam] || "all";
+const displayTitle = filterParam.charAt(0).toUpperCase() + filterParam.slice(1);
+
+const filters = [
+  { slug: "all", label: "All" },
+  { slug: "questions", label: "Questions" },
+  { slug: "comments", label: "Comments" },
+  { slug: "mentions", label: "Mentions" },
+  { slug: "upvotes", label: "Upvotes" },
+  { slug: "following", label: "Following" },
+  { slug: "bookmarks", label: "Bookmarks" },
+  { slug: "announcements", label: "Announcements" },
+];
+---
+
+<Layout title={`Notifications - ${displayTitle}`} showFooter={false}>
+  <div class="notifications-layout">
+    <aside class="filters-sidebar">
+      <div class="sticky-wrapper">
+        <p class="filters-title">Filters</p>
+        <ul class="filters-list">
+          {filters.map((f) => (
+            <li class={filterParam === f.slug ? "active" : ""}>
+              <a href={f.slug === "all" ? "/notifications" : `/notifications/${f.slug}`}>
+                {f.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </aside>
+
+    <main class="notifications-main">
+      <div class="notif-header">
+        <h2 class="category-name">{displayTitle}</h2>
+        <button class="settings-link" id="markAllReadBtn">Mark all read</button>
+      </div>
+
+      <div id="notifLoading" class="loading-state">
+        <div class="spinner"></div>
+        <span>Loading notifications...</span>
+      </div>
+
+      <div id="notifList" class="notif-list"></div>
+
+      <div id="notifEmpty" class="empty-notif-state" style="display:none;">
+        <div class="bell-icon">
+          <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="0.5">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          <span class="zero-count">0</span>
+        </div>
+        <h3>No New Notifications</h3>
+        <p>Notifications you received in the last 30 days will show up here.</p>
+      </div>
+    </main>
+  </div>
+</Layout>
+
+<style>
+  .notifications-layout {
+    display: flex; justify-content: center; gap: 40px;
+    max-width: 1000px; margin: 0 auto; padding: 30px 15px; align-items: flex-start;
+  }
+  .filters-sidebar { width: 200px; }
+  .sticky-wrapper { position: sticky; top: 70px; }
+  .filters-title {
+    font-weight: bold; font-size: 15px; border-bottom: 1px solid #ddd;
+    padding-bottom: 8px; margin-bottom: 10px; color: #333;
+  }
+  .filters-list { list-style: none; padding: 0; }
+  .filters-list li {
+    padding: 8px 12px; border-radius: 4px; margin-bottom: 2px;
+    font-size: 14px; color: #636466; cursor: pointer;
+  }
+  .filters-list li a { text-decoration: none; color: inherit; display: block; }
+  .filters-list li.active { background-color: #f7e8e8; color: #b92b27; font-weight: bold; }
+  .filters-list li:hover:not(.active) { background-color: #e6e6e6; }
+  .notifications-main { flex: 1; max-width: 650px; }
+  .notif-header {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px;
+  }
+  .category-name { font-size: 15px; font-weight: bold; color: #333; margin: 0; }
+  .settings-link { background: none; border: none; color: #939598; font-size: 14px; cursor: pointer; }
+  .settings-link:hover { text-decoration: underline; }
+  .loading-state {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 60px 0; color: #939598; font-size: 14px;
+  }
+  .spinner {
+    width: 20px; height: 20px; border: 3px solid #eee;
+    border-top-color: #b92b27; border-radius: 50%; animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .notif-list { display: flex; flex-direction: column; }
+  .notif-item {
+    display: flex; gap: 14px; padding: 14px 16px;
+    border-bottom: 1px solid #f5f5f5; cursor: pointer;
+    transition: background 0.15s; align-items: flex-start;
+  }
+  .notif-item:hover { background: #fafbfd; }
+  .notif-item.unread { background: #f0f6ff; }
+  .notif-item.unread:hover { background: #e8f0fe; }
+  .notif-icon-wrap {
+    width: 40px; height: 40px; border-radius: 50%; display: flex;
+    align-items: center; justify-content: center; font-size: 18px;
+    flex-shrink: 0; background: #f0f0f0;
+  }
+  .notif-icon-wrap.type-upvote { background: #e8f5e9; }
+  .notif-icon-wrap.type-comment { background: #e3f2fd; }
+  .notif-icon-wrap.type-following { background: #fce4ec; }
+  .notif-icon-wrap.type-announcement { background: #fff3e0; }
+  .notif-icon-wrap.type-banned { background: #fde8e8; }
+  .notif-body { flex: 1; min-width: 0; }
+  .notif-message { font-size: 14px; color: #333; margin: 0 0 4px; line-height: 1.4; word-break: break-word; }
+  .notif-time { font-size: 12px; color: #939598; }
+  .notif-dot { width: 8px; height: 8px; border-radius: 50%; background: #2e69ff; flex-shrink: 0; margin-top: 6px; }
+  .empty-notif-state { display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .bell-icon { position: relative; margin-bottom: 20px; opacity: 0.6; }
+  .zero-count {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -10%); font-size: 40px; color: #ccc; font-weight: 300;
+  }
+  .empty-notif-state h3 { font-size: 18px; color: #636466; margin-bottom: 10px; font-weight: bold; }
+  .empty-notif-state p { font-size: 15px; color: #939598; max-width: 350px; line-height: 1.4; }
+</style>
+
+<script define:vars={{ activeType }}>
+  const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbywCeoEu7CNLZtgRKyy4wsnvGw8B6wpNrP5ke0RoJ6XrVfwgsmBKAlIKvli79IVAWQJxQ/exec";
+  const userEmail = localStorage.getItem("userId") || "";
+  const loadingEl = document.getElementById("notifLoading");
+  const listEl = document.getElementById("notifList");
+  const emptyEl = document.getElementById("notifEmpty");
+  const markAllBtn = document.getElementById("markAllReadBtn");
+
+  function getIconData(type) {
+    switch (type) {
+      case "upvote": return { emoji: "▲", css: "type-upvote" };
+      case "comment": return { emoji: "💬", css: "type-comment" };
+      case "following": return { emoji: "👤", css: "type-following" };
+      case "announcement": return { emoji: "📢", css: "type-announcement" };
+      default: return { emoji: "🔔", css: "" };
+    }
+  }
+  function isBannedMessage(msg) { return msg && msg.toLowerCase().includes("banned"); }
+  function timeAgo(dateStr) {
+    const date = new Date(dateStr); const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    if (seconds < 60) return "Just now";
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return minutes + "m ago";
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return hours + "h ago";
+    const days = Math.floor(hours / 24);
+    if (days < 30) return days + "d ago";
+    return date.toLocaleDateString();
+  }
+  function renderNotifications(notifications) {
+    loadingEl.style.display = "none";
+    if (!notifications || notifications.length === 0) { listEl.innerHTML = ""; emptyEl.style.display = "flex"; return; }
+    emptyEl.style.display = "none";
+    listEl.innerHTML = notifications.map(n => {
+      const banned = isBannedMessage(n.message);
+      const icon = getIconData(n.type);
+      const iconClass = banned ? "type-banned" : icon.css;
+      const emoji = banned ? "🚫" : icon.emoji;
+      const unreadClass = n.isRead ? "" : "unread";
+      const dotHtml = n.isRead ? "" : '<div class="notif-dot"></div>';
+      return '<div class="notif-item ' + unreadClass + '" data-id="' + n.id + '"><div class="notif-icon-wrap ' + iconClass + '">' + emoji + '</div><div class="notif-body"><p class="notif-message">' + n.message + '</p><span class="notif-time">' + timeAgo(n.timestamp) + '</span></div>' + dotHtml + '</div>';
+    }).join("");
+    listEl.querySelectorAll(".notif-item.unread").forEach(item => {
+      item.addEventListener("click", () => { const id = item.getAttribute("data-id"); if (id) markAsRead(id, item); });
+    });
+  }
+  function markAsRead(notifId, element) {
+    element.classList.remove("unread");
+    const dot = element.querySelector(".notif-dot"); if (dot) dot.remove();
+    fetch(GOOGLE_SHEET_URL + "?action=markNotifRead&notifId=" + encodeURIComponent(notifId)).then(res => res.json()).catch(() => {});
+  }
+  markAllBtn?.addEventListener("click", async () => {
+    if (!userEmail) return; markAllBtn.innerText = "Marking...";
+    try {
+      await fetch(GOOGLE_SHEET_URL + "?action=markAllNotifRead&email=" + encodeURIComponent(userEmail));
+      document.querySelectorAll(".notif-item.unread").forEach(item => { item.classList.remove("unread"); const dot = item.querySelector(".notif-dot"); if (dot) dot.remove(); });
+      markAllBtn.innerText = "Done ✓"; setTimeout(() => { markAllBtn.innerText = "Mark all read"; }, 2000);
+    } catch { markAllBtn.innerText = "Mark all read"; }
+  });
+  async function loadNotifications() {
+    if (!userEmail) { loadingEl.style.display = "none"; emptyEl.style.display = "flex"; return; }
+    try {
+      const res = await fetch(GOOGLE_SHEET_URL + "?action=getNotifications&email=" + encodeURIComponent(userEmail) + "&filter=" + activeType);
+      const data = await res.json(); renderNotifications(data);
+    } catch (err) { console.error("Failed to load notifications:", err); loadingEl.style.display = "none"; emptyEl.style.display = "flex"; }
+  }
+  loadNotifications();
+</script>

@@ -1,0 +1,858 @@
+---
+export async function getStaticPaths() {
+  const SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbywCeoEu7CNLZtgRKyy4wsnvGw8B6wpNrP5ke0RoJ6XrVfwgsmBKAlIKvli79IVAWQJxQ/exec";
+
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getSpaces`);
+    const spaces = await res.json();
+    return spaces.map((s: any) => ({
+      params: {
+        slug:
+          s.slug ||
+          s.name
+            .toLowerCase()
+            .replace(/[^\w ]+/g, "")
+            .replace(/ +/g, "-"),
+      },
+    }));
+  } catch (e) {
+    return []; // Fallback if API fails during build
+  }
+}
+
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="Space - Tech Engineer">
+  <div class="space-page">
+    <!-- SKELETON LOADING -->
+    <div id="spaceLoader" class="space-loader">
+      <div class="skel-header">
+        <div class="skel skel-icon"></div>
+        <div class="skel skel-head-info">
+          <div
+            class="skel skel-bar"
+            style="width:50%;height:24px;margin-bottom:8px"
+          >
+          </div>
+          <div class="skel skel-bar" style="width:80%;height:12px"></div>
+        </div>
+      </div>
+      <div class="skel-card">
+        <div
+          class="skel skel-bar"
+          style="width:40%;height:14px;margin-bottom:10px"
+        >
+        </div>
+        <div
+          class="skel skel-bar"
+          style="width:100%;height:12px;margin-bottom:6px"
+        >
+        </div>
+        <div class="skel skel-bar" style="width:70%;height:12px"></div>
+      </div>
+      <div class="skel-card">
+        <div
+          class="skel skel-bar"
+          style="width:35%;height:14px;margin-bottom:10px"
+        >
+        </div>
+        <div
+          class="skel skel-bar"
+          style="width:100%;height:12px;margin-bottom:6px"
+        >
+        </div>
+        <div class="skel skel-bar" style="width:60%;height:12px"></div>
+      </div>
+    </div>
+
+    <!-- NOT FOUND -->
+    <div id="spaceNotFound" class="not-found" style="display:none;">
+      <svg
+        width="56"
+        height="56"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#d1d5db"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="2" y1="12" x2="22" y2="12"></line>
+        <path
+          d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+        ></path>
+      </svg>
+      <h2>Space not found</h2>
+      <p>This space may have been removed or doesn't exist.</p>
+      <a href="/following" class="back-link">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to Spaces
+      </a>
+    </div>
+
+    <!-- ACTUAL CONTENT -->
+    <div id="spaceContent" style="display:none;">
+      <!-- HEADER -->
+      <div class="space-header">
+        <div class="space-icon" id="spaceIcon"></div>
+        <div class="space-head-info">
+          <h1 class="space-name" id="spaceName"></h1>
+          <p class="space-desc" id="spaceDesc"></p>
+          <div class="space-meta" id="spaceMeta"></div>
+        </div>
+        <button class="join-btn not-joined" id="joinBtn" type="button"
+          >Join</button
+        >
+      </div>
+
+      <!-- STATS BAR -->
+      <div class="stats-bar" id="statsBar">
+        <div class="stat-item">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span id="statMembers">0</span> Members
+        </div>
+        <div class="stat-item">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+            ></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+          <span id="statPosts">0</span> Posts
+        </div>
+        <div class="stat-item" id="statCategory" style="display:none;">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+            ></polygon>
+          </svg>
+          <span id="statCategoryText"></span>
+        </div>
+      </div>
+
+      <!-- OWNER INFO -->
+      <div class="owner-card" id="ownerCard" style="display:none;">
+        <div class="owner-label">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          Owner
+        </div>
+        <div class="owner-info">
+          <div class="owner-avatar" id="ownerAvatar"></div>
+          <a class="owner-name" id="ownerName" href="#"></a>
+        </div>
+      </div>
+
+      <!-- POSTS IN THIS SPACE -->
+      <div class="section-card">
+        <h2 class="section-title">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+            ></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+          Posts in this Space
+        </h2>
+        <div id="spacePosts">
+          <div class="empty-posts">
+            <svg
+              width="36"
+              height="36"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#d1d5db"
+              stroke-width="1.5"
+            >
+              <path
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+              ></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            <p>No posts yet. Be the first to share!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="spaceToast" class="space-toast"></div>
+</Layout>
+
+<style >
+  .skel {
+    background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+    background-size: 200% 100%;
+    animation: skelPulse 1.5s ease-in-out infinite;
+    border-radius: 4px;
+  }
+  @keyframes skelPulse {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+  .space-loader {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  .skel-header {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    align-items: center;
+  }
+  .skel-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    flex-shrink: 0;
+  }
+  .skel-head-info {
+    flex: 1;
+  }
+  .skel-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 12px;
+  }
+
+  .space-page {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 24px 16px;
+  }
+
+  .not-found {
+    text-align: center;
+    padding: 80px 20px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+  }
+  .not-found h2 {
+    margin: 16px 0 8px;
+    font-size: 20px;
+    color: #111827;
+  }
+  .not-found p {
+    color: #6b7280;
+    font-size: 15px;
+    margin: 0 0 20px;
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #2e69ff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+    transition: color 0.15s;
+  }
+  .back-link:hover {
+    color: #1e5ae6;
+  }
+
+  .space-header {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    margin-bottom: 12px;
+  }
+  .space-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 800;
+    color: white;
+    flex-shrink: 0;
+  }
+  .space-head-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .space-name {
+    font-size: 24px;
+    font-weight: 800;
+    color: #111827;
+    margin: 0 0 6px;
+    line-height: 1.3;
+  }
+  .space-desc {
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.6;
+    margin: 0;
+  }
+  .space-meta {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .meta-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .meta-tag.private {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  .meta-tag.category {
+    background: #f3e8ff;
+    color: #7c3aed;
+  }
+
+  .join-btn {
+    padding: 9px 22px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid;
+    flex-shrink: 0;
+    min-height: 40px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .join-btn.not-joined {
+    background: #eef3ff;
+    color: #2e69ff;
+    border-color: rgba(46, 105, 255, 0.35);
+  }
+  .join-btn.not-joined:hover {
+    background: #e2ebff;
+  }
+  .join-btn.joined {
+    background: #2e69ff;
+    color: white;
+    border-color: #2e69ff;
+  }
+  .join-btn.joined:hover {
+    background: #1e5ae6;
+  }
+  .join-btn.loading {
+    opacity: 0.5;
+    pointer-events: none;
+    color: transparent;
+    position: relative;
+  }
+  .join-btn.loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: btn-spin 0.6s linear infinite;
+  }
+  .join-btn.not-joined.loading::after {
+    border-top-color: #2e69ff;
+  }
+  @keyframes btn-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .stats-bar {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 14px 20px;
+    display: flex;
+    gap: 24px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .stat-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+  }
+  .stat-item svg {
+    color: #6b7280;
+  }
+  .stat-item span {
+    font-weight: 800;
+    color: #111827;
+  }
+
+  .owner-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+  }
+  .owner-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 10px;
+  }
+  .owner-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .owner-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #b92b27;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .owner-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: #2e69ff;
+    text-decoration: none;
+  }
+  .owner-name:hover {
+    text-decoration: underline;
+  }
+
+  </style>
+  <style is:global>
+  .section-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title svg {
+    color: #6b7280;
+  }
+
+  .post-item {
+    padding: 14px 0;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  .post-item:last-child {
+    border-bottom: none;
+  }
+  .post-item-link {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+    text-decoration: none;
+    line-height: 1.4;
+    display: block;
+  }
+  .post-item-link:hover {
+    color: #2e69ff;
+    text-decoration: underline;
+  }
+  .post-item-meta {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 4px;
+  }
+
+  .empty-posts {
+    text-align: center;
+    padding: 32px 20px;
+    color: #9ca3af;
+  }
+  .empty-posts p {
+    margin: 10px 0 0;
+    font-size: 14px;
+  }
+
+  .space-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #111827;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  }
+  .space-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  @media (max-width: 600px) {
+    .space-page {
+      padding: 12px;
+    }
+    .space-header {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 16px;
+    }
+    .space-icon {
+      width: 48px;
+      height: 48px;
+      font-size: 20px;
+    }
+    .space-name {
+      font-size: 20px;
+    }
+    .join-btn {
+      align-self: flex-start;
+    }
+    .stats-bar {
+      gap: 16px;
+      padding: 12px 16px;
+    }
+  }
+</style>
+
+<script>
+  const SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbywCeoEu7CNLZtgRKyy4wsnvGw8B6wpNrP5ke0RoJ6XrVfwgsmBKAlIKvli79IVAWQJxQ/exec";
+
+  // ✅ Extract SLUG from URL, not ID
+  const pathParts = window.location.pathname.split("/").filter(Boolean);
+  const spaceSlug = pathParts[pathParts.length - 1];
+
+  const loaderEl = document.getElementById("spaceLoader");
+  const notFoundEl = document.getElementById("spaceNotFound");
+  const contentEl = document.getElementById("spaceContent");
+  const joinBtn = document.getElementById("joinBtn");
+  const toastEl = document.getElementById("spaceToast");
+
+  let spaceData: any = null;
+
+  function showToast(msg: string, duration = 2500) {
+    if (!toastEl) return;
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    setTimeout(() => toastEl.classList.remove("show"), duration);
+  }
+
+  function timeAgo(dateStr: string | null | undefined): string {
+    if (!dateStr) return "";
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return dateStr;
+      const seconds = Math.floor(
+        (new Date().getTime() - date.getTime()) / 1000,
+      );
+      if (seconds < 60) return "Just now";
+      if (seconds < 3600) return Math.floor(seconds / 60) + "m ago";
+      if (seconds < 86400) return Math.floor(seconds / 3600) + "h ago";
+      if (seconds < 604800) return Math.floor(seconds / 86400) + "d ago";
+      return date.toLocaleDateString();
+    } catch (e) {
+      return dateStr || "";
+    }
+  }
+
+  async function loadSpace() {
+    if (!loaderEl || !notFoundEl || !contentEl) return;
+
+    try {
+      // ✅ Fetch by SLUG instead of ID
+      const res = await fetch(
+        `${SCRIPT_URL}?action=getSpaceDetailsBySlug&slug=${encodeURIComponent(spaceSlug)}`,
+      );
+      const space = await res.json();
+
+      if (!space || space.error || space === null) {
+        loaderEl.style.display = "none";
+        notFoundEl.style.display = "block";
+        return;
+      }
+
+      spaceData = space;
+      loaderEl.style.display = "none";
+      contentEl.style.display = "block";
+
+      document.title = `${space.name} - Tech Engineer`;
+
+      const iconEl = document.getElementById("spaceIcon") as HTMLDivElement;
+      iconEl.style.backgroundColor = space.color || "#2e69ff";
+      iconEl.textContent = space.icon || space.name.charAt(0).toUpperCase();
+
+      (document.getElementById("spaceName") as HTMLElement).innerText =
+        space.name;
+      (document.getElementById("spaceDesc") as HTMLElement).innerText =
+        space.description || "No description available.";
+
+      const metaEl = document.getElementById("spaceMeta") as HTMLDivElement;
+      let metaHtml = "";
+      if (space.isPrivate)
+        metaHtml += '<span class="meta-tag private">Private</span>';
+      if (space.category && space.category !== "General")
+        metaHtml += `<span class="meta-tag category">${space.category}</span>`;
+      metaEl.innerHTML = metaHtml;
+
+      (document.getElementById("statMembers") as HTMLElement).innerText =
+        String(space.members || 0);
+      (document.getElementById("statPosts") as HTMLElement).innerText = String(
+        space.posts || 0,
+      );
+
+      if (space.category && space.category !== "General") {
+        (document.getElementById("statCategory") as HTMLElement).style.display =
+          "inline-flex";
+        (document.getElementById("statCategoryText") as HTMLElement).innerText =
+          space.category;
+      }
+
+      updateJoinButton(space);
+
+      if (space.ownerName) {
+        (document.getElementById("ownerCard") as HTMLDivElement).style.display =
+          "block";
+        (document.getElementById("ownerAvatar") as HTMLElement).innerText =
+          space.ownerName.charAt(0).toUpperCase();
+        const ownerLink = document.getElementById(
+          "ownerName",
+        ) as HTMLAnchorElement;
+        ownerLink.innerText = space.ownerName;
+        ownerLink.href = `/user?name=${encodeURIComponent(space.ownerName)}`;
+      }
+
+      loadSpacePosts();
+    } catch (err) {
+      console.error("Error loading space:", err);
+      loaderEl.style.display = "none";
+      notFoundEl.style.display = "block";
+    }
+  }
+
+  async function updateJoinButton(space: any) {
+    const email = localStorage.getItem("userId") || "";
+    if (!email || !joinBtn) return;
+
+    try {
+      const res = await fetch(
+        `${SCRIPT_URL}?action=getSpaces&userEmail=${encodeURIComponent(email)}`,
+      );
+      const spaces = await res.json();
+      const thisSpace = spaces.find((s: any) => s.id === space.id);
+      if (thisSpace && thisSpace.isMember) {
+        space.isMember = true;
+        joinBtn.className = "join-btn joined";
+        joinBtn.textContent = "Joined";
+      } else {
+        space.isMember = false;
+        joinBtn.className = "join-btn not-joined";
+        joinBtn.textContent = "Join";
+      }
+    } catch (e) {
+      space.isMember = false;
+    }
+  }
+
+  joinBtn?.addEventListener("click", async () => {
+    if (!localStorage.getItem("userId")) {
+      const loginModal = document.getElementById(
+        "loginModal",
+      ) as HTMLDivElement;
+      if (loginModal) loginModal.classList.add("active");
+      else window.dispatchEvent(new CustomEvent("show-login-modal"));
+      return;
+    }
+
+    if (!spaceData) return;
+
+    joinBtn.classList.add("loading");
+    const isJoining = !spaceData.isMember;
+    const action = isJoining ? "joinSpace" : "leaveSpace";
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: action,
+          spaceId: spaceData.id, // ← still UUID internally
+          userEmail: localStorage.getItem("userId"),
+          userName: localStorage.getItem("currentUser") || "Anonymous",
+        }),
+      });
+      const result = await res.json();
+
+      if (result.status === "success") {
+        spaceData.isMember = !spaceData.isMember;
+        joinBtn.className = `join-btn ${spaceData.isMember ? "joined" : "not-joined"}`;
+        joinBtn.textContent = spaceData.isMember ? "Joined" : "Join";
+
+        const membersEl = document.getElementById("statMembers") as HTMLElement;
+        const current = parseInt(membersEl.innerText) || 0;
+        membersEl.innerText = String(
+          spaceData.isMember ? current + 1 : Math.max(0, current - 1),
+        );
+
+        showToast(
+          spaceData.isMember
+            ? `Joined ${spaceData.name}`
+            : `Left ${spaceData.name}`,
+        );
+      } else {
+        joinBtn.textContent = spaceData.isMember ? "Joined" : "Join";
+        showToast(result.message || "Action failed");
+      }
+    } catch (err) {
+      joinBtn.textContent = spaceData.isMember ? "Joined" : "Join";
+      showToast("Something went wrong. Try again.");
+    } finally {
+      joinBtn.classList.remove("loading");
+    }
+  });
+
+  async function loadSpacePosts() {
+    const container = document.getElementById("spacePosts") as HTMLDivElement;
+    if (!container || !spaceData) return;
+
+    try {
+      const res = await fetch(`${SCRIPT_URL}?action=getPosts`);
+      const allPosts = await res.json();
+      const recentPosts = Array.isArray(allPosts) ? allPosts.slice(0, 5) : [];
+
+      if (recentPosts.length === 0) {
+        container.innerHTML = `
+          <div class="empty-posts">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <p>No posts yet. Be the first to share!</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = recentPosts
+        .map((post: any) => {
+          const slug =
+            post.slug ||
+            post.heading
+              ?.toLowerCase()
+              .replace(/[^\w ]+/g, "")
+              .replace(/ +/g, "-") ||
+            "";
+          const time = timeAgo(post.updated_time || post.created_at);
+          return `
+          <div class="post-item">
+            <a href="/question/${slug}" class="post-item-link">${post.heading}</a>
+            <div class="post-item-meta">
+              ${post.name || "Anonymous"} · ${time} · ${post.upvotes || 0} upvotes
+            </div>
+          </div>`;
+        })
+        .join("");
+    } catch (err) {
+      console.error("Error loading space posts:", err);
+    }
+  }
+
+  window.addEventListener("user-logged-in", () => {
+    if (spaceData) updateJoinButton(spaceData);
+  });
+
+  loadSpace();
+</script>

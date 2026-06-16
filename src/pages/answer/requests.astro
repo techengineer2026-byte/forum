@@ -2,195 +2,136 @@
 import Layout from "../../layouts/Layout.astro";
 ---
 
-<!-- 1. Added showFooter={false} -->
 <Layout title="Answer Requests - Tech Engineer" showFooter={false}>
-    <div class="page-layout">
-        <!-- 2. LEFT SIDEBAR (Added all links) -->
-        <aside class="sidebar-area">
-            <div class="sticky-wrapper">
-                <p class="nav-title">Questions</p>
-                <ul class="nav-list">
-                    <li><a href="/answer">Questions for you</a></li>
-                    <li class="active">
-                        <a href="/answer/requests">Answer requests</a>
-                    </li>
-                    <li><a href="/answer/drafts">Drafts</a></li>
-                    <li><a href="/answer/ai_interviewer">AI Interviewer</a></li>
-                </ul>
-            </div>
-        </aside>
-
-        <!-- CENTER FEED -->
-        <main class="feed-area">
-            <div class="empty-state">
-                <div class="mailbox-icon">
-                    <svg
-                        width="120"
-                        height="120"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="#ccc"
-                        stroke-width="0.5"
-                    >
-                        <path
-                            d="M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h8"
-                        ></path>
-                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"
-                        ></path>
-                        <path d="M19 16v6"></path>
-                        <path d="M16 19h6"></path>
-                    </svg>
-                </div>
-
-                <h2>Answer Requests</h2>
-                <p>
-                    Ask for answers from other users by clicking Request Answer
-                    on a question. Requests you receive will show up here.
-                </p>
-                <a href="/answer" class="top-questions-btn">See Top Questions</a
-                >
-            </div>
-        </main>
-
-        <!-- RIGHT SIDEBAR (Added sticky) -->
-        <aside class="right-column">
-            <div class="sticky-wrapper">
-                <div class="topic-box">
-                    <h3>Add topics you know about</h3>
-                    <p>
-                        Adding topics helps us find questions for you to answer
-                    </p>
-                    <button class="add-topics-btn">Add topics</button>
-                </div>
-            </div>
-        </aside>
-    </div>
+  <div class="page-layout">
+    <aside class="sidebar-area">
+      <div class="sticky-wrapper">
+        <p class="nav-title">Questions</p>
+        <ul class="nav-list">
+          <li><a href="/answer">Questions for you</a></li>
+          <li class="active"><a href="/answer/requests">Answer requests</a></li>
+          <li><a href="/answer/drafts">Drafts</a></li>
+          <li><a href="/answer/ai_interviewer">AI Interviewer</a></li>
+        </ul>
+      </div>
+    </aside>
+    <main class="feed-area">
+      <div class="feed-header">
+        <span class="star-icon">📨</span>
+        <span>Answer Requests</span>
+      </div>
+      <div class="empty-state">
+        <div class="empty-icon">📬</div>
+        <h3>No Requests Yet</h3>
+        <p>
+          When someone specifically requests your answer, it will appear here.
+        </p>
+        <a href="/answer" class="ask-btn">Browse Questions</a>
+      </div>
+    </main>
+    <aside class="right-column"></aside>
+  </div>
 </Layout>
 
 <style>
-    .page-layout {
-        display: flex;
-        justify-content: center;
-        gap: 30px;
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 30px 15px;
-        /* 3. Added this to allow Sticky to work */
-        align-items: flex-start;
-    }
-
-    /* THE STICKY MAGIC */
-    .sticky-wrapper {
-        position: sticky;
-        top: 80px;
-        height: fit-content;
-    }
-
-    .sidebar-area {
-        width: 160px;
-    }
-    .nav-title {
-        font-weight: bold;
-        font-size: 15px;
-        border-bottom: 1px solid #ddd;
-        padding-bottom: 8px;
-        margin-bottom: 10px;
-    }
-    .nav-list {
-        list-style: none;
-        padding: 0;
-    }
-    .nav-list li {
-        padding: 8px;
-        border-radius: 4px;
-        margin-bottom: 2px;
-    }
-    .nav-list li a {
-        text-decoration: none;
-        color: #636466;
-        font-size: 14px;
-        display: block;
-    }
-
-    .nav-list li.active {
-        background-color: #f7e8e8;
-    }
-    .nav-list li.active a {
-        color: #b92b27;
-        font-weight: bold;
-    }
-    .nav-list li:hover:not(.active) {
-        background-color: #e6e6e6;
-    }
-
-    .feed-area {
-        flex: 1;
-        max-width: 580px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding-top: 50px;
-    }
-    .mailbox-icon {
-        margin-bottom: 20px;
-        opacity: 0.6;
-    }
-    .empty-state {
-        text-align: center;
-    }
-    .empty-state h2 {
-        font-size: 18px;
-        color: #333;
-        margin-bottom: 10px;
-        font-weight: bold;
-    }
-    .empty-state p {
-        font-size: 15px;
-        color: #666;
-        line-height: 1.4;
-        margin-bottom: 25px;
-    }
-
-    .top-questions-btn {
-        background-color: #2e69ff;
-        color: white;
-        text-decoration: none;
-        padding: 10px 24px;
-        border-radius: 20px;
-        font-weight: bold;
-        font-size: 14px;
-        display: inline-block;
-    }
-
-    .right-column {
-        width: 220px;
-    }
-    .topic-box {
-        background: white;
-        border: 1px solid #dee0e1;
-        padding: 16px;
-        border-radius: 8px;
-    }
-    .topic-box h3 {
-        font-size: 14px;
-        margin: 0 0 8px 0;
-        color: #333;
-    }
-    .topic-box p {
-        font-size: 13px;
-        color: #666;
-        margin-bottom: 12px;
-        line-height: 1.4;
-    }
-
-    .add-topics-btn {
-        background: none;
-        border: 1px solid #2e69ff;
-        color: #2e69ff;
-        padding: 6px 16px;
-        border-radius: 20px;
-        font-weight: bold;
-        cursor: pointer;
-        width: 100%;
-    }
+  .page-layout {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px 15px;
+    align-items: flex-start;
+  }
+  .sticky-wrapper {
+    position: sticky;
+    top: 70px;
+  }
+  .sidebar-area {
+    width: 160px;
+  }
+  .nav-title {
+    font-weight: bold;
+    font-size: 15px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+  }
+  .nav-list {
+    list-style: none;
+    padding: 0;
+  }
+  .nav-list li {
+    padding: 8px;
+    border-radius: 4px;
+    margin-bottom: 2px;
+  }
+  .nav-list li a {
+    text-decoration: none;
+    color: #636466;
+    font-size: 14px;
+    display: block;
+  }
+  .nav-list li.active {
+    background-color: #f7e8e8;
+  }
+  .nav-list li.active a {
+    color: #b92b27;
+    font-weight: bold;
+  }
+  .nav-list li:hover:not(.active) {
+    background-color: #e6e6e6;
+  }
+  .feed-area {
+    width: 580px;
+  }
+  .feed-header {
+    padding: 12px 15px;
+    border-bottom: 1px solid #dee0e1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    color: #333;
+    background: white;
+    border-radius: 8px 8px 0 0;
+  }
+  .star-icon {
+    font-size: 18px;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #939598;
+    border: 1px solid #dee0e1;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    background: white;
+  }
+  .empty-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+  }
+  .empty-state h3 {
+    font-size: 18px;
+    color: #636466;
+    margin: 0 0 8px;
+  }
+  .empty-state p {
+    font-size: 14px;
+    margin: 0 0 16px;
+  }
+  .ask-btn {
+    display: inline-block;
+    background: #2e69ff;
+    color: white;
+    padding: 9px 22px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
+  }
+  .right-column {
+    width: 280px;
+  }
 </style>

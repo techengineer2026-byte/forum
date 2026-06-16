@@ -1,8 +1,7 @@
 {
   "hosting": {
     "public": "dist",
-    "cleanUrls": true,
-    "trailingSlash": false,
+    "clean": true,
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -10,8 +9,12 @@
     ],
     "rewrites": [
       {
-        "source": "**",
+        "source": "/question/**",
         "destination": "/question/index.html"
+      },
+      {
+        "source": "/space/**",
+        "destination": "/space/index.html"
       }
     ]
   }

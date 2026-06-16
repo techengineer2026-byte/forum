@@ -1,5 +1,4 @@
 ---
-// src/components/Sidebar.astro
 import CreateSpaceModal from "./CreateSpaceModal.astro";
 ---
 
@@ -20,16 +19,13 @@ import CreateSpaceModal from "./CreateSpaceModal.astro";
   </button>
 
   <footer class="sidebar-footer">
-    <p>
-      About · Careers · Terms · Privacy · Acceptable Use · Advertise · Ad
-      Choices · Grievance Officer
-    </p>
+    <p>About · Terms · Privacy · Contact · Advertise</p>
   </footer>
 </div>
 
 <CreateSpaceModal />
 
-<style>
+<style is:global>
   .sidebar-container {
     width: 100%;
     max-width: 170px;
@@ -172,212 +168,87 @@ import CreateSpaceModal from "./CreateSpaceModal.astro";
     display: none !important;
   }
 </style>
-
 <script>
-  const SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbxlZOW0AuGlzMPuNZ5bGKYiK_DNZp8geGUwrYopvp-lezOxlIjb761sS7aDLPJlRrqDHg/exec";
-
-  // ✅ CORS-safe fetch helper
-  async function fetchScript(
-    action: string,
-    params: Record<string, any> = {},
-    method: "GET" | "POST" = "GET",
-  ) {
-    const url = new URL(SCRIPT_URL);
-    url.searchParams.append("action", action);
-
-    if (method === "GET") {
-      Object.keys(params).forEach((key) => {
-        if (params[key] !== undefined && params[key] !== null) {
-          url.searchParams.append(key, String(params[key]));
-        }
-      });
-    }
-
-    const options: RequestInit = {
-      method,
-      redirect: "follow",
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8",
-      },
-    };
-
-    if (method === "POST") {
-      options.body = JSON.stringify(params);
-    }
-
-    const response = await fetch(url.toString(), options);
-    return response.json();
-  }
-
-  // ✅ Load spaces from server
+  // ✅ NOW POINTING TO YOUR LOCAL SURVER, NOT GOOGLE DIRECTLY
   async function loadSpaces() {
     const userEmail = localStorage.getItem("userId") || "";
     const ul = document.getElementById("spaces-ul");
     if (!ul) return;
 
     try {
-      const spaces = await fetchScript(
-        "getSpaces",
-        { email: userEmail },
-        "GET",
+      // ✅ Call your local Astro API route
+      const response = await fetch(
+        `/api/get-spaces?userEmail=${encodeURIComponent(userEmail)}`,
       );
+      const spaces = await response.json();
 
-      ul.innerHTML = "";
-
-      if (!spaces || spaces.length === 0) {
-        ul.innerHTML =
-          '<li class="loading-spaces">No spaces yet. Create one!</li>';
+      if (!spaces || !Array.isArray(spaces)) {
+        ul.innerHTML = '<li class="loading-spaces">No spaces found.</li>';
         return;
       }
 
-      spaces.forEach((space: any) => {
+      ul.innerHTML = "";
+
+      spaces.forEach((space) => {
         const li = document.createElement("li");
         li.className = "space-item";
-        li.setAttribute("data-topic", space.name);
-        li.setAttribute("data-space-id", space.id);
+        li.setAttribute("data-topic", space.name || "");
+        li.setAttribute("data-is-member", String(space.isMember));
 
-        const initial = space.name.charAt(0).toUpperCase();
+        const initial = space.name ? space.name.charAt(0).toUpperCase() : "?";
         const color = space.color || "#2e69ff";
+        const slug = space.slug || "space";
 
         li.innerHTML = `
           <div class="icon-wrapper" style="background-color: ${color}; border-radius: 4px;">
-            ${
-              space.icon
-                ? `<img src="/assets/${space.icon}" alt="${space.name}" onerror="this.style.display='none';" />`
-                : `<span class="letter-icon">${initial}</span>`
-            }
+            ${space.icon ? `<img src="/assets/${space.icon}" alt="" onerror="this.style.display='none';" />` : `<span class="letter-icon">${initial}</span>`}
           </div>
-          <span class="space-name">${escapeHtml(space.name)}</span>
+          <span class="space-name">${space.name}</span>
           ${space.members > 0 ? `<span class="member-count">${space.members}</span>` : ""}
         `;
 
         li.addEventListener("click", () => {
-          window.location.href = `/space/${space.id}`;
+          window.location.href = `/space/${slug}`;
         });
 
         ul.appendChild(li);
       });
 
+      // Import and run your filter logic here if needed
       filterSidebar();
     } catch (err) {
-      console.error("Load spaces error:", err);
-      if (ul)
-        ul.innerHTML = '<li class="loading-spaces">Could not load spaces</li>';
+      console.error("❌ SideBar Error:", err);
+      ul.innerHTML = '<li class="loading-spaces">Error loading sidebar</li>';
     }
   }
 
-  // ✅ Escape HTML to prevent XSS
-  function escapeHtml(text: string): string {
-    const div = document.createElement("div");
-    div.textContent = text;
-    return div.innerHTML;
-  }
-
-  // ✅ Normalize strings for better matching
-  function normalize(str: string): string {
-    return str
-      .toLowerCase()
-      .replace(/[&]/g, "and")
-      .replace(/[-_]/g, " ")
-      .replace(/[^\w\s]/g, "")
-      .replace(/\s+/g, " ")
-      .trim();
-  }
-
-  function topicMatches(spaceTopic: string, userInterests: string[]): boolean {
-    const normalizedSpace = normalize(spaceTopic);
-
-    for (const interest of userInterests) {
-      const normalizedInterest = normalize(interest);
-
-      if (normalizedSpace === normalizedInterest) return true;
-      if (
-        normalizedSpace.length > 3 &&
-        normalizedInterest.includes(normalizedSpace)
-      )
-        return true;
-      if (
-        normalizedInterest.length > 3 &&
-        normalizedSpace.includes(normalizedInterest)
-      )
-        return true;
-
-      const interestWords = normalizedInterest
-        .split(" ")
-        .filter((w) => w.length > 3);
-      const spaceWords = normalizedSpace.split(" ").filter((w) => w.length > 3);
-
-      for (const word of interestWords) {
-        if (spaceWords.includes(word)) return true;
-      }
-    }
-
-    return false;
-  }
-
+  // Reuse your filterSidebar function from before...
   function filterSidebar() {
     const userInterests = localStorage.getItem("userInterests") || "";
     const spaceItems = document.querySelectorAll(".space-item");
-    const toggleBtn = document.getElementById("toggle-spaces-btn");
-
-    if (!userInterests || userInterests.trim().length === 0) {
+    if (!userInterests || userInterests.trim() === "") {
       spaceItems.forEach((item) => item.classList.remove("filtered-out"));
-      if (toggleBtn) toggleBtn.classList.add("hidden");
       return;
     }
-
     const interestsArray = userInterests
+      .toLowerCase()
       .split(",")
-      .map((t) => t.trim())
-      .filter(Boolean);
-    let hiddenCount = 0;
-
+      .map((i) => i.trim());
     spaceItems.forEach((item) => {
-      const topic = item.getAttribute("data-topic") || "";
-
-      if (topicMatches(topic, interestsArray)) {
-        item.classList.remove("filtered-out");
-      } else {
-        item.classList.add("filtered-out");
-        hiddenCount++;
-      }
+      const topic = (item.getAttribute("data-topic") || "").toLowerCase();
+      const isMember = item.getAttribute("data-is-member") === "true";
+      const matchesInterest = interestsArray.some((interest) =>
+        topic.includes(interest),
+      );
+      if (isMember || matchesInterest) item.classList.remove("filtered-out");
+      else item.classList.add("filtered-out");
     });
-
-    if (toggleBtn) {
-      if (hiddenCount > 0) {
-        toggleBtn.classList.remove("hidden");
-        toggleBtn.innerText = `Show All Spaces (${hiddenCount} more)`;
-      } else {
-        toggleBtn.classList.add("hidden");
-      }
-    }
   }
 
-  // Run on load
+  // Initial load
   loadSpaces();
 
-  // Re-run on events
+  // Listen for events
   window.addEventListener("user-logged-in", loadSpaces);
-  window.addEventListener("interests-updated", loadSpaces);
   window.addEventListener("space-created", loadSpaces);
-  window.addEventListener("storage", (e) => {
-    if (e.key === "userInterests") filterSidebar();
-  });
-
-  // Toggle button
-  const toggleBtn = document.getElementById("toggle-spaces-btn");
-  let showingAll = false;
-
-  toggleBtn?.addEventListener("click", () => {
-    const spaceItems = document.querySelectorAll(".space-item");
-    showingAll = !showingAll;
-
-    if (showingAll) {
-      spaceItems.forEach((item) => item.classList.remove("filtered-out"));
-      if (toggleBtn) toggleBtn.innerText = "Show Only My Interests";
-    } else {
-      filterSidebar();
-    }
-  });
 </script>

@@ -2,45 +2,31 @@
 import Layout from "../layouts/Layout.astro";
 ---
 
-<Layout title="Search" showFooter={false}>
+<Layout title="Search - Tech Engineer" showFooter={false}>
   <div class="search-container">
     <!-- Sidebar / Filters -->
     <aside class="sidebar">
       <div class="filter-group type-filters">
         <h3>By type</h3>
-        <ul class="horizontal-scroll-mobile">
-          <li class="active">All types</li>
-          <li>Questions</li>
-          <li>Answers</li>
-          <li>Posts</li>
-          <li>Profiles</li>
-          <li>Topics</li>
-          <li>Spaces</li>
+        <ul class="horizontal-scroll-mobile" id="typeFilters">
+          <li class="active" data-type="all">All types</li>
+          <li data-type="Question">Questions</li>
+          <li data-type="Post">Posts</li>
+          <li data-type="Profiles">Profiles</li>
+          <li data-type="Spaces">Spaces</li>
         </ul>
       </div>
 
       <div class="desktop-only-filters">
         <section class="filter-group">
-          <h3>By author</h3>
-          <ul>
-            <li class="active">All people</li>
-            <li>People you follow</li>
-          </ul>
-          <div class="search-input-wrapper">
-            <span class="search-icon">🔍</span>
-            <input type="text" placeholder="Author" />
-          </div>
-        </section>
-
-        <section class="filter-group">
           <h3>By time</h3>
-          <ul>
-            <li class="active">All time</li>
-            <li>Past hour</li>
-            <li>Past day</li>
-            <li>Past week</li>
-            <li>Past month</li>
-            <li>Past year</li>
+          <ul id="timeFilters">
+            <li class="active" data-time="all">All time</li>
+            <li data-time="hour">Past hour</li>
+            <li data-time="day">Past day</li>
+            <li data-time="week">Past week</li>
+            <li data-time="month">Past month</li>
+            <li data-time="year">Past year</li>
           </ul>
         </section>
       </div>
@@ -52,65 +38,192 @@ import Layout from "../layouts/Layout.astro";
         <span class="query-text"
           >Results for <strong id="search-query-display">...</strong></span
         >
-        <div class="sort-dropdown">Most relevant ▾</div>
+        <button class="sort-dropdown" id="sortBtn" type="button">
+          Most relevant
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            ><polyline points="6 9 12 15 18 9"></polyline></svg
+          >
+        </button>
+        <div class="sort-menu" id="sortMenu">
+          <button class="sort-option active" data-sort="relevant"
+            >Most relevant</button
+          >
+          <button class="sort-option" data-sort="newest">Newest</button>
+          <button class="sort-option" data-sort="upvotes">Most upvoted</button>
+        </div>
       </div>
 
-      <div id="results" class="results-card">
-        <div class="empty-state">
-          <p>
-            We couldn't find any results for '<span id="empty-query"></span>'.
-          </p>
-          <button class="add-question-btn">Add question</button>
+      <!-- SKELETON LOADING -->
+      <div id="searchSkeleton" class="results-card">
+        <div class="skel-result">
+          <div class="skel skel-badge"></div>
+          <div class="skel skel-heading"></div>
+          <div class="skel skel-line"></div>
+          <div class="skel skel-line skel-short"></div>
+          <div class="skel skel-meta"></div>
         </div>
+        <div class="skel-result">
+          <div class="skel skel-badge" style="width:45px"></div>
+          <div class="skel skel-heading" style="width:70%"></div>
+          <div class="skel skel-line" style="width:90%"></div>
+          <div class="skel skel-line skel-short" style="width:50%"></div>
+          <div class="skel skel-meta" style="width:35%"></div>
+        </div>
+        <div class="skel-result">
+          <div class="skel skel-badge" style="width:50px"></div>
+          <div class="skel skel-heading" style="width:65%"></div>
+          <div class="skel skel-line" style="width:85%"></div>
+          <div class="skel skel-line skel-short" style="width:55%"></div>
+          <div class="skel skel-meta" style="width:40%"></div>
+        </div>
+      </div>
+
+      <!-- REAL RESULTS -->
+      <div id="results" class="results-card" style="display:none;"></div>
+
+      <!-- EMPTY STATE -->
+      <div
+        id="emptyState"
+        class="results-card empty-state"
+        style="display:none;"
+      >
+        <svg
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#d1d5db"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          ><circle cx="11" cy="11" r="8"></circle><line
+            x1="21"
+            y1="21"
+            x2="16.65"
+            y2="16.65"></line></svg
+        >
+        <p>
+          We couldn't find any results for '<span id="empty-query"></span>'.
+        </p>
+        <button class="add-question-btn" id="addQuestionBtn" type="button">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            ><line x1="12" y1="5" x2="12" y2="19"></line><line
+              x1="5"
+              y1="12"
+              x2="19"
+              y2="12"></line></svg
+          >
+          Add question
+        </button>
       </div>
     </main>
   </div>
 </Layout>
 
-<style>
+<style is:global>
   :root {
     --q-red: #b92b27;
     --q-blue: #2e69ff;
-    --border-gray: #dee0e1;
-    --text-dark: #282829;
-    --text-light: #636466;
-    --sidebar-active-bg: #fbe9e7;
-    --sidebar-active-text: #b92b27;
+    --border-gray: #e5e7eb;
+    --text-dark: #111827;
+    --text-mid: #374151;
+    --text-light: #6b7280;
+    --sidebar-active-bg: #eef3ff;
+    --sidebar-active-text: #2e69ff;
   }
 
-  /* LAYOUT */
+  /* ===== SKELETON ===== */
+  .skel {
+    background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+    background-size: 200% 100%;
+    animation: skelPulse 1.5s ease-in-out infinite;
+    border-radius: 4px;
+  }
+  @keyframes skelPulse {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+  .skel-result {
+    padding: 20px 0;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  .skel-result:last-child {
+    border-bottom: none;
+  }
+  .skel-badge {
+    width: 60px;
+    height: 18px;
+    margin-bottom: 10px;
+  }
+  .skel-heading {
+    width: 75%;
+    height: 18px;
+    margin-bottom: 8px;
+  }
+  .skel-line {
+    width: 100%;
+    height: 12px;
+    margin-bottom: 6px;
+  }
+  .skel-short {
+    width: 60%;
+  }
+  .skel-meta {
+    width: 40%;
+    height: 11px;
+    margin-top: 8px;
+  }
+
+  /* ===== LAYOUT ===== */
   .search-container {
     display: flex;
     max-width: 1000px;
-    margin: 32px auto;
-    gap: 32px;
+    margin: 20px auto;
+    gap: 24px;
     padding: 0 16px;
-    font-family:
-      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
-      sans-serif;
   }
 
   .sidebar {
-    width: 240px;
+    width: 220px;
     flex-shrink: 0;
   }
-
   .main-content {
     flex-grow: 1;
-    min-width: 0; /* Prevents flex items from overflowing */
+    min-width: 0;
   }
 
-  /* SIDEBAR ITEMS */
+  /* ===== SIDEBAR ===== */
   .filter-group {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
   .filter-group h3 {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
-    color: var(--text-dark);
-    margin-bottom: 8px;
-    padding-left: 8px;
-    text-transform: capitalize;
+    color: var(--text-light);
+    margin: 0 0 8px;
+    padding-left: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
 
   .sidebar ul {
@@ -121,106 +234,296 @@ import Layout from "../layouts/Layout.astro";
   .sidebar li {
     padding: 8px 12px;
     font-size: 13px;
-    color: var(--text-light);
+    color: var(--text-mid);
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 6px;
     white-space: nowrap;
+    transition: all 0.1s;
+    font-weight: 500;
+    -webkit-tap-highlight-color: transparent;
   }
-
+  .sidebar li:hover {
+    background: #f9fafb;
+  }
   .sidebar li.active {
     background-color: var(--sidebar-active-bg);
     color: var(--sidebar-active-text);
-    font-weight: 500;
+    font-weight: 700;
   }
 
-  .search-input-wrapper {
-    position: relative;
-    margin: 8px 12px;
-  }
-  .search-input-wrapper input {
-    width: 100%;
-    padding: 6px 10px 6px 30px;
-    border: 1px solid var(--border-gray);
-    border-radius: 3px;
-  }
-
-  /* RESULTS CARD */
+  /* ===== RESULTS HEADER ===== */
   .results-header {
     display: flex;
+    align-items: center;
     justify-content: space-between;
     padding: 12px 16px;
     border: 1px solid var(--border-gray);
     background: #fff;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
+    border-radius: 12px 12px 0 0;
     font-size: 14px;
+    position: relative;
+  }
+  .query-text {
+    color: var(--text-light);
+  }
+  .query-text strong {
+    color: var(--text-dark);
   }
 
+  .sort-dropdown {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: 1px solid var(--border-gray);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-mid);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .sort-dropdown:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+  }
+
+  .sort-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 16px;
+    background: white;
+    border: 1px solid var(--border-gray);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    z-index: 100;
+    display: none;
+    padding: 4px 0;
+    min-width: 160px;
+  }
+  .sort-menu.active {
+    display: block;
+  }
+  .sort-option {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-mid);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .sort-option:hover {
+    background: #f9fafb;
+  }
+  .sort-option.active {
+    color: var(--q-blue);
+    font-weight: 700;
+  }
+
+  /* ===== RESULTS CARD ===== */
   .results-card {
     background: white;
     border: 1px solid var(--border-gray);
     border-top: none;
-    border-bottom-left-radius: 8px;
-    border-bottom-right-radius: 8px;
-    padding: 24px;
+    border-radius: 0 0 12px 12px;
+    padding: 4px 16px;
   }
 
+  /* ===== SEARCH RESULT ITEM ===== */
+  .search-result {
+    padding: 16px 0;
+    border-bottom: 1px solid #f3f4f6;
+    transition: background 0.1s;
+  }
+  .search-result:last-child {
+    border-bottom: none;
+  }
+
+  .result-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .result-type-badge.question {
+    background: #eef3ff;
+    color: #2e69ff;
+  }
+  .result-type-badge.post {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  .result-type-badge.profile {
+    background: #ecfdf5;
+    color: #059669;
+  }
+  .result-type-badge.space {
+    background: #f3e8ff;
+    color: #7c3aed;
+  }
+
+  .result-heading {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 6px;
+    line-height: 1.4;
+    text-decoration: none;
+    display: block;
+  }
+  .result-heading:hover {
+    color: var(--q-blue);
+    text-decoration: underline;
+  }
+
+  .result-snippet {
+    font-size: 14px;
+    color: var(--text-light);
+    line-height: 1.5;
+    margin: 0 0 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .result-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: #9ca3af;
+    flex-wrap: wrap;
+  }
+  .result-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .result-meta-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  mark {
+    background: #fef3c7;
+    color: #92400e;
+    padding: 1px 2px;
+    border-radius: 2px;
+    font-weight: 700;
+  }
+
+  /* ===== EMPTY STATE ===== */
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+  }
+  .empty-state p {
+    color: var(--text-light);
+    font-size: 15px;
+    margin: 14px 0 0;
+  }
   .add-question-btn {
     background-color: var(--q-blue);
     color: white;
     border: none;
-    padding: 8px 18px;
-    border-radius: 20px;
-    font-weight: 600;
+    padding: 10px 22px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 14px;
     cursor: pointer;
-    margin-top: 12px;
+    margin-top: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .add-question-btn:hover {
+    background: #1e5ae6;
+  }
+  .add-question-btn:active {
+    transform: scale(0.97);
   }
 
-  /* --- MOBILE RESPONSIVE LOGIC --- */
+  /* ===== TOAST ===== */
+  .search-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #111827;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  }
+  .search-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ===== MOBILE ===== */
+  .desktop-only-filters {
+    display: block;
+  }
 
   @media (max-width: 768px) {
     .search-container {
-      flex-direction: column; /* Stack sidebar on top of content */
+      flex-direction: column;
       margin: 0;
       padding: 0;
       gap: 0;
     }
-
     .sidebar {
       width: 100%;
       background: #fff;
       border-bottom: 1px solid var(--border-gray);
-      padding-top: 10px;
+      padding: 10px 0 0;
     }
-
-    /* Hide less important filters on mobile to save space */
     .desktop-only-filters {
       display: none;
     }
-
     .filter-group h3 {
       padding-left: 16px;
     }
+    .filter-group.type-filters {
+      margin-bottom: 0;
+    }
 
-    /* Make the "By type" categories scroll horizontally */
     .horizontal-scroll-mobile {
       display: flex;
       overflow-x: auto;
-      padding: 0 10px 10px 10px;
+      padding: 0 10px 10px;
       -webkit-overflow-scrolling: touch;
+      gap: 6px;
     }
-
     .horizontal-scroll-mobile::-webkit-scrollbar {
-      display: none; /* Hide scrollbar for clean look */
+      display: none;
     }
 
     .sidebar li {
-      padding: 6px 15px;
-      margin-right: 5px;
-      background: #f0f0f0; /* Give them a pill shape on mobile */
-      border-radius: 20px;
+      padding: 6px 14px;
+      background: #f3f4f6;
+      border-radius: 999px;
+      font-size: 12px;
     }
-
     .sidebar li.active {
       background-color: var(--sidebar-active-bg);
     }
@@ -228,31 +531,448 @@ import Layout from "../layouts/Layout.astro";
     .main-content {
       padding: 12px;
     }
-
     .results-header,
     .results-card {
-      border-radius: 8px; /* On mobile, give both parts rounded corners */
+      border-radius: 12px;
       border: 1px solid var(--border-gray);
     }
-
     .results-card {
       margin-top: 8px;
+      border-top: 1px solid var(--border-gray);
     }
   }
 </style>
 
 <script>
-  import { renderSearchResults } from "../scripts/questionEngine";
+  const SHEET_URL =
+    "https://script.google.com/macros/s/AKfycbywCeoEu7CNLZtgRKyy4wsnvGw8B6wpNrP5ke0RoJ6XrVfwgsmBKAlIKvli79IVAWQJxQ/exec";
 
-  // Logic to show query in the UI
   const urlParams = new URLSearchParams(window.location.search);
   const query = urlParams.get("q") || "";
 
+  let currentType = "all";
+  let currentTime = "all";
+  let currentSort = "relevant";
+  let allResults: any[] = [];
+
+  // ===== ELEMENTS =====
   const queryDisplay = document.getElementById("search-query-display");
   const emptyQuery = document.getElementById("empty-query");
+  const skeletonEl = document.getElementById(
+    "searchSkeleton",
+  ) as HTMLDivElement;
+  const resultsEl = document.getElementById("results") as HTMLDivElement;
+  const emptyEl = document.getElementById("emptyState") as HTMLDivElement;
+  const sortBtn = document.getElementById("sortBtn") as HTMLButtonElement;
+  const sortMenu = document.getElementById("sortMenu") as HTMLDivElement;
 
   if (queryDisplay) queryDisplay.innerText = query;
   if (emptyQuery) emptyQuery.innerText = query;
 
-  renderSearchResults();
+  // Update page title
+  if (query) {
+    document.title = `Search: ${query} - Tech Engineer`;
+  }
+
+  // ===== TOAST =====
+  function showToast(message: string, duration = 2500) {
+    let toast = document.querySelector(".search-toast") as HTMLDivElement;
+    if (!toast) {
+      toast = document.createElement("div");
+      toast.className = "search-toast";
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), duration);
+  }
+
+  // ===== HELPERS =====
+  function getMediaUrl(url: string | null | undefined): string {
+    if (!url || url === "icon.png" || url === "null" || url === "")
+      return "/assets/icon.png";
+    if (url.startsWith("data:")) return url;
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    if (url.startsWith("iVBOR") || url.startsWith("/9j/"))
+      return `data:image/png;base64,${url}`;
+    return `/assets/${url}`;
+  }
+
+  function timeAgo(dateStr: string | null | undefined): string {
+    if (!dateStr) return "";
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return dateStr;
+      const seconds = Math.floor(
+        (new Date().getTime() - date.getTime()) / 1000,
+      );
+      if (seconds < 60) return "Just now";
+      if (seconds < 3600) return Math.floor(seconds / 60) + "m ago";
+      if (seconds < 86400) return Math.floor(seconds / 3600) + "h ago";
+      if (seconds < 604800) return Math.floor(seconds / 86400) + "d ago";
+      return date.toLocaleDateString();
+    } catch (e) {
+      return dateStr;
+    }
+  }
+
+  function isWithinTime(
+    dateStr: string | null | undefined,
+    timeFilter: string,
+  ): boolean {
+    if (timeFilter === "all" || !dateStr) return true;
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return true;
+      const now = new Date().getTime();
+      const diff = now - date.getTime();
+      const hour = 3600000;
+      const day = 86400000;
+      const week = 604800000;
+      const month = 2592000000;
+      const year = 31536000000;
+
+      switch (timeFilter) {
+        case "hour":
+          return diff < hour;
+        case "day":
+          return diff < day;
+        case "week":
+          return diff < week;
+        case "month":
+          return diff < month;
+        case "year":
+          return diff < year;
+        default:
+          return true;
+      }
+    } catch (e) {
+      return true;
+    }
+  }
+
+  function highlightText(text: string, q: string): string {
+    if (!q || !text) return text;
+    const words = q.split(" ").filter((w) => w.length > 1);
+    let result = text;
+    words.forEach((word) => {
+      const regex = new RegExp(
+        `(${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
+        "gi",
+      );
+      result = result.replace(regex, "<mark>$1</mark>");
+    });
+    return result;
+  }
+
+  // ===== FETCH ALL DATA =====
+  async function fetchSearchData() {
+    try {
+      // Fetch posts
+      const postsRes = await fetch(`${SHEET_URL}?action=getPosts`);
+      const posts = await postsRes.json();
+
+      // Fetch spaces
+      const spacesRes = await fetch(`${SHEET_URL}?action=getSpaces`);
+      const spaces = await spacesRes.json();
+
+      // Fetch writers (profiles)
+      const writersRes = await fetch(`${SHEET_URL}?action=getWriters`);
+      const writers = await writersRes.json();
+
+      allResults = [];
+
+      // Add posts as search results
+      if (Array.isArray(posts)) {
+        posts.forEach((post: any) => {
+          allResults.push({
+            type: post.type || "Question",
+            heading: post.heading || "",
+            description: post.description || "",
+            slug:
+              post.slug ||
+              post.heading
+                ?.toLowerCase()
+                .replace(/[^\w ]+/g, "")
+                .replace(/ +/g, "-") ||
+              "",
+            name: post.name || "",
+            avatar: post.avatar || "",
+            upvotes: post.upvotes || 0,
+            comments: post.comments || 0,
+            time: post.updated_time || post.created_at || "",
+            sortTime: post.created_at ? new Date(post.created_at).getTime() : 0,
+          });
+        });
+      }
+
+      // Add spaces
+      if (Array.isArray(spaces)) {
+        spaces.forEach((space: any) => {
+          allResults.push({
+            type: "Spaces",
+            heading: space.name || "",
+            description: space.description || "",
+            slug: "",
+            spaceId: space.id,
+            spaceColor: space.color || "#7c3aed",
+            spaceIcon: space.icon || "",
+            members: space.members || 0,
+            posts: space.posts || 0,
+            time: space.createdAt || "",
+            sortTime: space.createdAt ? new Date(space.createdAt).getTime() : 0,
+          });
+        });
+      }
+
+      // Add profiles
+      if (Array.isArray(writers)) {
+        writers.forEach((writer: any) => {
+          allResults.push({
+            type: "Profiles",
+            heading: writer.name || "",
+            description: writer.expertise || "",
+            slug: "",
+            writerName: writer.name,
+            writerAvatar: writer.avatar || "",
+            writerTopics: writer.topics || [],
+            time: "",
+            sortTime: 0,
+          });
+        });
+      }
+    } catch (err) {
+      console.error("Search fetch error:", err);
+    }
+  }
+
+  // ===== RENDER RESULTS =====
+  function renderResults() {
+    const q = query.toLowerCase().trim();
+    if (!q) {
+      skeletonEl.style.display = "none";
+      emptyEl.style.display = "block";
+      resultsEl.style.display = "none";
+      return;
+    }
+
+    // Filter by query
+    let filtered = allResults.filter((item) => {
+      const heading = (item.heading || "").toLowerCase();
+      const desc = (item.description || "").toLowerCase();
+      const name = (item.name || "").toLowerCase();
+      return heading.includes(q) || desc.includes(q) || name.includes(q);
+    });
+
+    // Filter by type
+    if (currentType !== "all") {
+      filtered = filtered.filter((item) => item.type === currentType);
+    }
+
+    // Filter by time
+    if (currentTime !== "all") {
+      filtered = filtered.filter((item) =>
+        isWithinTime(item.time, currentTime),
+      );
+    }
+
+    // Sort
+    if (currentSort === "newest") {
+      filtered.sort((a, b) => (b.sortTime || 0) - (a.sortTime || 0));
+    } else if (currentSort === "upvotes") {
+      filtered.sort((a, b) => (b.upvotes || 0) - (a.upvotes || 0));
+    }
+    // "relevant" keeps the default order (heading match first)
+
+    skeletonEl.style.display = "none";
+
+    if (filtered.length === 0) {
+      emptyEl.style.display = "block";
+      resultsEl.style.display = "none";
+      return;
+    }
+
+    emptyEl.style.display = "none";
+    resultsEl.style.display = "block";
+    resultsEl.innerHTML = "";
+
+    filtered.forEach((item) => {
+      const div = document.createElement("div");
+      div.className = "search-result";
+
+      const typeClass =
+        item.type === "Question"
+          ? "question"
+          : item.type === "Post"
+            ? "post"
+            : item.type === "Profiles"
+              ? "profile"
+              : "space";
+
+      const typeIcon =
+        item.type === "Question"
+          ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+          : item.type === "Post"
+            ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'
+            : item.type === "Profiles"
+              ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+              : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>';
+
+      const highlightedHeading = highlightText(item.heading, query);
+      const highlightedDesc = highlightText(
+        (item.description || "").substring(0, 200),
+        query,
+      );
+      const timeStr = timeAgo(item.time);
+
+      if (item.type === "Profiles") {
+        // Profile card
+        const profileUrl = `/user?name=${encodeURIComponent(item.writerName || item.heading)}`;
+        div.innerHTML = `
+          <span class="result-type-badge ${typeClass}">${typeIcon} ${item.type}</span>
+          <a href="${profileUrl}" class="result-heading">${highlightedHeading}</a>
+          ${item.description ? `<p class="result-snippet">${highlightedDesc}</p>` : ""}
+          <div class="result-meta">
+            <span class="result-meta-item">
+              <svg class="result-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Profile
+            </span>
+          </div>
+        `;
+      } else if (item.type === "Spaces") {
+        // Space card
+        div.innerHTML = `
+          <span class="result-type-badge ${typeClass}">${typeIcon} ${item.type}</span>
+          <span class="result-heading" style="cursor:default">${highlightedHeading}</span>
+          ${item.description ? `<p class="result-snippet">${highlightedDesc}</p>` : ""}
+          <div class="result-meta">
+            <span class="result-meta-item">
+              <svg class="result-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+              ${item.members || 0} members
+            </span>
+            <span class="result-meta-item">
+              <svg class="result-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              ${item.posts || 0} posts
+            </span>
+          </div>
+        `;
+      } else {
+        // Question/Post card
+        const postUrl = `/question/${item.slug}`;
+        div.innerHTML = `
+          <span class="result-type-badge ${typeClass}">${typeIcon} ${item.type}</span>
+          <a href="${postUrl}" class="result-heading">${highlightedHeading}</a>
+          ${item.description ? `<p class="result-snippet">${highlightedDesc}</p>` : ""}
+          <div class="result-meta">
+            ${
+              item.name
+                ? `<span class="result-meta-item">
+              <svg class="result-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              ${item.name}
+            </span>`
+                : ""
+            }
+            ${
+              timeStr
+                ? `<span class="result-meta-item">
+              <svg class="result-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ${timeStr}
+            </span>`
+                : ""
+            }
+            <span class="result-meta-item">
+              <svg class="result-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+              ${item.upvotes || 0}
+            </span>
+            <span class="result-meta-item">
+              <svg class="result-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              ${item.comments || 0}
+            </span>
+          </div>
+        `;
+      }
+
+      resultsEl.appendChild(div);
+    });
+  }
+
+  // ===== TYPE FILTER CLICKS =====
+  document.querySelectorAll("#typeFilters li").forEach((li) => {
+    li.addEventListener("click", () => {
+      document
+        .querySelectorAll("#typeFilters li")
+        .forEach((l) => l.classList.remove("active"));
+      li.classList.add("active");
+      currentType = (li as HTMLElement).getAttribute("data-type") || "all";
+      renderResults();
+    });
+  });
+
+  // ===== TIME FILTER CLICKS =====
+  document.querySelectorAll("#timeFilters li").forEach((li) => {
+    li.addEventListener("click", () => {
+      document
+        .querySelectorAll("#timeFilters li")
+        .forEach((l) => l.classList.remove("active"));
+      li.classList.add("active");
+      currentTime = (li as HTMLElement).getAttribute("data-time") || "all";
+      renderResults();
+    });
+  });
+
+  // ===== SORT DROPDOWN =====
+  sortBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    sortMenu?.classList.toggle("active");
+  });
+  document.addEventListener("click", (e) => {
+    if (!sortMenu?.contains(e.target as Node)) {
+      sortMenu?.classList.remove("active");
+    }
+  });
+  document.querySelectorAll(".sort-option").forEach((opt) => {
+    opt.addEventListener("click", () => {
+      currentSort =
+        (opt as HTMLElement).getAttribute("data-sort") || "relevant";
+      document
+        .querySelectorAll(".sort-option")
+        .forEach((o) => o.classList.remove("active"));
+      opt.classList.add("active");
+      if (sortBtn) {
+        sortBtn.innerHTML = `${opt.textContent} <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+      }
+      sortMenu?.classList.remove("active");
+      renderResults();
+    });
+  });
+
+  // ===== ADD QUESTION BUTTON =====
+  document.getElementById("addQuestionBtn")?.addEventListener("click", () => {
+    const isLoggedIn = !!localStorage.getItem("userId");
+    if (isLoggedIn) {
+      const questionModal = document.getElementById(
+        "question-modal",
+      ) as HTMLDialogElement;
+      questionModal?.showModal();
+    } else {
+      const loginModal = document.getElementById(
+        "loginModal",
+      ) as HTMLDivElement;
+      if (loginModal) loginModal.classList.add("active");
+      else window.dispatchEvent(new CustomEvent("show-login-modal"));
+    }
+  });
+
+  // ===== START SEARCH =====
+  async function initSearch() {
+    if (!query.trim()) {
+      skeletonEl.style.display = "none";
+      emptyEl.style.display = "block";
+      return;
+    }
+    await fetchSearchData();
+    renderResults();
+  }
+
+  initSearch();
 </script>

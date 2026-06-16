@@ -57,7 +57,7 @@ const { isLoggedIn = false } = Astro.props;
             ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path
               d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg
           >
-          <span class="dot"></span>
+          <span class="notif-dot" id="desktopNotifDot"></span>
         </a>
       </div>
     </div>
@@ -93,7 +93,11 @@ const { isLoggedIn = false } = Astro.props;
 
     <!-- RIGHT: Buttons & Profile -->
     <div class="header-right">
-      <button id="mobileSearchBtn" class="mobile-icon-btn mobile-only">
+      <button
+        id="mobileSearchBtn"
+        class="mobile-icon-btn mobile-only"
+        aria-label="Search"
+      >
         <svg
           width="22"
           height="22"
@@ -109,12 +113,45 @@ const { isLoggedIn = false } = Astro.props;
         >
       </button>
 
+      <a
+        href="/notifications"
+        class="mobile-icon-btn mobile-only"
+        aria-label="Notifications"
+        style="text-decoration:none;position:relative;"
+      >
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path
+            d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg
+        >
+        <span class="notif-dot" id="mobileNotifDot"></span>
+      </a>
+
       <button
         id="askBtn"
         class="ask-btn"
         data-logged-in={isLoggedIn.toString()}
       >
-        Ask Question
+        <svg
+          class="ask-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          ><line x1="12" y1="5" x2="12" y2="19"></line><line
+            x1="5"
+            y1="12"
+            x2="19"
+            y2="12"></line></svg
+        >
+        <span class="ask-text">Ask</span>
       </button>
 
       <div class="profile-area" id="profileArea">
@@ -124,8 +161,8 @@ const { isLoggedIn = false } = Astro.props;
             class={`guest-avatar ${isLoggedIn ? "hidden" : ""}`}
           >
             <svg
-              width="26"
-              height="26"
+              width="24"
+              height="24"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -136,7 +173,7 @@ const { isLoggedIn = false } = Astro.props;
           </div>
           <img
             id="user-avatar"
-            src="https://i.pravatar.cc/150?u=tech"
+            src="/assets/icon.png"
             class={`avatar ${isLoggedIn ? "" : "hidden"}`}
             alt="User"
           />
@@ -145,10 +182,10 @@ const { isLoggedIn = false } = Astro.props;
         <div class="profile-menu-dropdown" id="userDropdown">
           <div class="dropdown-info">
             <strong id="displayUserName">Guest Engineer</strong>
-            <span>View Profile</span>
+            <a href="/profile" class="dropdown-view-profile">View Profile</a>
           </div>
           <div class="dropdown-divider"></div>
-          <a href="/profile" class="dropdown-item">
+          <a href="/user" class="dropdown-item">
             <svg
               width="18"
               height="18"
@@ -161,12 +198,58 @@ const { isLoggedIn = false } = Astro.props;
             >
             Profile
           </a>
+          <a href="/notifications" class="dropdown-item">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"
+              ></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg
+            >
+            Notifications
+          </a>
+          <a href="/space" class="dropdown-item">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              ><rect x="3" y="3" width="7" height="7"></rect><rect
+                x="14"
+                y="3"
+                width="7"
+                height="7"></rect><rect x="14" y="14" width="7" height="7"
+              ></rect><rect x="3" y="14" width="7" height="7"></rect></svg
+            >
+            Spaces
+          </a>
           <div class="dropdown-divider"></div>
-          <button id="signOutBtn" class="dropdown-item logout">Sign Out</button>
+          <button id="signOutBtn" class="dropdown-item logout">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
+              ></path><polyline points="16 17 21 12 16 7"></polyline><line
+                x1="21"
+                y1="12"
+                x2="9"
+                y2="12"></line></svg
+            >
+            Sign Out
+          </button>
         </div>
       </div>
 
-      <button id="menuToggle" class="hamburger mobile-only">
+      <button id="menuToggle" class="hamburger mobile-only" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
     </div>
@@ -174,76 +257,154 @@ const { isLoggedIn = false } = Astro.props;
 
   <!-- Mobile search bar -->
   <div id="mobileSearchBar" class="mobile-search-bar">
-    <input
-      type="text"
-      placeholder="Search..."
-      id="mobileSearchInput"
-      autocomplete="off"
-    />
+    <div class="mobile-search-inner">
+      <svg
+        class="mobile-search-icon"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#999"
+        stroke-width="2"
+        ><circle cx="11" cy="11" r="8"></circle><line
+          x1="21"
+          y1="21"
+          x2="16.65"
+          y2="16.65"></line></svg
+      >
+      <input
+        type="text"
+        placeholder="Search questions, topics, code..."
+        id="mobileSearchInput"
+        autocomplete="off"
+      />
+      <button
+        id="mobileSearchClose"
+        class="mobile-search-close"
+        aria-label="Close search"
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          ><line x1="18" y1="6" x2="6" y2="18"></line><line
+            x1="6"
+            y1="6"
+            x2="18"
+            y2="18"></line></svg
+        >
+      </button>
+    </div>
     <div class="search-dropdown mobile-dropdown" id="mobileSearchDropdown">
       <div class="search-dropdown-content" id="mobileSearchResults"></div>
     </div>
   </div>
-
-  <!-- MOBILE MENU DRAWER -->
-  <div id="mobileMenu" class="mobile-menu">
-    <div class="mobile-menu-header">
-      <h3>Menu</h3>
-      <button id="closeMenu" class="close-btn">✕</button>
-    </div>
-    <div class="mobile-menu-content">
-      <a href="/" class="mobile-menu-item active"
-        ><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"
-          ><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path></svg
-        > Home</a
-      >
-      <a href="/following" class="mobile-menu-item"
-        ><svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          ><rect x="3" y="3" width="7" height="7"></rect><rect
-            x="14"
-            y="3"
-            width="7"
-            height="7"></rect><rect x="14" y="14" width="7" height="7"
-          ></rect><rect x="3" y="14" width="7" height="7"></rect></svg
-        > Following</a
-      >
-      <a href="/answer" class="mobile-menu-item"
-        ><svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          ><path
-            d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
-          ></path></svg
-        > Answer</a
-      >
-      <a href="/notifications" class="mobile-menu-item"
-        ><svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path
-            d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg
-        > Notifications <span class="notification-badge">3</span></a
-      >
-      <div class="mobile-menu-divider"></div>
-      <a href="/spaces" class="mobile-menu-item">Spaces</a>
-      <a href="/settings" class="mobile-menu-item">Settings</a>
-    </div>
-  </div>
 </nav>
+
+<!-- MOBILE MENU OVERLAY -->
+<div id="mobileOverlay" class="mobile-overlay"></div>
+
+<!-- MOBILE MENU DRAWER -->
+<div id="mobileMenu" class="mobile-menu">
+  <div class="mobile-menu-header">
+    <div class="mobile-menu-brand">
+      <img src="/assets/icon.png" alt="" class="mobile-menu-logo" />
+      <span>Tech Engineer</span>
+    </div>
+    <button id="closeMenu" class="close-btn" aria-label="Close menu">
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        ><line x1="18" y1="6" x2="6" y2="18"></line><line
+          x1="6"
+          y1="6"
+          x2="18"
+          y2="18"></line></svg
+      >
+    </button>
+  </div>
+  <div class="nav-icons desktop-only">
+    <a
+      href="/"
+      class={`icon-link ${pathname === "/" ? "active" : ""}`}
+      title="Home"
+    >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"
+        ><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path></svg
+      >
+    </a>
+    <a
+      href="/following"
+      class={`icon-link ${pathname.startsWith("/following") ? "active" : ""}`}
+      title="Following"
+    >
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        ><rect x="3" y="3" width="7" height="7"></rect><rect
+          x="14"
+          y="3"
+          width="7"
+          height="7"></rect><rect x="14" y="14" width="7" height="7"
+        ></rect><rect x="3" y="14" width="7" height="7"></rect></svg
+      >
+    </a>
+    <!-- ✅ ADD THIS NEW SPACES ICON HERE -->
+    <a
+      href="/space"
+      class={`icon-link ${pathname.startsWith("/space") ? "active" : ""}`}
+      title="Spaces"
+    >
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        ><circle cx="12" cy="12" r="10"></circle><line
+          x1="2"
+          y1="12"
+          x2="22"
+          y2="12"></line><path
+          d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+        ></path></svg
+      >
+      <span class="nav-badge">NEW</span>
+    </a>
+    <a
+      href="/notifications"
+      class={`icon-link notification ${pathname.startsWith("/notifications") ? "active" : ""}`}
+      title="Notifications"
+    >
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path
+          d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg
+      >
+      <span class="notif-dot" id="desktopNotifDot"></span>
+    </a>
+  </div>
+</div>
+
 <!-- ONBOARDING: TOPIC SELECTION MODAL -->
 <div id="interestModal" class="login-modal">
   <div class="modal-content interest-content">
@@ -254,9 +415,13 @@ const { isLoggedIn = false } = Astro.props;
     >
   </div>
 </div>
+
 <!-- LOGIN MODAL -->
 <div id="loginModal" class="login-modal">
   <div class="modal-content">
+    <div class="modal-logo-wrap">
+      <img src="/assets/icon.png" alt="" class="modal-logo" />
+    </div>
     <h3>Welcome to Tech Engineer</h3>
     <p>Sign in to ask questions, post, and interact.</p>
 
@@ -279,16 +444,6 @@ const { isLoggedIn = false } = Astro.props;
         >
         Sign in with Google
       </button>
-
-      <button id="xLoginBtn" class="social-login-btn x-btn" type="button">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"
-          ><path
-            d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
-          ></path></svg
-        >
-        Sign in with X
-      </button>
-
       <button
         id="githubLoginBtn"
         class="social-login-btn github-btn"
@@ -306,7 +461,8 @@ const { isLoggedIn = false } = Astro.props;
     <button id="closeModal" class="close-text">Cancel</button>
   </div>
 </div>
-<!-- PROFILE SETUP MODAL (Name & Role) -->
+
+<!-- PROFILE SETUP MODAL -->
 <div id="profileSetupModal" class="login-modal">
   <div class="modal-content">
     <h3>Set up your profile</h3>
@@ -327,7 +483,20 @@ const { isLoggedIn = false } = Astro.props;
 <!-- WELCOME MODAL -->
 <div id="welcomeModal" class="login-modal">
   <div class="modal-content">
-    <div style="font-size: 50px; margin-bottom: 10px;">🎉</div>
+    <div class="welcome-icon-wrap">
+      <svg
+        width="48"
+        height="48"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#2e69ff"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        ><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline
+          points="22 4 12 14.01 9 11.01"></polyline></svg
+      >
+    </div>
     <h3>Welcome to Tech Engineer!</h3>
     <p>
       Your profile is ready. Start asking questions, sharing knowledge, and
@@ -336,8 +505,9 @@ const { isLoggedIn = false } = Astro.props;
     <button id="welcomeDoneBtn" class="login-submit">Let's Go!</button>
   </div>
 </div>
+
 <style is:global>
-  /* Topic Onboarding Styles */
+  /* ===== TOPIC CHIPS ===== */
   .interest-content {
     max-width: 500px;
   }
@@ -358,6 +528,7 @@ const { isLoggedIn = false } = Astro.props;
     color: #636466;
     transition: all 0.2s;
     user-select: none;
+    -webkit-tap-highlight-color: transparent;
   }
   .topic-chip:hover {
     border-color: #2e69ff;
@@ -370,7 +541,9 @@ const { isLoggedIn = false } = Astro.props;
     font-weight: bold;
   }
 </style>
+
 <style>
+  /* ===== HEADER BAR ===== */
   .header {
     background: white;
     border-bottom: 1px solid #e0e0e0;
@@ -378,40 +551,176 @@ const { isLoggedIn = false } = Astro.props;
     top: 0;
     width: 100%;
     z-index: 1000;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   }
-  .google-login-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    width: 100%;
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    background: white;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 600;
-    color: #333;
-    margin-top: 10px;
-    transition:
-      background 0.2s,
-      box-shadow 0.2s;
-  }
-  .google-login-btn:hover {
-    background: #f7f7f7;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
+
   .header-container {
     max-width: 1100px;
     margin: 0 auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 6px 15px;
+    padding: 0 16px;
+    height: 56px;
     gap: 12px;
   }
+
+  /* ===== LEFT ===== */
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .logo-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+  }
+  .logo-img {
+    height: 30px;
+    width: auto;
+  }
+  .logo {
+    color: #1a4a7c;
+    font-size: 17px;
+    font-weight: 800;
+    text-decoration: none;
+    font-family: "Inter", sans-serif;
+    white-space: nowrap;
+  }
+
+  .nav-icons {
+    display: flex;
+    gap: 4px;
+    color: #666;
+  }
+  .icon-link {
+    color: #6b7280;
+    text-decoration: none;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.15s;
+    min-width: 40px;
+    min-height: 40px;
+  }
+  .icon-link:hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+  .icon-link.active {
+    color: #2e69ff;
+    background: #eef3ff;
+  }
+  .notif-dot {
+    height: 8px;
+    width: 8px;
+    background: #ef4444;
+    border-radius: 50%;
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    border: 2px solid white;
+    display: none;
+  }
+  .notif-dot.has-notif {
+    display: block;
+  }
+
+  /* ===== CENTER: SEARCH ===== */
+  .header-center {
+    flex: 1;
+    max-width: 480px;
+    min-width: 0;
+  }
+  .search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    pointer-events: none;
+  }
+  .search-wrapper input {
+    width: 100%;
+    padding: 9px 12px 9px 38px;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    font-size: 14px;
+    outline: none;
+    background: #f9fafb;
+    transition: all 0.15s;
+  }
+  .search-wrapper input:focus {
+    border-color: #2e69ff;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(46, 105, 255, 0.1);
+  }
+
+  /* ===== RIGHT ===== */
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .ask-btn {
+    background: #2e69ff;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+    white-space: nowrap;
+    min-height: 38px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .ask-btn:hover {
+    background: #1e5ae6;
+  }
+  .ask-btn:active {
+    transform: scale(0.97);
+  }
+  .ask-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .mobile-icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    min-height: 40px;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mobile-icon-btn:hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+
+  /* ===== PROFILE AREA ===== */
   .profile-area {
     position: relative;
   }
@@ -421,16 +730,386 @@ const { isLoggedIn = false } = Astro.props;
     align-items: center;
     padding: 4px;
     border-radius: 50%;
-    transition: background 0.2s;
+    transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
   }
   .profile-trigger:hover {
-    background: #f0f0f0;
+    background: #f3f4f6;
   }
+  .avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #e5e7eb;
+    object-fit: cover;
+  }
+  .guest-avatar {
+    color: #6b7280;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #f3f4f6;
+  }
+
+  .profile-menu-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 240px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+    display: none;
+    flex-direction: column;
+    z-index: 2000;
+    padding: 6px 0;
+    animation: dropIn 0.15s ease;
+  }
+  @keyframes dropIn {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .profile-menu-dropdown.active {
+    display: flex;
+  }
+
+  .dropdown-info {
+    padding: 14px 16px 10px;
+    display: flex;
+    flex-direction: column;
+  }
+  .dropdown-info strong {
+    font-size: 15px;
+    color: #111827;
+  }
+  .dropdown-view-profile {
+    font-size: 12px;
+    color: #2e69ff;
+    text-decoration: none;
+    margin-top: 2px;
+  }
+  .dropdown-view-profile:hover {
+    text-decoration: underline;
+  }
+  .dropdown-divider {
+    height: 1px;
+    background: #f3f4f6;
+    margin: 4px 0;
+  }
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    color: #374151;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .dropdown-item:hover {
+    background: #f9fafb;
+  }
+  .dropdown-item svg {
+    color: #6b7280;
+    flex-shrink: 0;
+  }
+  .dropdown-item.logout {
+    color: #ef4444;
+  }
+  .dropdown-item.logout svg {
+    color: #ef4444;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  /* ===== MOBILE OVERLAY ===== */
+  .mobile-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .mobile-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ===== MOBILE MENU DRAWER ===== */
+  .mobile-menu {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 280px;
+    height: 100%;
+    background: white;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+    z-index: 2001;
+    transition: left 0.3s ease;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .mobile-menu.active {
+    left: 0;
+  }
+
+  .mobile-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  .mobile-menu-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 800;
+    font-size: 16px;
+    color: #1a4a7c;
+  }
+  .mobile-menu-logo {
+    height: 28px;
+    width: auto;
+  }
+  .close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 6px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    min-height: 36px;
+    transition: all 0.15s;
+  }
+  .close-btn:hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+
+  .mobile-menu-content {
+    padding: 8px 0;
+  }
+  .mobile-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 24px;
+    color: #374151;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mobile-menu-item:hover {
+    background: #f9fafb;
+  }
+  .mobile-menu-item svg {
+    color: #6b7280;
+    flex-shrink: 0;
+  }
+  .mobile-menu-divider {
+    height: 1px;
+    background: #f3f4f6;
+    margin: 8px 0;
+  }
+
+  /* ===== MOBILE SEARCH BAR ===== */
+  .mobile-search-bar {
+    display: none;
+    padding: 8px 16px 12px;
+    border-top: 1px solid #f3f4f6;
+    background: white;
+  }
+  .mobile-search-bar.active {
+    display: block;
+  }
+  .mobile-search-inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .mobile-search-icon {
+    position: absolute;
+    left: 12px;
+    pointer-events: none;
+  }
+  .mobile-search-bar input {
+    width: 100%;
+    padding: 10px 40px 10px 38px;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    font-size: 16px; /* Prevents iOS zoom */
+    outline: none;
+    background: #f9fafb;
+    box-sizing: border-box;
+  }
+  .mobile-search-bar input:focus {
+    border-color: #2e69ff;
+    background: white;
+  }
+  .mobile-search-close {
+    position: absolute;
+    right: 4px;
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  /* ===== HAMBURGER ===== */
+  .hamburger {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 8px;
+    min-width: 40px;
+    min-height: 40px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s;
+  }
+  .hamburger:hover {
+    background: #f3f4f6;
+  }
+  .hamburger span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: #374151;
+    border-radius: 2px;
+    transition: all 0.3s;
+  }
+  .hamburger.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+  .hamburger.active span:nth-child(2) {
+    opacity: 0;
+  }
+  .hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+  }
+
+  /* ===== LOGIN MODALS ===== */
+  .login-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 3000;
+    padding: 16px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .login-modal.active {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 10vh;
+  }
+  @media (max-height: 600px) {
+    .login-modal.active {
+      padding-top: 16px;
+    }
+  }
+
+  .modal-content {
+    background: white;
+    padding: 28px 24px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    animation: modalIn 0.2s ease;
+  }
+  @keyframes modalIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  .modal-logo-wrap {
+    margin-bottom: 12px;
+  }
+  .modal-logo {
+    height: 40px;
+    width: auto;
+  }
+  .modal-content h3 {
+    margin: 0 0 6px;
+    font-size: 20px;
+    color: #111827;
+  }
+  .modal-content p {
+    margin: 0 0 16px;
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.5;
+  }
+  .modal-content input {
+    width: 100%;
+    padding: 12px 14px;
+    margin: 0 0 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 16px; /* Prevents iOS zoom */
+    box-sizing: border-box;
+    outline: none;
+  }
+  .modal-content input:focus {
+    border-color: #2e69ff;
+    box-shadow: 0 0 0 3px rgba(46, 105, 255, 0.1);
+  }
+
   .social-login-group {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-top: 10px;
+    margin-top: 8px;
   }
   .social-login-btn {
     display: flex;
@@ -439,30 +1118,21 @@ const { isLoggedIn = false } = Astro.props;
     gap: 12px;
     width: 100%;
     padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
     background: white;
     cursor: pointer;
     font-size: 15px;
     font-weight: 600;
     color: #333;
-    transition:
-      background 0.2s,
-      box-shadow 0.2s;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
   }
-  .social-login-btn:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  .social-login-btn:active {
+    transform: scale(0.98);
   }
   .google-btn:hover {
-    background: #f7f7f7;
-  }
-  .x-btn {
-    background: #000;
-    color: white;
-    border-color: #000;
-  }
-  .x-btn:hover {
-    background: #333;
+    background: #f9fafb;
   }
   .github-btn {
     background: #24292f;
@@ -472,393 +1142,90 @@ const { isLoggedIn = false } = Astro.props;
   .github-btn:hover {
     background: #424a53;
   }
-  .profile-menu-dropdown {
-    position: absolute;
-    top: calc(100% + 10px);
-    right: 0;
-    width: 220px;
-    background: white;
-    border: 1px solid #dee0e1;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    display: none;
-    flex-direction: column;
-    z-index: 2000;
-    padding: 8px 0;
-  }
-  .profile-menu-dropdown.active {
-    display: flex;
-  }
-  .dropdown-info {
-    padding: 12px 16px;
-    display: flex;
-    flex-direction: column;
-  }
-  .dropdown-info strong {
-    font-size: 15px;
-    color: #333;
-  }
-  .dropdown-info span {
-    font-size: 12px;
-    color: #939598;
-  }
-  .dropdown-divider {
-    height: 1px;
-    background: #eee;
-    margin: 4px 0;
-  }
-  .dropdown-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 16px;
-    color: #333;
-    text-decoration: none;
-    font-size: 14px;
-    background: none;
-    border: none;
-    width: 100%;
-    text-align: left;
-    cursor: pointer;
-  }
-  .dropdown-item:hover {
-    background: #f7f7f7;
-  }
-  .dropdown-item.logout {
-    color: #cb1c1c;
-  }
-  .dropdown-item svg {
-    color: #666;
-  }
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-  .logo-wrap {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-  }
-  .logo-img {
-    height: 32px;
-    width: auto;
-  }
-  .logo {
-    color: #1a4a7c;
-    font-size: 19px;
-    font-weight: bold;
-    text-decoration: none;
-    font-family: sans-serif;
-  }
-  .nav-icons {
-    display: flex;
-    gap: 18px;
-    color: #666;
-  }
-  .icon-link {
-    color: #666;
-    text-decoration: none;
-    position: relative;
-    display: flex;
-    padding: 8px;
-    border-radius: 4px;
-  }
-  .icon-link:hover {
-    background: #f7f7f7;
-  }
-  .icon-link.active {
-    color: #b92b27;
-    border-bottom: 3px solid #b92b27;
-    border-radius: 0;
-  }
-  .dot {
-    height: 7px;
-    width: 7px;
-    background: #cb1c1c;
-    border-radius: 50%;
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    border: 2px solid white;
-  }
-  .header-center {
-    flex-grow: 1;
-    max-width: 500px;
-  }
-  .search-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-  .search-icon {
-    position: absolute;
-    left: 10px;
-  }
-  .search-wrapper input {
-    width: 100%;
-    padding: 8px 10px 8px 35px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-    outline: none;
-  }
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .ask-btn {
-    background: #b92b27;
-    color: white;
-    border: none;
-    padding: 7px 16px;
-    border-radius: 20px;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 13px;
-  }
-  .avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    cursor: pointer;
-    border: 1px solid #ddd;
-  }
-  .guest-avatar {
-    color: #666;
-    cursor: pointer;
-  }
-  .hidden {
-    display: none !important;
-  }
 
-  /* Login Modal */
-  .login-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 2000;
-  }
-  .login-modal.active {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .modal-content {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 400px;
-    text-align: center;
-  }
-  .modal-content h3 {
-    margin: 0 0 5px 0;
-  }
-  .modal-content p {
-    margin: 0 0 15px 0;
-    font-size: 14px;
-    color: #666;
-  }
-  .modal-content input {
-    width: 100%;
-    padding: 10px;
-    margin: 0 0 15px 0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
-  }
   .login-submit {
     background: #2e69ff;
     color: white;
     border: none;
     width: 100%;
     padding: 12px;
-    border-radius: 24px;
-    font-weight: bold;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 15px;
     cursor: pointer;
+    transition: all 0.15s;
+    min-height: 46px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .login-submit:hover {
+    background: #1e5ae6;
+  }
+  .login-submit:active {
+    transform: scale(0.98);
   }
   .login-submit:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
+  .login-submit.loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.85;
+    color: transparent !important;
+  }
+  .login-submit.loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 22px;
+    height: 22px;
+    margin: -11px 0 0 -11px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: btn-spin 0.6s linear infinite;
+  }
+  @keyframes btn-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
   .close-text {
     background: none;
     border: none;
-    color: #999;
-    margin-top: 15px;
+    color: #9ca3af;
+    margin-top: 16px;
     cursor: pointer;
-  }
-
-  /* Mobile Search Bar */
-  .mobile-search-bar {
-    display: none;
-    padding: 8px 15px;
-    border-top: 1px solid #eee;
-  }
-  .mobile-search-bar.active {
-    display: block;
-  }
-  .mobile-search-bar input {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 20px;
     font-size: 14px;
-    outline: none;
-    box-sizing: border-box;
+    padding: 8px;
+  }
+  .close-text:hover {
+    color: #6b7280;
   }
 
-  .hamburger {
-    background: none;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    padding: 4px;
-  }
-  .hamburger span {
-    display: block;
-    width: 22px;
-    height: 2px;
-    background: #333;
-    border-radius: 2px;
-    transition: all 0.3s;
-  }
-  .mobile-icon-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #666;
-    padding: 6px;
-    display: flex;
-    align-items: center;
-  }
-
-  /* MOBILE MENU */
-  .mobile-menu {
-    position: fixed;
-    top: 0;
-    right: -100%;
-    width: 280px;
-    height: 100%;
-    background: white;
-    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
-    z-index: 2001;
-    transition: right 0.3s ease;
-    overflow-y: auto;
-  }
-  .mobile-menu.active {
-    right: 0;
-  }
-  .mobile-menu-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px;
-    border-bottom: 1px solid #eee;
-  }
-  .mobile-menu-header h3 {
-    margin: 0;
-    font-size: 18px;
-  }
-  .close-btn {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #666;
-    padding: 0;
-    width: 32px;
-    height: 32px;
+  .welcome-icon-wrap {
+    width: 72px;
+    height: 72px;
+    background: #eef3ff;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-  .mobile-menu-content {
-    padding: 8px 0;
-  }
-  .mobile-menu-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 20px;
-    color: #333;
-    text-decoration: none;
-    font-size: 15px;
-    position: relative;
-    transition: background 0.2s;
-  }
-  .mobile-menu-item:hover {
-    background: #f7f7f7;
-  }
-  .mobile-menu-item.active {
-    background: #f0f0f0;
-    color: #b92b27;
-    font-weight: 600;
-  }
-  .notification-badge {
-    margin-left: auto;
-    background: #cb1c1c;
-    color: white;
-    border-radius: 10px;
-    padding: 2px 8px;
-    font-size: 12px;
-    font-weight: bold;
-  }
-  .mobile-menu-divider {
-    height: 1px;
-    background: #eee;
-    margin: 8px 0;
+    margin: 0 auto 12px;
   }
 
-  .mobile-only {
-    display: none !important;
-  }
-  @media (max-width: 768px) {
-    .desktop-only,
-    .desktop-search {
-      display: none !important;
-    }
-    .mobile-only {
-      display: flex !important;
-    }
-    .header-container {
-      padding: 8px 12px;
-    }
-    .ask-btn {
-      padding: 6px 10px;
-      font-size: 12px;
-      white-space: nowrap;
-    }
-    .avatar {
-      width: 28px;
-      height: 28px;
-    }
-  }
-  @media (max-width: 380px) {
-    .logo {
-      display: none;
-    }
-  }
-
-  /* SEARCH DROPDOWN */
+  /* ===== SEARCH DROPDOWN ===== */
   .search-dropdown {
     position: absolute;
     top: calc(100% + 8px);
     left: 0;
     right: 0;
     background: white;
-    border: 1px solid #dee0e1;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
     max-height: 400px;
     overflow-y: auto;
     z-index: 1500;
@@ -868,107 +1235,199 @@ const { isLoggedIn = false } = Astro.props;
     display: block;
   }
   .search-dropdown-content {
-    padding: 8px 0;
+    padding: 6px 0;
   }
   .search-result-item {
     display: block;
-    padding: 10px 16px;
-    color: #333;
+    padding: 12px 16px;
+    color: #374151;
     text-decoration: none;
     cursor: pointer;
     font-size: 14px;
-    transition: background 0.2s;
-    border-bottom: 1px solid #f5f5f5;
+    transition: background 0.1s;
+    border-bottom: 1px solid #f9fafb;
+    -webkit-tap-highlight-color: transparent;
   }
   .search-result-item:hover {
-    background: #f7f7f7;
+    background: #f9fafb;
   }
   .search-result-item:last-child {
     border-bottom: none;
   }
-  .search-result-item .result-question {
-    font-weight: 500;
+  .result-question {
+    font-weight: 600;
     color: #2e69ff;
     margin-bottom: 2px;
   }
-  .search-result-item .result-snippet {
+  .result-snippet {
     font-size: 12px;
-    color: #939598;
+    color: #9ca3af;
   }
   .search-no-results {
-    padding: 20px;
+    padding: 24px;
     text-align: center;
-    color: #939598;
-    font-size: 13px;
+    color: #9ca3af;
+    font-size: 14px;
   }
   mark {
-    background: #fff3cd;
+    background: #fef3c7;
+    color: #92400e;
     padding: 1px 2px;
     border-radius: 2px;
-    font-weight: bold;
+    font-weight: 700;
   }
   .mobile-dropdown {
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 15px;
-    right: 15px;
-    max-width: calc(100vw - 30px);
+    position: fixed;
+    top: auto;
+    left: 16px;
+    right: 16px;
+    bottom: auto;
+    max-height: 60vh;
+    width: auto;
+    z-index: 1500;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  .desktop-only {
+    display: flex !important;
+  }
+  .desktop-search {
+    display: flex !important;
+  }
+  .mobile-only {
+    display: none !important;
+  }
+
+  @media (max-width: 768px) {
+    .desktop-only,
+    .desktop-search {
+      display: none !important;
+    }
+    .mobile-only {
+      display: flex !important;
+    }
+
+    .header-container {
+      height: 52px;
+      padding: 0 12px;
+      gap: 6px;
+    }
+    .logo-img {
+      height: 26px;
+    }
+    .logo {
+      font-size: 15px;
+    }
+    .ask-btn {
+      padding: 7px 14px;
+      font-size: 13px;
+    }
+    .ask-text {
+      display: inline;
+    }
+    .avatar {
+      width: 30px;
+      height: 30px;
+    }
+    .guest-avatar {
+      width: 30px;
+      height: 30px;
+    }
+    .profile-menu-dropdown {
+      position: fixed;
+      top: auto;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      border-radius: 16px 16px 0 0;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+      animation: slideUp 0.2s ease;
+    }
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%);
+      }
+      to {
+        transform: translateY(0);
+      }
+    }
+  }
+
+  @media (max-width: 380px) {
+    .logo {
+      display: none;
+    }
+    .ask-text {
+      display: none;
+    }
+    .ask-btn {
+      padding: 8px 10px;
+    }
+  }
+
+  /* Safe area for notched phones */
+  @supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .profile-menu-dropdown {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .mobile-menu {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
   }
 </style>
+
 <script>
-  // ====== CONFIG ======
-  // ✅ FIX: Removed "?action=getPosts" from here. It belongs in index.astro!
   const GOOGLE_SHEET_URL =
-    "https://script.google.com/macros/s/AKfycbxlZOW0AuGlzMPuNZ5bGKYiK_DNZp8geGUwrYopvp-lezOxlIjb761sS7aDLPJlRrqDHg/exec";
-  (function cleanupOldData() {
-    const oldKey = "recentQuestion";
-    if (localStorage.getItem(oldKey)) {
-      localStorage.removeItem(oldKey);
-      console.log("✅ Cleaned up old recentQuestion data");
-    }
-  })();
+    "https://script.google.com/macros/s/AKfycbywCeoEu7CNLZtgRKyy4wsnvGw8B6wpNrP5ke0RoJ6XrVfwgsmBKAlIKvli79IVAWQJxQ/exec";
+
+  // Cleanup old data
+  if (localStorage.getItem("recentQuestion")) {
+    localStorage.removeItem("recentQuestion");
+  }
+
   // ====== ELEMENTS ======
-  const askBtn = document.getElementById("askBtn") as HTMLButtonElement | null;
-  const loginModal = document.getElementById(
-    "loginModal",
-  ) as HTMLDivElement | null;
+  const askBtn = document.getElementById("askBtn") as HTMLButtonElement;
+  const loginModal = document.getElementById("loginModal") as HTMLDivElement;
   const interestModal = document.getElementById(
     "interestModal",
-  ) as HTMLDivElement | null;
-  const closeModal = document.getElementById(
-    "closeModal",
-  ) as HTMLButtonElement | null;
+  ) as HTMLDivElement;
+  const closeModal = document.getElementById("closeModal") as HTMLButtonElement;
   const saveInterestsBtn = document.getElementById(
     "saveInterestsBtn",
-  ) as HTMLButtonElement | null;
-  const guestIcon = document.getElementById(
-    "guest-icon",
-  ) as HTMLDivElement | null;
-  const userAvatar = document.getElementById(
-    "user-avatar",
-  ) as HTMLImageElement | null;
+  ) as HTMLButtonElement;
+  const guestIcon = document.getElementById("guest-icon") as HTMLDivElement;
+  const userAvatar = document.getElementById("user-avatar") as HTMLImageElement;
   const questionModal = document.getElementById(
     "question-modal",
-  ) as HTMLDialogElement | null;
+  ) as HTMLDialogElement;
   const mobileSearchBtn = document.getElementById(
     "mobileSearchBtn",
-  ) as HTMLButtonElement | null;
+  ) as HTMLButtonElement;
   const mobileSearchBar = document.getElementById(
     "mobileSearchBar",
-  ) as HTMLDivElement | null;
-  const menuToggle = document.getElementById(
-    "menuToggle",
-  ) as HTMLButtonElement | null;
-  const mobileMenu = document.getElementById(
-    "mobileMenu",
-  ) as HTMLDivElement | null;
+  ) as HTMLDivElement;
+  const mobileSearchClose = document.getElementById(
+    "mobileSearchClose",
+  ) as HTMLButtonElement;
+  const menuToggle = document.getElementById("menuToggle") as HTMLButtonElement;
+  const mobileMenu = document.getElementById("mobileMenu") as HTMLDivElement;
+  const mobileOverlay = document.getElementById(
+    "mobileOverlay",
+  ) as HTMLDivElement;
   const closeMenuBtn = document.getElementById(
     "closeMenu",
-  ) as HTMLButtonElement | null;
-  const profileTrigger = document.getElementById("profile-trigger");
-  const userDropdown = document.getElementById("userDropdown");
-  const signOutBtn = document.getElementById("signOutBtn");
-  const displayUserName = document.getElementById("displayUserName");
+  ) as HTMLButtonElement;
+  const profileTrigger = document.getElementById(
+    "profile-trigger",
+  ) as HTMLDivElement;
+  const userDropdown = document.getElementById(
+    "userDropdown",
+  ) as HTMLDivElement;
+  const signOutBtn = document.getElementById("signOutBtn") as HTMLButtonElement;
+  const displayUserName = document.getElementById(
+    "displayUserName",
+  ) as HTMLElement;
 
   // ====== TOPICS DATA ======
   const availableTopics = [
@@ -1005,7 +1464,7 @@ const { isLoggedIn = false } = Astro.props;
     topicGrid?.appendChild(chip);
   });
 
-  // ====== 1. CHECK EXISTING LOGIN ======
+  // ====== CHECK EXISTING LOGIN ======
   function checkExistingLogin() {
     const savedId = localStorage.getItem("userId");
     const savedName = localStorage.getItem("currentUser");
@@ -1016,32 +1475,54 @@ const { isLoggedIn = false } = Astro.props;
       guestIcon?.classList.add("hidden");
       userAvatar?.classList.remove("hidden");
       if (displayUserName) displayUserName.innerText = savedName;
-      if (savedAvatar && userAvatar) userAvatar.src = savedAvatar;
+      if (savedAvatar && userAvatar) {
+        userAvatar.src =
+          savedAvatar.startsWith("http") || savedAvatar.startsWith("data:")
+            ? savedAvatar
+            : `/assets/${savedAvatar}`;
+      }
+      // Update mobile profile link
+      const mobileProfileLink = document.getElementById(
+        "mobileProfileLink",
+      ) as HTMLAnchorElement;
+      if (mobileProfileLink) {
+        mobileProfileLink.href = `/user?name=${encodeURIComponent(savedName)}`;
+      }
     }
   }
   checkExistingLogin();
 
-  // ====== 2. MOBILE TOGGLES ======
-  mobileSearchBtn?.addEventListener("click", () =>
-    mobileSearchBar?.classList.toggle("active"),
-  );
-  menuToggle?.addEventListener("click", () =>
-    mobileMenu?.classList.add("active"),
-  );
-  closeMenuBtn?.addEventListener("click", () =>
-    mobileMenu?.classList.remove("active"),
-  );
-  document.addEventListener("click", (e) => {
-    if (
-      mobileMenu?.classList.contains("active") &&
-      !mobileMenu.contains(e.target as Node) &&
-      e.target !== menuToggle
-    ) {
-      mobileMenu.classList.remove("active");
-    }
+  // ====== MOBILE MENU ======
+  function openMobileMenu() {
+    mobileMenu?.classList.add("active");
+    mobileOverlay?.classList.add("active");
+    menuToggle?.classList.add("active");
+    document.body.style.overflow = "hidden";
+  }
+  function closeMobileMenu() {
+    mobileMenu?.classList.remove("active");
+    mobileOverlay?.classList.remove("active");
+    menuToggle?.classList.remove("active");
+    document.body.style.overflow = "";
+  }
+  menuToggle?.addEventListener("click", openMobileMenu);
+  closeMenuBtn?.addEventListener("click", closeMobileMenu);
+  mobileOverlay?.addEventListener("click", closeMobileMenu);
+
+  // ====== MOBILE SEARCH ======
+  mobileSearchBtn?.addEventListener("click", () => {
+    mobileSearchBar?.classList.add("active");
+    setTimeout(() => {
+      (
+        document.getElementById("mobileSearchInput") as HTMLInputElement
+      )?.focus();
+    }, 100);
+  });
+  mobileSearchClose?.addEventListener("click", () => {
+    mobileSearchBar?.classList.remove("active");
   });
 
-  // ====== 3. ASK BUTTON ======
+  // ====== ASK BUTTON ======
   askBtn?.addEventListener("click", () => {
     const isLoggedIn = askBtn.getAttribute("data-logged-in") === "true";
     if (isLoggedIn) {
@@ -1051,8 +1532,7 @@ const { isLoggedIn = false } = Astro.props;
     }
   });
 
-  // ====== 4. FIREBASE GOOGLE LOGIN ======
-  // ====== 4. FIREBASE SOCIAL LOGIN ======
+  // ====== FIREBASE SOCIAL LOGIN ======
   const firebase = (window as any).firebase;
   let currentAuthEmail = "";
   let currentAuthPhoto = "";
@@ -1069,14 +1549,12 @@ const { isLoggedIn = false } = Astro.props;
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    // ✅ REUSABLE LOGIN FUNCTION (Works for Google, X, GitHub)
     async function handleSocialLogin(provider: any) {
       try {
         const result = await auth.signInWithPopup(provider);
         const user = result.user;
-
         if (user) {
-          const email = user.email || `${user.uid}@social-login`; // Fallback for GitHub/X if email is private
+          const email = user.email || `${user.uid}@social-login`;
           const userName = user.displayName || "";
           const userPhoto = user.photoURL || "";
 
@@ -1088,10 +1566,8 @@ const { isLoggedIn = false } = Astro.props;
           if (userData.isNew) {
             currentAuthEmail = email;
             currentAuthPhoto = userPhoto;
-
             (document.getElementById("setupName") as HTMLInputElement).value =
               userName;
-
             loginModal?.classList.remove("active");
             document
               .getElementById("profileSetupModal")
@@ -1106,7 +1582,6 @@ const { isLoggedIn = false } = Astro.props;
 
             loginModal?.classList.remove("active");
             window.dispatchEvent(new CustomEvent("user-logged-in"));
-
             updateUIAfterLogin(
               userData.name || userName,
               userData.avatar || userPhoto,
@@ -1116,24 +1591,14 @@ const { isLoggedIn = false } = Astro.props;
       } catch (error: any) {
         if (error.code !== "auth/popup-closed-by-user") {
           console.error("Login Error:", error);
-          alert("Login failed. Please try again.");
         }
       }
     }
 
-    // Google Login
     document.getElementById("googleLoginBtn")?.addEventListener("click", () => {
       const provider = new firebase.auth.GoogleAuthProvider();
       handleSocialLogin(provider);
     });
-
-    // X (Twitter) Login
-    document.getElementById("xLoginBtn")?.addEventListener("click", () => {
-      const provider = new firebase.auth.TwitterAuthProvider();
-      handleSocialLogin(provider);
-    });
-
-    // GitHub Login
     document.getElementById("githubLoginBtn")?.addEventListener("click", () => {
       const provider = new firebase.auth.GithubAuthProvider();
       handleSocialLogin(provider);
@@ -1149,12 +1614,21 @@ const { isLoggedIn = false } = Astro.props;
       userAvatar.src = photoURL;
       localStorage.setItem("userAvatar", photoURL);
     }
+    const mobileProfileLink = document.getElementById(
+      "mobileProfileLink",
+    ) as HTMLAnchorElement;
+    if (mobileProfileLink) {
+      mobileProfileLink.href = `/user?name=${encodeURIComponent(displayName)}`;
+    }
   }
 
-  // ====== 5. PROFILE SETUP BUTTON (Outside of Google Login to prevent duplicates) ======
+  // ====== PROFILE SETUP ======
   document
     .getElementById("saveProfileBtn")
     ?.addEventListener("click", async () => {
+      const btn = document.getElementById(
+        "saveProfileBtn",
+      ) as HTMLButtonElement;
       const name = (
         document.getElementById("setupName") as HTMLInputElement
       ).value.trim();
@@ -1167,36 +1641,52 @@ const { isLoggedIn = false } = Astro.props;
         return;
       }
 
-      await fetch(GOOGLE_SHEET_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "saveProfile",
-          email: currentAuthEmail,
-          name: name,
-          role: role || "Tech Engineer",
-          avatar: currentAuthPhoto,
-          authProvider: "google",
-        }),
-      });
+      if (btn) {
+        btn.classList.add("loading");
+        btn.disabled = true;
+      }
 
-      localStorage.setItem("userId", currentAuthEmail);
-      localStorage.setItem("currentUser", name);
-      localStorage.setItem("userRole", role || "Tech Engineer");
-      if (currentAuthPhoto)
-        localStorage.setItem("userAvatar", currentAuthPhoto);
+      try {
+        await fetch(GOOGLE_SHEET_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "saveProfile",
+            email: currentAuthEmail,
+            name: name,
+            role: role || "Tech Engineer",
+            avatar: currentAuthPhoto,
+            authProvider: "google",
+          }),
+        });
 
-      document.getElementById("profileSetupModal")?.classList.remove("active");
-      interestModal?.classList.add("active");
+        localStorage.setItem("userId", currentAuthEmail);
+        localStorage.setItem("currentUser", name);
+        localStorage.setItem("userRole", role || "Tech Engineer");
+        if (currentAuthPhoto)
+          localStorage.setItem("userAvatar", currentAuthPhoto);
+
+        document
+          .getElementById("profileSetupModal")
+          ?.classList.remove("active");
+        interestModal?.classList.add("active");
+      } catch (error) {
+        console.error("Error saving profile:", error);
+      } finally {
+        if (btn) {
+          btn.classList.remove("loading");
+          btn.disabled = false;
+        }
+      }
     });
 
-  // ====== 6. SAVE INTERESTS BUTTON (Single clean listener) ======
+  // ====== SAVE INTERESTS ======
   saveInterestsBtn?.addEventListener("click", async () => {
     const interestsString = selectedTopics.join(", ");
     const emailToSave = currentAuthEmail || localStorage.getItem("userId");
 
     if (saveInterestsBtn) {
       saveInterestsBtn.innerText = "Saving...";
-      saveInterestsBtn.setAttribute("disabled", "true");
+      saveInterestsBtn.disabled = true;
     }
 
     try {
@@ -1211,7 +1701,6 @@ const { isLoggedIn = false } = Astro.props;
       localStorage.setItem("userInterests", interestsString);
       interestModal?.classList.remove("active");
 
-      // If it's a new Google user, show Welcome. Otherwise, open question modal.
       if (currentAuthEmail) {
         document.getElementById("welcomeModal")?.classList.add("active");
       } else {
@@ -1219,16 +1708,15 @@ const { isLoggedIn = false } = Astro.props;
       }
     } catch (error) {
       console.error("Error saving topics:", error);
-      alert("Could not save topics.");
     } finally {
       if (saveInterestsBtn) {
         saveInterestsBtn.innerText = "Continue";
-        saveInterestsBtn.removeAttribute("disabled");
+        saveInterestsBtn.disabled = false;
       }
     }
   });
 
-  // ====== 7. WELCOME DONE BUTTON ======
+  // ====== WELCOME DONE ======
   document.getElementById("welcomeDoneBtn")?.addEventListener("click", () => {
     document.getElementById("welcomeModal")?.classList.remove("active");
     updateUIAfterLogin(
@@ -1238,15 +1726,22 @@ const { isLoggedIn = false } = Astro.props;
     window.dispatchEvent(new CustomEvent("user-logged-in"));
   });
 
-  // ====== 8. MODAL CLOSE BUTTONS ======
+  // ====== MODAL CLOSE ======
   closeModal?.addEventListener("click", () =>
     loginModal?.classList.remove("active"),
   );
   window.addEventListener("click", (e) => {
     if (e.target === loginModal) loginModal?.classList.remove("active");
+    if (e.target === interestModal) interestModal?.classList.remove("active");
+    if (e.target === document.getElementById("profileSetupModal")) {
+      document.getElementById("profileSetupModal")?.classList.remove("active");
+    }
+    if (e.target === document.getElementById("welcomeModal")) {
+      document.getElementById("welcomeModal")?.classList.remove("active");
+    }
   });
 
-  // ====== 9. PROFILE & SIGN OUT ======
+  // ====== PROFILE DROPDOWN ======
   profileTrigger?.addEventListener("click", (e) => {
     e.stopPropagation();
     const isLoggedIn = askBtn?.getAttribute("data-logged-in") === "true";
@@ -1257,14 +1752,14 @@ const { isLoggedIn = false } = Astro.props;
     }
   });
   document.addEventListener("click", (e) => {
-    if (!userDropdown?.contains(e.target as Node))
+    if (!userDropdown?.contains(e.target as Node)) {
       userDropdown?.classList.remove("active");
+    }
   });
-  signOutBtn?.addEventListener("click", () => {
-    // Sign out from Firebase too, so they can switch accounts
-    const firebase = (window as any).firebase;
-    if (firebase) firebase.auth().signOut();
 
+  // ====== SIGN OUT ======
+  signOutBtn?.addEventListener("click", () => {
+    if (firebase) firebase.auth().signOut();
     localStorage.removeItem("userId");
     localStorage.removeItem("currentUser");
     localStorage.removeItem("userInterests");
@@ -1277,30 +1772,46 @@ const { isLoggedIn = false } = Astro.props;
     userDropdown?.classList.remove("active");
 
     window.dispatchEvent(new CustomEvent("user-logged-out"));
-
     window.location.reload();
   });
 
-  // ====== 10. SEARCH LOGIC ======
+  // ====== NOTIFICATION DOT ======
+  async function checkNotifications() {
+    const email = localStorage.getItem("userId");
+    if (!email) return;
+    try {
+      const res = await fetch(
+        `${GOOGLE_SHEET_URL}?action=getNotifications&email=${encodeURIComponent(email)}&filter=all`,
+      );
+      const notifs = await res.json();
+      const hasUnread = notifs.some((n: any) => !n.isRead);
+      document.querySelectorAll(".notif-dot").forEach((dot) => {
+        if (hasUnread) dot.classList.add("has-notif");
+        else dot.classList.remove("has-notif");
+      });
+    } catch (e) {}
+  }
+  checkNotifications();
+
+  // ====== SEARCH LOGIC ======
   import { searchQuestions } from "../scripts/questionEngine";
+
   const searchInput = document.getElementById(
     "searchInput",
-  ) as HTMLInputElement | null;
+  ) as HTMLInputElement;
   const searchDropdown = document.getElementById(
     "searchDropdown",
-  ) as HTMLElement | null;
-  const searchResults = document.getElementById(
-    "searchResults",
-  ) as HTMLElement | null;
+  ) as HTMLElement;
+  const searchResults = document.getElementById("searchResults") as HTMLElement;
   const mobileSearchInput = document.getElementById(
     "mobileSearchInput",
-  ) as HTMLInputElement | null;
+  ) as HTMLInputElement;
   const mobileSearchDropdown = document.getElementById(
     "mobileSearchDropdown",
-  ) as HTMLElement | null;
+  ) as HTMLElement;
   const mobileSearchResults = document.getElementById(
     "mobileSearchResults",
-  ) as HTMLElement | null;
+  ) as HTMLElement;
 
   function highlight(text: string, query: string): string {
     if (!query) return text;
@@ -1312,6 +1823,7 @@ const { isLoggedIn = false } = Astro.props;
     });
     return result;
   }
+
   function renderResults(
     query: string,
     container: HTMLElement | null,
@@ -1327,15 +1839,16 @@ const { isLoggedIn = false } = Astro.props;
       .slice(0, 8)
       .map(
         (q: any) => `
-            <a href="/question/${q.slug}" class="search-result-item">
-                <div class="result-question">${highlight(q.question, query)}</div>
-                <div class="result-snippet">${q.answers?.length || 0} answers</div>
-            </a>
-        `,
+        <a href="/question/${q.slug}" class="search-result-item">
+          <div class="result-question">${highlight(q.question, query)}</div>
+          <div class="result-snippet">${q.answers?.length || 0} answers</div>
+        </a>
+      `,
       )
       .join("");
     dropdown.classList.add("active");
   }
+
   searchInput?.addEventListener("input", (e) =>
     renderResults(
       (e.target as HTMLInputElement).value,
@@ -1377,6 +1890,7 @@ const { isLoggedIn = false } = Astro.props;
     if (e.key === "Escape") {
       searchDropdown?.classList.remove("active");
       mobileSearchDropdown?.classList.remove("active");
+      closeMobileMenu();
     }
   });
 </script>

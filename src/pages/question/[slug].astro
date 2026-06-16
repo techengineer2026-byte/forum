@@ -1,121 +1,31 @@
 ---
-// src/pages/question/[slug].astro
+export async function getStaticPaths() {
+  const SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbywCeoEu7CNLZtgRKyy4wsnvGw8B6wpNrP5ke0RoJ6XrVfwgsmBKAlIKvli79IVAWQJxQ/exec";
+
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getPosts`);
+    const posts = await res.json();
+    return posts.map((p: any) => ({
+      params: {
+        slug:
+          p.slug ||
+          p.heading
+            ?.toLowerCase()
+            .replace(/[^\w ]+/g, "")
+            .replace(/ +/g, "-") ||
+          "",
+      },
+    }));
+  } catch (e) {
+    return [];
+  }
+}
+
 import Layout from "../../layouts/Layout.astro";
-
-const { slug } = Astro.params;
-const SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbxlZOW0AuGlzMPuNZ5bGKYiK_DNZp8geGUwrYopvp-lezOxlIjb761sS7aDLPJlRrqDHg/exec";
-
-interface Post {
-  id: string;
-  avatar: string;
-  name: string;
-  follow_enabled: boolean;
-  role_name: string;
-  updated_time: string;
-  heading: string;
-  description: string;
-  images: string[];
-  upvotes: number;
-  comments: number;
-  shares: number;
-  slug: string;
-  type: string;
-  created_at: string;
-}
-
-let post: Post | null = null;
-let relatedPosts: Post[] = [];
-
-try {
-  const response = await fetch(`${SCRIPT_URL}?action=getPosts`);
-  const allPosts: Post[] = await response.json();
-  post = allPosts.find((p: Post) => p.slug === slug) || null;
-
-  if (post) {
-    relatedPosts = allPosts
-      .filter((p: Post) => p.id !== post!.id && p.name === post!.name)
-      .slice(0, 3);
-  }
-} catch (error) {
-  console.error("Error fetching post:", error);
-}
-
-if (!post) {
-  return Astro.redirect("/404");
-}
-
-const safePost = post;
-
-function getAvatarUrl(avatar: string | null | undefined): string {
-  if (!avatar || avatar === "icon.png" || avatar === "null")
-    return "/assets/icon.png";
-  if (avatar.startsWith("http://") || avatar.startsWith("https://"))
-    return avatar;
-  if (avatar.includes("googleusercontent.com") || avatar.includes("github.com"))
-    return avatar;
-  return `/assets/${avatar}`;
-}
-
-const authorAvatar = getAvatarUrl(safePost.avatar);
-const defaultAvatar = "/assets/icon.png";
-
-function getValidDate(dateValue: any): Date {
-  if (!dateValue) return new Date();
-  if (typeof dateValue === "string") {
-    const parsed = new Date(dateValue);
-    if (isNaN(parsed.getTime())) return new Date();
-    return parsed;
-  }
-  if (dateValue instanceof Date) {
-    return isNaN(dateValue.getTime()) ? new Date() : dateValue;
-  }
-  return new Date();
-}
-
-const createdDate = getValidDate(safePost.created_at);
-const updatedDate = getValidDate(safePost.updated_time);
-const publishedDate = createdDate.toISOString();
-const modifiedDate = updatedDate.toISOString();
-
-const seoTitle = `${safePost.heading} | Tech Engineer`;
-const seoDescription = safePost.description
-  ? safePost.description.substring(0, 160)
-  : `${safePost.heading} - Read answers and join the discussion on Tech Engineer`;
-const seoImage =
-  safePost.images && safePost.images[0]
-    ? safePost.images[0].startsWith("http")
-      ? safePost.images[0]
-      : `${Astro.site}/assets/${safePost.images[0]}`
-    : `${Astro.site}/assets/og-default.png`;
-const canonicalURL = new URL(
-  `/question/${safePost.slug}`,
-  Astro.site,
-).toString();
-
-// Mock views for now
-const viewCount = Math.floor(Math.random() * 50) + 5;
-
-const structuredData = {
-  "@context": "https://schema.org",
-  "@type": "QAPage",
-  mainEntity: {
-    "@type": "Question",
-    name: safePost.heading,
-    text: safePost.heading,
-    answerCount: safePost.comments || 0,
-    upvoteCount: safePost.upvotes || 0,
-    dateCreated: publishedDate,
-    author: {
-      "@type": "Person",
-      name: safePost.name,
-      image: authorAvatar,
-    },
-  },
-};
 ---
 
-<Layout title={seoTitle} description={seoDescription} showFooter={true}>
+<Layout title="Loading Question...">
   <div class="qpage">
     <!-- BREADCRUMB -->
     <nav class="qbreadcrumb">
@@ -123,498 +33,477 @@ const structuredData = {
         <li><a href="/">Home</a></li>
         <li><a href="/">TechCast</a></li>
         <li><a href="/">Questions</a></li>
-        <li class="active">{safePost.heading}</li>
+        <li class="active" id="bc-title">Loading...</li>
       </ol>
     </nav>
 
     <div class="qlayout">
       <!-- MAIN CONTENT -->
       <main class="qmain">
-        <!-- QUESTION CARD -->
-        <article
-          class="qcard"
-          data-id={safePost.id}
-          data-slug={safePost.slug}
-          data-heading={safePost.heading}
-        >
+        <!-- SKELETON LOADER -->
+        <div id="qLoader" class="qcard">
           <div class="qcard-top">
-            <!-- VOTE COLUMN (LEFT) -->
             <div class="qvote-col">
-              <button
-                class="qvote-btn upvote-btn"
-                type="button"
-                aria-label="Upvote"
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M12 19V5M5 12l7-7 7 7"></path>
-                </svg>
-              </button>
-              <span
-                class="qvote-count"
-                data-count={String(safePost.upvotes || 0)}
-                >{safePost.upvotes || 0}</span
-              >
-              <span class="qvote-label">Vote</span>
-              <button
-                class="qvote-btn downvote-btn"
-                type="button"
-                aria-label="Downvote"
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M12 5v14M19 12l-7 7-7-7"></path>
-                </svg>
-              </button>
+              <div class="skel skel-btn"></div>
+              <div class="skel skel-vote"></div>
+              <div class="skel skel-sm"></div>
+              <div class="skel skel-btn"></div>
             </div>
-
-            <!-- CONTENT COLUMN (RIGHT) -->
             <div class="qcontent-col">
-              <h1 class="qtitle">{safePost.heading}</h1>
-
+              <div class="skel skel-title"></div>
               <div class="qmeta-row">
-                <img
-                  src={authorAvatar}
-                  alt={safePost.name}
-                  class="qavatar"
-                  onerror="this.onerror=null;this.src='/assets/icon.png';"
-                />
-                <div class="qmeta-info">
-                  <a href={`/user?name=${safePost.name}`} class="qauthor-name"
-                    >{safePost.name}</a
-                  >
-                  <div class="qauthor-sub">
-                    <span>{safePost.role_name}</span>
-                    <span class="dot">•</span>
-                    <span>Asked {safePost.updated_time}</span>
-                  </div>
+                <div class="skel skel-avatar"></div>
+                <div>
+                  <div class="skel skel-name"></div>
+                  <div class="skel skel-sub"></div>
                 </div>
+              </div>
+              <div class="skel skel-line"></div>
+              <div class="skel skel-line skel-short"></div>
+              <div class="skel skel-line skel-short2"></div>
+            </div>
+          </div>
+          <div class="qdivider"></div>
+          <div class="qstats-bar">
+            <div class="skel skel-stat"></div>
+            <div class="skel skel-stat"></div>
+            <div class="skel skel-stat"></div>
+          </div>
+          <div class="qaction-buttons">
+            <div class="skel skel-action"></div>
+            <div class="skel skel-action"></div>
+            <div class="skel skel-action"></div>
+          </div>
+        </div>
+
+        <!-- 404 STATE -->
+        <div id="qNotFound" class="qstate-box" style="display:none;">
+          <h2>Question not found</h2>
+          <p>This question may have been removed or doesn't exist.</p>
+          <a href="/" class="back-link">← Back to Home</a>
+        </div>
+
+        <!-- ACTUAL QUESTION CONTENT -->
+        <div id="qContent" style="display:none;">
+          <article class="qcard" id="qCard">
+            <div class="qcard-top">
+              <!-- VOTE COLUMN -->
+              <div class="qvote-col">
                 <button
-                  class="qmore-btn"
+                  class="qvote-btn upvote-btn"
                   type="button"
-                  aria-label="More options"
+                  aria-label="Upvote"
                 >
                   <svg
-                    width="20"
-                    height="20"
+                    class="qicon"
                     viewBox="0 0 24 24"
-                    fill="currentColor"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><path d="M12 19V5M5 12l7-7 7 7"></path></svg
                   >
-                    <circle cx="12" cy="5" r="1.5"></circle>
-                    <circle cx="12" cy="12" r="1.5"></circle>
-                    <circle cx="12" cy="19" r="1.5"></circle>
-                  </svg>
+                </button>
+                <span class="qvote-count" id="voteCount">0</span>
+                <span class="qvote-label">Vote</span>
+                <button
+                  class="qvote-btn downvote-btn"
+                  type="button"
+                  aria-label="Downvote"
+                >
+                  <svg
+                    class="qicon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><path d="M12 5v14M19 12l-7 7-7-7"></path></svg
+                  >
                 </button>
               </div>
 
-              <p class="qdescription">{safePost.description}</p>
+              <!-- CONTENT COLUMN -->
+              <div class="qcontent-col">
+                <h1 class="qtitle" id="qTitle"></h1>
 
-              {
-                safePost.images && safePost.images.length > 0 && (
-                  <div class="qimages">
-                    {safePost.images.map((img: string) => {
-                      const imgUrl = img.startsWith("http")
-                        ? img
-                        : `/assets/${img}`;
-                      return (
-                        <img
-                          src={imgUrl}
-                          alt={safePost.heading}
-                          loading="lazy"
-                          onerror="this.onerror=null;this.src='/assets/icon.png';"
-                        />
-                      );
-                    })}
+                <div class="qmeta-row">
+                  <img
+                    src="/assets/icon.png"
+                    class="qavatar"
+                    id="qAvatar"
+                    width="36"
+                    height="36"
+                    style="border-radius:50%"
+                  />
+                  <div class="qmeta-info">
+                    <a href="#" class="qauthor-name" id="qAuthor"></a>
+                    <div class="qauthor-sub">
+                      <span id="qRole"></span> • <span>Asked </span><span
+                        id="qTime"></span>
+                    </div>
                   </div>
-                )
-              }
+                </div>
+
+                <p class="qdescription" id="qDesc"></p>
+              </div>
             </div>
-          </div>
 
-          <div class="qdivider"></div>
-
-          <!-- STATS BAR -->
-          <div class="qstats-bar">
-            <span class="qstat-item"
-              ><svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                ><path d="M7 11v4a1 1 0 0 0 1 1h2v3l4-3h4a1 1 0 0 0 1-1v-4"
-                ></path><path d="M14 7V3l-4 3H6a1 1 0 0 0-1 1v4"></path></svg
-              >
-              {safePost.upvotes || 0} Vote{
-                safePost.upvotes !== 1 ? "s" : ""
-              }</span
-            >
-            <span class="qstat-item"
-              ><svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                ><path
-                  d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
-                ></path></svg
-              >
-              {safePost.comments || 0} Answer{
-                safePost.comments !== 1 ? "s" : ""
-              }</span
-            >
-            <span class="qstat-item"
-              ><svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                ><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
-                ></path><circle cx="12" cy="12" r="3"></circle></svg
-              >
-              {viewCount} Views</span
-            >
-            <button class="qstat-item qstat-action save-btn" type="button">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                ><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"
-                ></path></svg
-              > Save
-            </button>
-            <button
-              class="qstat-item qstat-action share-btn-stats"
-              type="button"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                ><circle cx="18" cy="5" r="3"></circle><circle
-                  cx="6"
-                  cy="12"
-                  r="3"></circle><circle cx="18" cy="19" r="3"></circle><line
-                  x1="8.59"
-                  y1="13.51"
-                  x2="15.42"
-                  y2="17.49"></line><line
-                  x1="15.41"
-                  y1="6.51"
-                  x2="8.59"
-                  y2="10.49"></line></svg
-              > Share
-            </button>
-            <button class="qstat-item qstat-action report-btn" type="button">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                ><path
-                  d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"
-                ></path><line x1="4" y1="22" x2="4" y2="15"></line></svg
-              > Report
-            </button>
-          </div>
-
-          <!-- ACTION BUTTONS -->
-          <div class="qaction-buttons">
-            <button class="qbtn-primary write-answer-main" type="button">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                ><path d="M12 20h9"></path><path
-                  d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
-                ></path></svg
-              >
-              Answer Question
-            </button>
-            <button class="qbtn-secondary save-btn-main" type="button">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                ><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"
-                ></path></svg
-              >
-              Save
-            </button>
-            <button class="qbtn-secondary share-btn-main" type="button">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                ><circle cx="18" cy="5" r="3"></circle><circle
-                  cx="6"
-                  cy="12"
-                  r="3"></circle><circle cx="18" cy="19" r="3"></circle><line
-                  x1="8.59"
-                  y1="13.51"
-                  x2="15.42"
-                  y2="17.49"></line><line
-                  x1="15.41"
-                  y1="6.51"
-                  x2="8.59"
-                  y2="10.49"></line></svg
-              >
-              Share
-            </button>
-            <button class="qbtn-secondary report-btn-main" type="button">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                ><path
-                  d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"
-                ></path><line x1="4" y1="22" x2="4" y2="15"></line></svg
-              >
-              Report
-            </button>
-          </div>
-        </article>
-
-        <!-- ANSWERS SECTION -->
-        <section class="qanswers-section">
-          <h2 class="qanswers-title">Answers ({safePost.comments || 0})</h2>
-
-          <div id="commentsContainer" data-post-id={safePost.id}>
-            <div class="qempty-answers">
-              <div class="qempty-illustration">
+            <!-- STATS BAR -->
+            <div class="qdivider"></div>
+            <div class="qstats-bar">
+              <span class="qstat-item">
                 <svg
-                  width="100"
-                  height="100"
+                  class="qstat-icon"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  stroke-width="1.5"
+                  stroke-width="2.5"
                   stroke-linecap="round"
                   stroke-linejoin="round"
+                  ><path d="M12 19V5M5 12l7-7 7 7"></path></svg
                 >
-                  <path
-                    d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
-                  ></path>
-                </svg>
-                <div class="qempty-badge">?</div>
-              </div>
-              <h3 class="qempty-title">No answers yet</h3>
-              <p class="qempty-text">
-                Be the first to answer this question and help others.
-              </p>
-              <button class="qempty-cta write-answer-empty" type="button">
+                <span id="statVotes">0</span> Votes
+              </span>
+              <span class="qstat-item">
                 <svg
-                  width="16"
-                  height="16"
+                  class="qstat-icon"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   stroke-width="2"
-                  ><path d="M12 20h9"></path><path
-                    d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  ><path
+                    d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"
                   ></path></svg
                 >
-                Write an Answer
-              </button>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <!-- SIDEBAR -->
-      <aside class="qsidebar">
-        <div class="qsidebar-card">
-          <h3 class="qsidebar-title">Question Stats</h3>
-          <ul class="qstats-list">
-            <li>
-              <span class="qstat-icon"
-                ><svg
-                  width="16"
-                  height="16"
+                <span id="statAnswers">0</span> Answers
+              </span>
+              <span class="qstat-item">
+                <svg
+                  class="qstat-icon"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   stroke-width="2"
-                  ><circle cx="12" cy="12" r="10"></circle><polyline
-                    points="12 6 12 12 16 14"></polyline></svg
-                ></span
-              >
-              <span class="qstat-label">Asked</span>
-              <span class="qstat-value">{safePost.updated_time}</span>
-            </li>
-            <li>
-              <span class="qstat-icon"
-                ><svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  ><path
-                    d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"
-                  ></path></svg
-                ></span
-              >
-              <span class="qstat-label">Upvotes</span>
-              <span class="qstat-value">{safePost.upvotes || 0}</span>
-            </li>
-            <li>
-              <span class="qstat-icon"
-                ><svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  ><path
-                    d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
-                  ></path></svg
-                ></span
-              >
-              <span class="qstat-label">Answers</span>
-              <span class="qstat-value">{safePost.comments || 0}</span>
-            </li>
-            <li>
-              <span class="qstat-icon"
-                ><svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
                   ><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
                   ></path><circle cx="12" cy="12" r="3"></circle></svg
-                ></span
-              >
-              <span class="qstat-label">Views</span>
-              <span class="qstat-value">{viewCount}</span>
-            </li>
-            <li>
-              <span class="qstat-icon"
-                ><svg
-                  width="16"
-                  height="16"
+                >
+                <span id="statViews">0</span> Views
+              </span>
+            </div>
+
+            <!-- ACTION BUTTONS -->
+            <div class="qaction-buttons">
+              <button class="qbtn-primary write-answer-main">
+                <svg
+                  class="qbtn-icon"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   stroke-width="2"
-                  ><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"
-                  ></polyline></svg
-                ></span
-              >
-              <span class="qstat-label">Last activity</span>
-              <span class="qstat-value">{safePost.updated_time}</span>
-            </li>
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  ><path d="M12 20h9"></path><path
+                    d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4L16.5 3.5z"
+                  ></path></svg
+                >
+                Answer Question
+              </button>
+              <button class="qbtn-secondary share-btn-main">
+                <svg
+                  class="qbtn-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  ><circle cx="18" cy="5" r="3"></circle><circle
+                    cx="6"
+                    cy="12"
+                    r="3"></circle><circle cx="18" cy="19" r="3"></circle><line
+                    x1="8.59"
+                    y1="13.51"
+                    x2="15.42"
+                    y2="17.49"></line><line
+                    x1="15.41"
+                    y1="6.51"
+                    x2="8.59"
+                    y2="10.49"></line></svg
+                >
+                Share
+              </button>
+              <button class="qbtn-secondary report-btn-main">
+                <svg
+                  class="qbtn-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  ><path
+                    d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"
+                  ></path><line x1="4" y1="22" x2="4" y2="15"></line></svg
+                >
+                Report
+              </button>
+            </div>
+          </article>
+
+          <!-- ANSWERS SECTION -->
+          <section class="qanswers-section">
+            <h2 class="qanswers-title">
+              Answers (<span id="answersCount">0</span>)
+            </h2>
+            <div id="commentsContainer">
+              <div class="qempty-answers">
+                <p>Be the first to answer this question!</p>
+              </div>
+            </div>
+
+            <!-- ADD ANSWER INPUT -->
+            <div class="qadd-answer">
+              <input
+                type="text"
+                id="answerInput"
+                placeholder="Write an answer..."
+              />
+              <button id="submitAnswerBtn" class="qbtn-primary">
+                <svg
+                  class="qbtn-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  ><line x1="22" y1="2" x2="11" y2="13"></line><polygon
+                    points="22 2 15 22 11 13 2 9 22 2"></polygon></svg
+                >
+                Post
+              </button>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <!-- RIGHT SIDEBAR -->
+      <aside class="qsidebar">
+        <!-- SKELETON SIDEBAR -->
+        <div id="sidebarLoader" class="qsidebar-card">
+          <div class="skel skel-sidebar-title"></div>
+          <ul class="qstats-list">
+            <li><div class="skel skel-sidebar-row"></div></li>
+            <li><div class="skel skel-sidebar-row"></div></li>
+            <li><div class="skel skel-sidebar-row"></div></li>
           </ul>
         </div>
 
-        {
-          relatedPosts.length > 0 && (
-            <div class="qsidebar-card">
-              <h3 class="qsidebar-title">Related Questions</h3>
-              <ul class="qrelated-list">
-                {relatedPosts.map((related: Post) => (
-                  <li>
-                    <a href={`/question/${related.slug}`} class="qrelated-link">
-                      {related.heading}
-                    </a>
-                    <span class="qrelated-meta">
-                      {related.comments || 0} answer
-                      {related.comments !== 1 ? "s" : ""}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <a href="/" class="qview-more">
-                View more questions
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <>
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                    <polyline points="12 5 19 12 12 19" />
-                  </>
-                </svg>
-              </a>
-            </div>
-          )
-        }
+        <!-- REAL SIDEBAR -->
+        <div id="sidebarContent" class="qsidebar-card" style="display:none;">
+          <h3 class="qsidebar-title">Question Stats</h3>
+          <ul class="qstats-list">
+            <li>
+              <span class="qstat-label">Asked</span>
+              <span class="qstat-value" id="sidebarTime">-</span>
+            </li>
+            <li>
+              <span class="qstat-label">Upvotes</span>
+              <span class="qstat-value" id="sidebarVotes">0</span>
+            </li>
+            <li>
+              <span class="qstat-label">Answers</span>
+              <span class="qstat-value" id="sidebarAnswers">0</span>
+            </li>
+          </ul>
+        </div>
       </aside>
     </div>
   </div>
 
-  <!-- ANSWER INPUT MODAL -->
-  <div id="answerModal" class="qanswer-modal hidden">
-    <div class="qanswer-modal-content">
-      <div class="qanswer-modal-header">
-        <h3>Write Your Answer</h3>
-        <button class="qclose-modal" type="button">&times;</button>
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="qtoast">
+    <span id="toastIcon" class="qtoast-icon-wrap"></span>
+    <span id="toastMsg"></span>
+  </div>
+
+  <!-- REPORT MODAL -->
+  <div id="reportModal" class="qmodal-overlay" style="display:none;">
+    <div class="qmodal">
+      <h3 class="qmodal-title">
+        <svg
+          class="qmodal-title-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          ><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"
+          ></path><line x1="4" y1="22" x2="4" y2="15"></line></svg
+        >
+        Report Question
+      </h3>
+      <p class="qmodal-desc">Why are you reporting this question?</p>
+      <div class="qmodal-options">
+        <label class="qmodal-option">
+          <input type="radio" name="reportReason" value="spam" />
+          <span>Spam or advertisement</span>
+        </label>
+        <label class="qmodal-option">
+          <input type="radio" name="reportReason" value="inappropriate" />
+          <span>Inappropriate content</span>
+        </label>
+        <label class="qmodal-option">
+          <input type="radio" name="reportReason" value="misleading" />
+          <span>Misleading or incorrect</span>
+        </label>
+        <label class="qmodal-option">
+          <input type="radio" name="reportReason" value="duplicate" />
+          <span>Duplicate question</span>
+        </label>
+        <label class="qmodal-option">
+          <input type="radio" name="reportReason" value="other" />
+          <span>Other</span>
+        </label>
       </div>
       <textarea
-        id="answerTextarea"
-        placeholder="Share your knowledge and help others..."></textarea>
-      <div class="qanswer-modal-footer">
-        <button class="qbtn-secondary cancel-answer" type="button"
-          >Cancel</button
-        >
-        <button class="qbtn-primary submit-answer" type="button" disabled
-          >Post Answer</button
-        >
+        id="reportDetails"
+        class="qmodal-textarea"
+        placeholder="Additional details (optional)..."
+        rows="3"></textarea>
+      <div class="qmodal-actions">
+        <button class="qbtn-secondary" id="reportCancelBtn">Cancel</button>
+        <button class="qbtn-primary" id="reportSubmitBtn">Submit Report</button>
       </div>
     </div>
   </div>
 </Layout>
 
 <style is:global>
+  /* ===== SKELETON LOADING ===== */
+  .skel {
+    background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+    background-size: 200% 100%;
+    animation: skelPulse 1.5s ease-in-out infinite;
+    border-radius: 6px;
+  }
+  @keyframes skelPulse {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+  .skel-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+  }
+  .skel-vote {
+    width: 28px;
+    height: 24px;
+    margin: 4px 0;
+  }
+  .skel-sm {
+    width: 28px;
+    height: 12px;
+  }
+  .skel-title {
+    width: 80%;
+    height: 28px;
+    margin-bottom: 16px;
+  }
+  .skel-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .skel-name {
+    width: 120px;
+    height: 16px;
+    margin-bottom: 6px;
+  }
+  .skel-sub {
+    width: 160px;
+    height: 12px;
+  }
+  .skel-line {
+    width: 100%;
+    height: 14px;
+    margin-bottom: 10px;
+  }
+  .skel-short {
+    width: 75%;
+  }
+  .skel-short2 {
+    width: 50%;
+  }
+  .skel-stat {
+    width: 80px;
+    height: 16px;
+  }
+  .skel-action {
+    width: 150px;
+    height: 38px;
+    border-radius: 6px;
+  }
+  .skel-sidebar-title {
+    width: 60%;
+    height: 18px;
+    margin-bottom: 16px;
+  }
+  .skel-sidebar-row {
+    width: 100%;
+    height: 20px;
+  }
+
+  /* ===== ICON SIZES ===== */
+  .qicon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+  .qstat-icon {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    position: relative;
+    top: 2px;
+    margin-right: 2px;
+  }
+  .qbtn-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+  .qmodal-title-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    position: relative;
+    top: 3px;
+    margin-right: 4px;
+    color: #ef4444;
+  }
+  .qlike-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    position: relative;
+    top: 1px;
+  }
+
+  /* ===== BASE PAGE ===== */
   .qpage {
     max-width: 1180px;
     margin: 0 auto;
@@ -622,8 +511,24 @@ const structuredData = {
     background: #f9fafb;
     min-height: 100vh;
   }
-
-  /* BREADCRUMB */
+  .qstate-box {
+    text-align: center;
+    padding: 80px 0;
+    color: #939598;
+    font-size: 16px;
+    background: white;
+    border-radius: 8px;
+    margin-top: 20px;
+  }
+  .qstate-box h2 {
+    margin: 0 0 8px;
+    color: #111827;
+  }
+  .qstate-box .back-link {
+    color: #2e69ff;
+    text-decoration: none;
+    font-weight: 600;
+  }
   .qbreadcrumb {
     padding: 12px 0;
     font-size: 13px;
@@ -633,14 +538,7 @@ const structuredData = {
     padding: 0;
     margin: 0;
     display: flex;
-    flex-wrap: wrap;
     gap: 6px;
-    align-items: center;
-  }
-  .qbreadcrumb li {
-    color: #636466;
-    display: flex;
-    align-items: center;
   }
   .qbreadcrumb li:not(:last-child)::after {
     content: "›";
@@ -651,10 +549,7 @@ const structuredData = {
     color: #2e69ff;
     text-decoration: none;
   }
-  .qbreadcrumb a:hover {
-    text-decoration: underline;
-  }
-  .qbreadcrumb li.active {
+  .qbreadcrumb .active {
     color: #282829;
     max-width: 400px;
     overflow: hidden;
@@ -666,41 +561,39 @@ const structuredData = {
     display: grid;
     grid-template-columns: 1fr 320px;
     gap: 20px;
-    margin-top: 8px;
   }
-
   @media (max-width: 900px) {
     .qlayout {
       grid-template-columns: 1fr;
     }
   }
 
-  .qmain {
-    min-width: 0;
-  }
-
-  /* QUESTION CARD */
   .qcard {
     background: white;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     padding: 20px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   }
-
   .qcard-top {
     display: grid;
     grid-template-columns: 60px 1fr;
     gap: 20px;
   }
-
-  /* VOTE COLUMN */
+  @media (max-width: 500px) {
+    .qcard-top {
+      grid-template-columns: 1fr;
+    }
+    .qvote-col {
+      flex-direction: row !important;
+      justify-content: center;
+      gap: 12px !important;
+    }
+  }
   .qvote-col {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    padding-top: 4px;
   }
   .qvote-btn {
     background: transparent;
@@ -710,23 +603,21 @@ const structuredData = {
     padding: 6px;
     border-radius: 6px;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s;
+    transition: all 0.15s ease;
   }
   .qvote-btn:hover {
     background: #f3f4f6;
-    border-color: #d1d5db;
+    color: #111827;
   }
-  .qvote-btn.upvote-btn.active {
-    color: #2e69ff;
-    background: #ebf0ff;
+  .qvote-btn.active-up {
+    background: #dbeafe;
     border-color: #2e69ff;
+    color: #2e69ff;
   }
-  .qvote-btn.downvote-btn.active {
-    color: #cb2027;
-    background: #fef2f2;
-    border-color: #cb2027;
+  .qvote-btn.active-down {
+    background: #fee2e2;
+    border-color: #ef4444;
+    color: #ef4444;
   }
   .qvote-count {
     font-size: 20px;
@@ -740,11 +631,6 @@ const structuredData = {
     font-weight: 500;
     margin-bottom: 4px;
   }
-
-  /* CONTENT COLUMN */
-  .qcontent-col {
-    min-width: 0;
-  }
   .qtitle {
     font-size: 22px;
     font-weight: 800;
@@ -752,6 +638,7 @@ const structuredData = {
     line-height: 1.35;
     color: #111827;
   }
+
   .qmeta-row {
     display: flex;
     align-items: center;
@@ -766,16 +653,11 @@ const structuredData = {
     background: #f1f2f2;
     flex-shrink: 0;
   }
-  .qmeta-info {
-    flex: 1;
-    min-width: 0;
-  }
   .qauthor-name {
     font-weight: 700;
     font-size: 14px;
     color: #2e69ff;
     text-decoration: none;
-    display: block;
   }
   .qauthor-name:hover {
     text-decoration: underline;
@@ -784,81 +666,35 @@ const structuredData = {
     font-size: 12px;
     color: #6b7280;
     display: flex;
-    align-items: center;
     gap: 6px;
     margin-top: 2px;
   }
-  .dot {
-    opacity: 0.6;
-  }
-  .qmore-btn {
-    background: transparent;
-    border: none;
-    color: #6b7280;
-    cursor: pointer;
-    padding: 6px;
-    border-radius: 50%;
-    display: flex;
-  }
-  .qmore-btn:hover {
-    background: #f3f4f6;
-  }
   .qdescription {
-    font-size: 14px;
+    font-size: 15px;
     line-height: 1.7;
     color: #374151;
     margin: 0 0 12px 0;
-  }
-  .qimages {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 8px;
-    margin: 12px 0;
-  }
-  .qimages img {
-    width: 100%;
-    border-radius: 6px;
   }
 
   .qdivider {
     height: 1px;
     background: #f3f4f6;
-    margin: 16px -20px 16px -20px;
+    margin: 16px -20px;
   }
-
-  /* STATS BAR */
   .qstats-bar {
     display: flex;
-    align-items: center;
     gap: 16px;
     flex-wrap: wrap;
-    padding: 0 0 16px 0;
+    padding-bottom: 16px;
   }
   .qstat-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
     font-size: 13px;
     color: #6b7280;
     font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
   }
-  .qstat-item svg {
-    color: #9ca3af;
-  }
-  .qstat-action {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px 6px;
-    border-radius: 4px;
-    transition: all 0.15s;
-  }
-  .qstat-action:hover {
-    background: #f3f4f6;
-    color: #2e69ff;
-  }
-
-  /* ACTION BUTTONS */
   .qaction-buttons {
     display: flex;
     gap: 10px;
@@ -870,18 +706,23 @@ const structuredData = {
     border: none;
     padding: 9px 20px;
     border-radius: 6px;
-    font-size: 13.5px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    transition: all 0.15s;
+    gap: 8px;
+    transition: all 0.15s ease;
   }
   .qbtn-primary:hover {
     background: #1e5ae6;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(46, 105, 255, 0.25);
+  }
+  .qbtn-primary:active {
+    transform: scale(0.97);
+  }
+  .qbtn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
   .qbtn-secondary {
     background: white;
@@ -889,32 +730,28 @@ const structuredData = {
     border: 1px solid #d1d5db;
     padding: 9px 18px;
     border-radius: 6px;
-    font-size: 13.5px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    transition: all 0.15s;
+    gap: 8px;
+    transition: all 0.15s ease;
   }
   .qbtn-secondary:hover {
     background: #f9fafb;
     border-color: #9ca3af;
   }
-  .qbtn-primary:disabled,
-  .qbtn-secondary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  .qbtn-secondary:active {
+    transform: scale(0.97);
   }
 
-  /* ANSWERS SECTION */
   .qanswers-section {
     background: white;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     padding: 24px;
     margin-top: 16px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   }
   .qanswers-title {
     font-size: 18px;
@@ -922,143 +759,93 @@ const structuredData = {
     color: #111827;
     font-weight: 700;
   }
-
-  /* EMPTY ANSWERS STATE */
   .qempty-answers {
     text-align: center;
     padding: 30px 20px 40px;
-  }
-  .qempty-illustration {
-    position: relative;
-    display: inline-block;
-    margin-bottom: 16px;
-    color: #d1d5db;
-  }
-  .qempty-illustration svg {
-    background: #f0f4ff;
-    border-radius: 50%;
-    padding: 16px;
-    width: 90px;
-    height: 90px;
-    color: #93c5fd;
-  }
-  .qempty-badge {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    background: #2e69ff;
-    color: white;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    font-weight: 800;
-    border: 3px solid white;
-  }
-  .qempty-title {
-    font-size: 17px;
-    font-weight: 700;
-    color: #111827;
-    margin: 0 0 8px 0;
-  }
-  .qempty-text {
-    font-size: 13.5px;
     color: #6b7280;
-    margin: 0 0 20px 0;
-  }
-  .qempty-cta {
-    background: #2e69ff;
-    color: white;
-    border: none;
-    padding: 10px 22px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.15s;
-  }
-  .qempty-cta:hover {
-    background: #1e5ae6;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(46, 105, 255, 0.3);
   }
 
-  /* COMMENTS LIST (when answers exist) */
   .qcomment-item {
     display: flex;
     gap: 12px;
     padding: 16px 0;
     border-bottom: 1px solid #f3f4f6;
   }
+  .qcomment-item:last-child {
+    border-bottom: none;
+  }
   .qcomment-avatar {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
   }
   .qcomment-content {
     flex: 1;
-    min-width: 0;
-  }
-  .qcomment-meta {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 4px;
   }
   .qcomment-name {
     font-weight: 700;
-    font-size: 13.5px;
+    font-size: 14px;
     color: #111827;
   }
   .qcomment-time {
     font-size: 12px;
     color: #6b7280;
+    margin-left: 6px;
   }
   .qcomment-text {
-    font-size: 14px;
+    font-size: 15px;
     color: #1f2937;
-    margin: 0 0 8px 0;
+    margin: 6px 0 0 0;
     line-height: 1.6;
   }
-  .qcomment-actions {
-    display: flex;
-    gap: 14px;
-  }
-  .qcomment-action {
+  .qlike-btn {
     background: none;
-    border: none;
-    color: #6b7280;
-    font-size: 12.5px;
-    font-weight: 600;
+    border: 1px solid transparent;
     cursor: pointer;
-    padding: 0;
+    font-size: 13px;
+    color: #6b7280;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.15s;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
   }
-  .qcomment-action:hover {
-    color: #2e69ff;
+  .qlike-btn:hover {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #ef4444;
   }
-  .qcomment-action.liked {
-    color: #dc2626;
+  .qlike-btn.liked {
+    color: #ef4444;
   }
 
-  /* SIDEBAR */
+  .qadd-answer {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+  }
+  .qadd-answer input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .qadd-answer input:focus {
+    border-color: #2e69ff;
+    box-shadow: 0 0 0 3px rgba(46, 105, 255, 0.1);
+  }
+
   .qsidebar-card {
     background: white;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     padding: 18px;
-    margin-bottom: 16px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   }
   .qsidebar-title {
     font-size: 15px;
@@ -1073,367 +860,657 @@ const structuredData = {
   }
   .qstats-list li {
     display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 0;
+    justify-content: space-between;
+    padding: 8px 0;
     border-bottom: 1px solid #f3f4f6;
-    font-size: 13.5px;
+    font-size: 14px;
   }
   .qstats-list li:last-child {
     border-bottom: none;
   }
-  .qstat-icon {
-    color: #6b7280;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-  }
   .qstat-label {
     color: #6b7280;
-    flex: 1;
   }
   .qstat-value {
     color: #111827;
     font-weight: 700;
   }
 
-  .qrelated-list {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 12px 0;
-  }
-  .qrelated-list li {
-    padding: 12px 0;
-    border-bottom: 1px solid #f3f4f6;
-  }
-  .qrelated-list li:last-child {
-    border-bottom: none;
-  }
-  .qrelated-link {
-    color: #2e69ff;
-    text-decoration: none;
-    font-size: 13.5px;
-    line-height: 1.4;
-    display: block;
-    font-weight: 500;
-    margin-bottom: 4px;
-  }
-  .qrelated-link:hover {
-    text-decoration: underline;
-  }
-  .qrelated-meta {
-    font-size: 12px;
-    color: #6b7280;
-  }
-  .qview-more {
+  /* ===== TOAST ===== */
+  .qtoast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #111827;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     display: flex;
     align-items: center;
-    gap: 6px;
-    color: #2e69ff;
-    text-decoration: none;
-    font-size: 13.5px;
-    font-weight: 600;
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid #f3f4f6;
+    gap: 8px;
+    max-width: 90vw;
   }
-  .qview-more:hover {
-    text-decoration: underline;
+  .qtoast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .qtoast-icon-wrap {
+    display: flex;
+    align-items: center;
+  }
+  .qtoast-icon-wrap svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+  .qtoast.success {
+    background: #065f46;
+  }
+  .qtoast.error {
+    background: #991b1b;
+  }
+  .qtoast.info {
+    background: #111827;
   }
 
-  /* ANSWER MODAL */
-  .qanswer-modal {
+  /* ===== REPORT MODAL ===== */
+  .qmodal-overlay {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 3000;
     padding: 20px;
+    animation: fadeIn 0.2s ease;
   }
-  .qanswer-modal.hidden {
-    display: none;
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
-  .qanswer-modal-content {
+  .qmodal {
     background: white;
-    border-radius: 8px;
+    border-radius: 12px;
+    padding: 28px;
+    max-width: 460px;
     width: 100%;
-    max-width: 600px;
-    max-height: 90vh;
+    animation: slideUp 0.25s ease;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  }
+  @keyframes slideUp {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  .qmodal-title {
+    margin: 0 0 6px;
+    font-size: 18px;
+    font-weight: 800;
+    color: #111827;
+    display: flex;
+    align-items: center;
+  }
+  .qmodal-desc {
+    margin: 0 0 18px;
+    font-size: 14px;
+    color: #6b7280;
+  }
+  .qmodal-options {
     display: flex;
     flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
   }
-  .qanswer-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 20px;
-    border-bottom: 1px solid #e5e7eb;
-  }
-  .qanswer-modal-header h3 {
-    margin: 0;
-    font-size: 16px;
-    color: #111827;
-  }
-  .qclose-modal {
-    background: none;
-    border: none;
-    font-size: 24px;
-    color: #6b7280;
-    cursor: pointer;
-    width: 32px;
-    height: 32px;
+  .qmodal-option {
     display: flex;
     align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-  }
-  .qclose-modal:hover {
-    background: #f3f4f6;
-  }
-  .qanswer-modal-content textarea {
-    flex: 1;
-    border: none;
-    outline: none;
-    padding: 20px;
-    font-size: 14px;
-    font-family: inherit;
-    resize: none;
-    min-height: 200px;
-  }
-  .qanswer-modal-footer {
-    display: flex;
-    justify-content: flex-end;
     gap: 10px;
-    padding: 14px 20px;
-    border-top: 1px solid #e5e7eb;
+    padding: 10px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 14px;
+    color: #374151;
   }
-
-  .hidden {
-    display: none !important;
+  .qmodal-option:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
   }
-
-  /* MOBILE */
-  @media (max-width: 768px) {
-    .qpage {
-      padding: 12px 10px;
-    }
-    .qcard {
-      padding: 16px;
-    }
-    .qcard-top {
-      grid-template-columns: 50px 1fr;
-      gap: 12px;
-    }
-    .qtitle {
-      font-size: 18px;
-    }
-    .qvote-btn {
-      padding: 5px;
-    }
-    .qvote-btn svg {
-      width: 18px;
-      height: 18px;
-    }
-    .qvote-count {
-      font-size: 18px;
-    }
-    .qaction-buttons {
-      gap: 6px;
-    }
-    .qbtn-primary,
-    .qbtn-secondary {
-      padding: 8px 14px;
-      font-size: 12.5px;
-    }
-    .qstats-bar {
-      gap: 10px;
-      font-size: 12px;
-    }
-    .qstat-item {
-      font-size: 12px;
-    }
+  .qmodal-option input[type="radio"] {
+    accent-color: #2e69ff;
+    width: 16px;
+    height: 16px;
+  }
+  .qmodal-option input[type="radio"]:checked + span {
+    color: #111827;
+    font-weight: 600;
+  }
+  .qmodal-textarea {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    resize: vertical;
+    outline: none;
+    margin-bottom: 18px;
+    font-family: inherit;
+  }
+  .qmodal-textarea:focus {
+    border-color: #2e69ff;
+    box-shadow: 0 0 0 3px rgba(46, 105, 255, 0.1);
+  }
+  .qmodal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
   }
 </style>
 
 <script>
   const SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbxlZOW0AuGlzMPuNZ5bGKYiK_DNZp8geGUwrYopvp-lezOxlIjb761sS7aDLPJlRrqDHg/exec";
+    "https://script.google.com/macros/s/AKfycbywCeoEu7CNLZtgRKyy4wsnvGw8B6wpNrP5ke0RoJ6XrVfwgsmBKAlIKvli79IVAWQJxQ/exec";
 
-  function isUserLoggedIn(): boolean {
-    return localStorage.getItem("userId") !== null;
-  }
-  function showLoginModal() {
-    const loginModal = document.getElementById("loginModal");
-    if (loginModal) loginModal.classList.add("active");
-    else window.dispatchEvent(new CustomEvent("show-login-modal"));
-  }
-  function getCurrentUser() {
-    return {
-      email: localStorage.getItem("userId") || "",
-      name: localStorage.getItem("currentUser") || "Anonymous",
-      avatar: localStorage.getItem("userAvatar") || "/assets/icon.png",
-    };
-  }
-  function getTimeAgo(date: Date): string {
-    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
-    if (seconds < 60) return "Just now";
-    if (seconds < 3600) return Math.floor(seconds / 60) + "m ago";
-    if (seconds < 86400) return Math.floor(seconds / 3600) + "h ago";
-    if (seconds < 604800) return Math.floor(seconds / 86400) + "d ago";
-    return Math.floor(seconds / 604800) + "w ago";
+  const pathParts = window.location.pathname.split("/");
+  const slug =
+    pathParts[pathParts.length - 1] || pathParts[pathParts.length - 2];
+
+  interface Post {
+    id: string;
+    heading: string;
+    avatar: string;
+    upvotes: number;
+    comments: number;
   }
 
-  const card = document.querySelector(".qcard") as HTMLElement;
-  if (card) {
-    const postId = card.getAttribute("data-id");
-    const slug = card.getAttribute("data-slug");
-    const heading = card.getAttribute("data-heading") || "";
+  let currentPost: Post | null = null;
+  let userVoteState: "none" | "up" | "down" = "none";
 
-    const upBtn = card.querySelector(".upvote-btn") as HTMLButtonElement;
-    const downBtn = card.querySelector(".downvote-btn") as HTMLButtonElement;
-    const voteCount = card.querySelector(".qvote-count") as HTMLElement;
-    const answerModal = document.getElementById("answerModal") as HTMLElement;
-    const answerTextarea = document.getElementById(
-      "answerTextarea",
-    ) as HTMLTextAreaElement;
-    const submitAnswerBtn = document.querySelector(
-      ".submit-answer",
+  // SVG icon strings for reuse in JS
+  const ICONS = {
+    heartOutline:
+      '<svg class="qlike-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>',
+    heartFilled:
+      '<svg class="qlike-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="color:#ef4444"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>',
+    check:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+    x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+    info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+  };
+
+  function getMediaUrl(url: string | null | undefined): string {
+    if (!url || url === "icon.png" || url === "null" || url === "")
+      return "/assets/icon.png";
+    if (url.startsWith("data:")) return url;
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    if (url.startsWith("iVBOR") || url.startsWith("/9j/"))
+      return `data:image/png;base64,${url}`;
+    return `/assets/${url}`;
+  }
+
+  function timeAgo(dateStr: string | null | undefined): string {
+    if (!dateStr) return "Recently";
+    try {
+      const date = new Date(dateStr);
+      const seconds = Math.floor(
+        (new Date().getTime() - date.getTime()) / 1000,
+      );
+      if (seconds < 60) return "Just now";
+      if (seconds < 3600) return Math.floor(seconds / 60) + "m ago";
+      if (seconds < 86400) return Math.floor(seconds / 3600) + "h ago";
+      if (seconds < 604800) return Math.floor(seconds / 86400) + "d ago";
+      return date.toLocaleDateString();
+    } catch (e) {
+      return "Recently";
+    }
+  }
+
+  // ===== TOAST =====
+  function showToast(
+    message: string,
+    type: "success" | "error" | "info" = "info",
+    duration = 2500,
+  ) {
+    const toast = document.getElementById("toast") as HTMLDivElement;
+    const toastIcon = document.getElementById("toastIcon") as HTMLSpanElement;
+    const toastMsg = document.getElementById("toastMsg") as HTMLSpanElement;
+
+    toast.className = "qtoast " + type;
+    toastMsg.textContent = message;
+
+    if (type === "success") toastIcon.innerHTML = ICONS.check;
+    else if (type === "error") toastIcon.innerHTML = ICONS.x;
+    else toastIcon.innerHTML = ICONS.info;
+
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), duration);
+  }
+
+  // ===== UPDATE VOTE UI =====
+  function updateVoteUI(count: number) {
+    (document.getElementById("voteCount") as HTMLElement).innerText =
+      String(count);
+    (document.getElementById("statVotes") as HTMLElement).innerText =
+      String(count);
+    (document.getElementById("sidebarVotes") as HTMLElement).innerText =
+      String(count);
+
+    const upBtn = document.querySelector(".upvote-btn") as HTMLButtonElement;
+    const downBtn = document.querySelector(
+      ".downvote-btn",
     ) as HTMLButtonElement;
-    const closeModalBtn = document.querySelector(
-      ".qclose-modal",
-    ) as HTMLButtonElement;
-    const cancelAnswerBtn = document.querySelector(
-      ".cancel-answer",
-    ) as HTMLButtonElement;
-    const commentsContainer = document.getElementById(
+
+    upBtn.classList.remove("active-up");
+    downBtn.classList.remove("active-down");
+
+    if (userVoteState === "up") upBtn.classList.add("active-up");
+    if (userVoteState === "down") downBtn.classList.add("active-down");
+  }
+
+  // ===== LOAD QUESTION =====
+  async function loadQuestion() {
+    const qLoader = document.getElementById("qLoader") as HTMLDivElement;
+    const qNotFound = document.getElementById("qNotFound") as HTMLDivElement;
+    const qContent = document.getElementById("qContent") as HTMLDivElement;
+    const sidebarLoader = document.getElementById(
+      "sidebarLoader",
+    ) as HTMLDivElement;
+    const sidebarContent = document.getElementById(
+      "sidebarContent",
+    ) as HTMLDivElement;
+
+    try {
+      const res = await fetch(
+        `${SCRIPT_URL}?action=getPostBySlug&slug=${slug}`,
+      );
+      const post = await res.json();
+
+      if (!post) {
+        qLoader.style.display = "none";
+        sidebarLoader.style.display = "none";
+        qNotFound.style.display = "block";
+        return;
+      }
+
+      currentPost = post;
+      qLoader.style.display = "none";
+      sidebarLoader.style.display = "none";
+      qContent.style.display = "block";
+      sidebarContent.style.display = "block";
+
+      document.title = `${post.heading} | Tech Engineer`;
+
+      (document.getElementById("bc-title") as HTMLElement).innerText =
+        post.heading;
+      (document.getElementById("qTitle") as HTMLElement).innerText =
+        post.heading;
+      (document.getElementById("qAvatar") as HTMLImageElement).src =
+        getMediaUrl(post.avatar);
+      (document.getElementById("qAuthor") as HTMLElement).innerText =
+        post.name || "Anonymous";
+      (document.getElementById("qRole") as HTMLElement).innerText =
+        post.role_name || "";
+      (document.getElementById("qTime") as HTMLElement).innerText =
+        post.updated_time || "";
+      (document.getElementById("qDesc") as HTMLElement).innerHTML =
+        post.description || "";
+
+      const viewCount = Math.floor(Math.random() * 50) + 5;
+      (document.getElementById("statViews") as HTMLElement).innerText =
+        String(viewCount);
+
+      updateVoteUI(post.upvotes || 0);
+
+      (document.getElementById("statAnswers") as HTMLElement).innerText =
+        String(post.comments || 0);
+      (document.getElementById("answersCount") as HTMLElement).innerText =
+        String(post.comments || 0);
+
+      (document.getElementById("sidebarTime") as HTMLElement).innerText =
+        post.updated_time || "Recently";
+      (document.getElementById("sidebarAnswers") as HTMLElement).innerText =
+        String(post.comments || 0);
+
+      // Load existing vote state
+      const voteKey = `vote_${post.id}`;
+      const savedVote = localStorage.getItem(voteKey);
+      if (savedVote === "up" || savedVote === "down") {
+        userVoteState = savedVote as "up" | "down";
+        updateVoteUI(post.upvotes || 0);
+      }
+
+      loadComments();
+    } catch (err) {
+      qLoader.style.display = "none";
+      sidebarLoader.style.display = "none";
+      qNotFound.style.display = "block";
+    }
+  }
+
+  // ===== LOAD COMMENTS =====
+  async function loadComments() {
+    if (!currentPost) return;
+    const container = document.getElementById(
       "commentsContainer",
-    ) as HTMLElement;
+    ) as HTMLDivElement;
+    if (!container) return;
 
-    let upvotes = parseInt(voteCount?.getAttribute("data-count") || "0");
-    let isUpvoted = false,
-      isDownvoted = false,
-      isProcessing = false;
+    try {
+      const userEmail = localStorage.getItem("userId") || "";
+      const res = await fetch(
+        `${SCRIPT_URL}?action=getComments&postId=${currentPost.id}&userEmail=${encodeURIComponent(userEmail)}`,
+      );
+      const comments = await res.json();
 
-    const updateScore = () => {
-      if (voteCount)
-        voteCount.textContent =
-          upvotes >= 1000
-            ? (upvotes / 1000).toFixed(1) + "K"
-            : upvotes.toString();
-    };
-
-    // UPVOTE
-    const syncUpvote = async (increment: boolean) => {
-      if (isProcessing) return;
-      isProcessing = true;
-      const user = getCurrentUser();
-      try {
-        const res = await fetch(SCRIPT_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "updateUpvote",
-            postId,
-            increment,
-            actorEmail: user.email,
-            actorName: user.name,
-          }),
-        });
-        const data = await res.json();
-        if (data.status === "success") {
-          upvotes = data.newCount;
-          updateScore();
-        }
-      } catch (err) {
-        isUpvoted = !isUpvoted;
-        upvotes = isUpvoted ? upvotes + 1 : upvotes - 1;
-        upBtn?.classList.toggle("active", isUpvoted);
-        updateScore();
-      } finally {
-        isProcessing = false;
-      }
-    };
-
-    upBtn?.addEventListener("click", () => {
-      if (!isUserLoggedIn()) {
-        showLoginModal();
+      if (comments.length === 0) {
+        container.innerHTML =
+          '<div class="qempty-answers"><p>Be the first to answer this question!</p></div>';
         return;
       }
-      if (isProcessing) return;
-      if (isUpvoted) {
-        isUpvoted = false;
-        upBtn.classList.remove("active");
-        syncUpvote(false);
-      } else {
-        isUpvoted = true;
-        upBtn.classList.add("active");
-        if (isDownvoted) {
-          isDownvoted = false;
-          downBtn.classList.remove("active");
-        }
-        syncUpvote(true);
-      }
-    });
 
-    downBtn?.addEventListener("click", () => {
-      if (!isUserLoggedIn()) {
-        showLoginModal();
-        return;
-      }
-      if (isDownvoted) {
-        isDownvoted = false;
-        downBtn.classList.remove("active");
-      } else {
-        isDownvoted = true;
-        downBtn.classList.add("active");
-        if (isUpvoted) {
-          isUpvoted = false;
-          upBtn.classList.remove("active");
-          syncUpvote(false);
-        }
-      }
-    });
+      container.innerHTML = "";
 
-    // ANSWER MODAL
-    const openAnswerModal = () => {
-      if (!isUserLoggedIn()) {
-        showLoginModal();
-        return;
-      }
-      answerModal?.classList.remove("hidden");
-      setTimeout(() => answerTextarea?.focus(), 100);
-    };
-    document
-      .querySelectorAll(".write-answer-main, .write-answer-empty")
-      .forEach((btn) => {
-        btn.addEventListener("click", openAnswerModal);
+      comments.forEach((c: any) => {
+        const div = document.createElement("div");
+        div.className = "qcomment-item";
+        const heartIcon = c.likedByUser
+          ? ICONS.heartFilled
+          : ICONS.heartOutline;
+        const likedClass = c.likedByUser ? " liked" : "";
+        div.innerHTML = `
+          <img src="${getMediaUrl(c.userAvatar)}" class="qcomment-avatar" alt="${c.userName}" />
+          <div class="qcomment-content">
+            <span class="qcomment-name">${c.userName}</span><span class="qcomment-time">${timeAgo(c.timestamp)}</span>
+            <p class="qcomment-text">${c.text || ""}</p>
+            <div style="margin-top: 8px; display: flex; gap: 15px;">
+               <button class="qlike-btn${likedClass}" data-id="${c.id}">${heartIcon} <span>${c.likes || 0}</span></button>
+            </div>
+          </div>
+        `;
+        container.appendChild(div);
       });
-    closeModalBtn?.addEventListener("click", () =>
-      answerModal?.classList.add("hidden"),
-    );
-    cancelAnswerBtn?.addEventListener("click", () =>
-      answerModal?.classList.add("hidden"),
-    );
 
-    answerTextarea?.addEventListener("input", () => {
-      if (submitAnswerBtn)
-        submitAnswerBtn.disabled = answerTextarea.value.trim().length === 0;
+      // Like listeners
+      container.querySelectorAll(".qlike-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (!localStorage.getItem("userId"))
+            return showToast("Please login to like answers", "info");
+          const id = btn.getAttribute("data-id");
+          try {
+            const r = await fetch(SCRIPT_URL, {
+              method: "POST",
+              body: JSON.stringify({
+                action: "toggleCommentLike",
+                commentId: id,
+                userEmail: localStorage.getItem("userId"),
+              }),
+            });
+            const d = await r.json();
+            if (d.status === "success") {
+              const icon = d.liked ? ICONS.heartFilled : ICONS.heartOutline;
+              btn.innerHTML = `${icon} <span>${d.likes}</span>`;
+              if (d.liked) {
+                btn.classList.add("liked");
+              } else {
+                btn.classList.remove("liked");
+              }
+              showToast(d.liked ? "Liked!" : "Like removed", "success");
+            }
+          } catch (e) {
+            showToast("Error liking answer", "error");
+          }
+        });
+      });
+    } catch (err) {
+      console.error("Error loading comments:", err);
+    }
+  }
+
+  // ===== UPVOTE =====
+  document.querySelector(".upvote-btn")?.addEventListener("click", async () => {
+    if (!localStorage.getItem("userId"))
+      return showToast("Please login to upvote", "info");
+    if (!currentPost) return;
+
+    if (userVoteState === "up") {
+      userVoteState = "none";
+      localStorage.removeItem(`vote_${currentPost.id}`);
+      const count = Math.max(0, (currentPost.upvotes || 0) - 1);
+      currentPost.upvotes = count;
+      updateVoteUI(count);
+      showToast("Vote removed", "info");
+      return;
+    }
+
+    userVoteState = "up";
+    localStorage.setItem(`vote_${currentPost.id}`, "up");
+
+    const user = {
+      email: localStorage.getItem("userId"),
+      name: localStorage.getItem("currentUser"),
+    };
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "updateUpvote",
+          postId: currentPost.id,
+          increment: true,
+          actorEmail: user.email,
+          actorName: user.name,
+        }),
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        currentPost.upvotes = data.newCount;
+        updateVoteUI(data.newCount);
+        showToast("Upvoted!", "success");
+      }
+    } catch (err) {
+      showToast("Error upvoting", "error");
+    }
+  });
+
+  // ===== DOWNVOTE =====
+  document
+    .querySelector(".downvote-btn")
+    ?.addEventListener("click", async () => {
+      if (!localStorage.getItem("userId"))
+        return showToast("Please login to downvote", "info");
+      if (!currentPost) return;
+
+      if (userVoteState === "down") {
+        userVoteState = "none";
+        localStorage.removeItem(`vote_${currentPost.id}`);
+        updateVoteUI(currentPost.upvotes || 0);
+        showToast("Downvote removed", "info");
+        return;
+      }
+
+      const wasUp = userVoteState === "up";
+      userVoteState = "down";
+      localStorage.setItem(`vote_${currentPost.id}`, "down");
+
+      if (wasUp && currentPost.upvotes > 0) {
+        currentPost.upvotes -= 1;
+      }
+      updateVoteUI(currentPost.upvotes || 0);
+      showToast("Downvoted", "info");
     });
 
-    submitAnswerBtn?.addEventListener("click", async () => {
-      const text = answerTextarea.value.trim();
-      if (!text) return;
-      submitAnswerBtn.disabled = true;
-      submitAnswerBtn.textContent = "Posting...";
-      const user = getCurrentUser();
+  // ===== ANSWER QUESTION BUTTON =====
+  document
+    .querySelector(".write-answer-main")
+    ?.addEventListener("click", () => {
+      const input = document.getElementById("answerInput") as HTMLInputElement;
+      input.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(() => input.focus(), 400);
+    });
+
+  // ===== SHARE BUTTON =====
+  document
+    .querySelector(".share-btn-main")
+    ?.addEventListener("click", async () => {
+      const url = window.location.href;
+      const title = currentPost?.heading || "Check out this question";
+
+      if (navigator.share) {
+        try {
+          await navigator.share({ title, url });
+          return;
+        } catch (e) {
+          // User cancelled or error — fallback to clipboard
+        }
+      }
+
       try {
-        const res = await fetch(SCRIPT_URL, {
+        await navigator.clipboard.writeText(url);
+        showToast("Link copied to clipboard!", "success");
+      } catch (e) {
+        const textarea = document.createElement("textarea");
+        textarea.value = url;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        showToast("Link copied to clipboard!", "success");
+      }
+    });
+
+  // ===== REPORT BUTTON =====
+  const reportModal = document.getElementById("reportModal") as HTMLDivElement;
+  const reportCancelBtn = document.getElementById(
+    "reportCancelBtn",
+  ) as HTMLButtonElement;
+  const reportSubmitBtn = document.getElementById(
+    "reportSubmitBtn",
+  ) as HTMLButtonElement;
+
+  document.querySelector(".report-btn-main")?.addEventListener("click", () => {
+    reportModal.style.display = "flex";
+  });
+
+  reportCancelBtn?.addEventListener("click", () => {
+    reportModal.style.display = "none";
+  });
+
+  reportModal?.addEventListener("click", (e) => {
+    if (e.target === reportModal) {
+      reportModal.style.display = "none";
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && reportModal.style.display === "flex") {
+      reportModal.style.display = "none";
+    }
+  });
+
+  reportSubmitBtn?.addEventListener("click", async () => {
+    const selected = document.querySelector(
+      'input[name="reportReason"]:checked',
+    ) as HTMLInputElement;
+    const details = (
+      document.getElementById("reportDetails") as HTMLTextAreaElement
+    ).value.trim();
+
+    if (!selected) {
+      showToast("Please select a reason", "error");
+      return;
+    }
+
+    if (!localStorage.getItem("userId")) {
+      showToast("Please login to report", "info");
+      return;
+    }
+
+    reportSubmitBtn.disabled = true;
+    reportSubmitBtn.innerText = "Submitting...";
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "reportPost",
+          postId: currentPost?.id,
+          reason: selected.value,
+          details: details,
+          reporterEmail: localStorage.getItem("userId"),
+          reporterName: localStorage.getItem("currentUser"),
+        }),
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        showToast("Report submitted. Thank you!", "success");
+        reportModal.style.display = "none";
+        const checkedRadio = document.querySelector(
+          'input[name="reportReason"]:checked',
+        ) as HTMLInputElement;
+        if (checkedRadio) checkedRadio.checked = false;
+        (
+          document.getElementById("reportDetails") as HTMLTextAreaElement
+        ).value = "";
+      } else {
+        showToast("Could not submit report. Try again.", "error");
+      }
+    } catch (err) {
+      showToast("Error submitting report", "error");
+    } finally {
+      reportSubmitBtn.disabled = false;
+      reportSubmitBtn.innerText = "Submit Report";
+    }
+  });
+
+  // ===== SUBMIT ANSWER =====
+  document
+    .getElementById("submitAnswerBtn")
+    ?.addEventListener("click", async () => {
+      const input = document.getElementById("answerInput") as HTMLInputElement;
+      const text = input.value.trim();
+      if (!text || !currentPost) return;
+      if (!localStorage.getItem("userId"))
+        return showToast("Please login to answer", "info");
+
+      const submitBtn = document.getElementById(
+        "submitAnswerBtn",
+      ) as HTMLButtonElement;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = "Posting...";
+
+      const user = {
+        email: localStorage.getItem("userId"),
+        name: localStorage.getItem("currentUser"),
+        avatar: localStorage.getItem("userAvatar") || "/assets/icon.png",
+      };
+
+      try {
+        await fetch(SCRIPT_URL, {
           method: "POST",
           body: JSON.stringify({
             action: "addComment",
-            postId,
+            postId: currentPost.id,
             parentID: "",
             userEmail: user.email,
             userName: user.name,
@@ -1441,134 +1518,24 @@ const structuredData = {
             commentText: text,
           }),
         });
-        const result = await res.json();
-        if (result.status === "success") {
-          answerTextarea.value = "";
-          answerModal?.classList.add("hidden");
-          await loadComments();
-        }
+        input.value = "";
+        showToast("Answer posted!", "success");
+        loadComments();
       } catch (err) {
-        alert("Could not post answer.");
+        showToast("Error posting answer", "error");
       } finally {
-        submitAnswerBtn.disabled = false;
-        submitAnswerBtn.textContent = "Post Answer";
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<svg class="qbtn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Post`;
       }
     });
 
-    // SAVE / SHARE / REPORT (stats bar)
-    document.querySelectorAll(".save-btn, .save-btn-main").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        if (!isUserLoggedIn()) {
-          showLoginModal();
-          return;
-        }
-        const bookmarks = JSON.parse(localStorage.getItem("bookmarks") || "[]");
-        if (!bookmarks.includes(postId || "")) {
-          bookmarks.push(postId);
-          localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
-          alert("Question saved!");
-        } else {
-          alert("Already saved!");
-        }
-      });
-    });
-
-    document
-      .querySelectorAll(".share-btn-stats, .share-btn-main")
-      .forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const url = `${window.location.origin}/question/${slug}`;
-          navigator.clipboard.writeText(url);
-          alert("Link copied to clipboard!");
-        });
-      });
-
-    document
-      .querySelectorAll(".report-btn, .report-btn-main")
-      .forEach((btn) => {
-        btn.addEventListener("click", () => {
-          if (!isUserLoggedIn()) {
-            showLoginModal();
-            return;
-          }
-          if (confirm("Report this question?"))
-            alert("Thank you! We'll review it.");
-        });
-      });
-
-    // LOAD COMMENTS
-    async function loadComments() {
-      if (!postId || !commentsContainer) return;
-      const userEmail = localStorage.getItem("userId") || "";
-      try {
-        const res = await fetch(
-          `${SCRIPT_URL}?action=getComments&postId=${postId}&userEmail=${encodeURIComponent(userEmail)}`,
-        );
-        const comments = await res.json();
-        if (comments.length === 0) return; // Keep empty state
-        commentsContainer.innerHTML = "";
-        comments.forEach((c: any) => renderComment(c, null));
-      } catch (err) {
-        console.error(err);
-      }
+  // Submit answer on Enter key
+  document.getElementById("answerInput")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      document.getElementById("submitAnswerBtn")?.click();
     }
+  });
 
-    function renderComment(comment: any, parentID: string | null) {
-      const div = document.createElement("div");
-      div.className = "qcomment-item";
-      const timeStr = comment.timestamp
-        ? getTimeAgo(new Date(comment.timestamp))
-        : "Just now";
-      const likeClass = comment.userLiked ? "liked" : "";
-      const avatarUrl = comment.userAvatar || "/assets/icon.png";
-      div.innerHTML = `
-        <img src="${avatarUrl}" class="qcomment-avatar" onerror="this.onerror=null;this.src='/assets/icon.png';" />
-        <div class="qcomment-content">
-          <div class="qcomment-meta">
-            <span class="qcomment-name">${comment.userName}</span>
-            <span class="dot">•</span>
-            <span class="qcomment-time">${timeStr}</span>
-          </div>
-          <p class="qcomment-text">${comment.text || ""}</p>
-          <div class="qcomment-actions">
-            <button class="qcomment-action like-btn" data-comment-id="${comment.id}" type="button">
-              ${comment.userLiked ? "❤️" : "🤍"} <span class="like-count">${comment.likes || 0}</span>
-            </button>
-            <button class="qcomment-action" type="button">Reply</button>
-          </div>
-        </div>
-      `;
-      const likeBtn = div.querySelector(".like-btn");
-      likeBtn?.addEventListener("click", () =>
-        toggleLike(comment.id, likeBtn as HTMLButtonElement),
-      );
-      commentsContainer?.appendChild(div);
-    }
-
-    async function toggleLike(commentId: string, btn: HTMLButtonElement) {
-      if (!isUserLoggedIn()) {
-        showLoginModal();
-        return;
-      }
-      try {
-        const res = await fetch(SCRIPT_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "toggleCommentLike",
-            commentId,
-            userEmail: localStorage.getItem("userId") || "",
-          }),
-        });
-        const result = await res.json();
-        if (result.status === "success") {
-          btn.innerHTML = `${result.liked ? "❤️" : "🤍"} <span class="like-count">${result.likes}</span>`;
-          btn.classList.toggle("liked", result.liked);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
-    loadComments();
-  }
+  // ===== START =====
+  loadQuestion();
 </script>

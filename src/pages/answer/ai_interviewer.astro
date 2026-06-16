@@ -3,211 +3,527 @@ import Layout from "../../layouts/Layout.astro";
 ---
 
 <Layout title="AI Interviewer - Tech Engineer" showFooter={false}>
-    <div class="page-layout">
-        <!-- LEFT SIDEBAR -->
-        <aside class="sidebar-area">
-            <div class="sticky-wrapper">
-                <p class="nav-title">Questions</p>
-                <ul class="nav-list">
-                    <li><a href="/answer">Questions for you</a></li>
-                    <li><a href="/answer/requests">Answer requests</a></li>
-                    <li><a href="/answer/drafts">Drafts</a></li>
-                    <li class="active">
-                        <a href="/answer/ai_interviewer">AI Interviewer</a>
-                    </li>
-                </ul>
-            </div>
-        </aside>
-
-        <!-- CENTER FEED -->
-        <main class="feed-area">
-            <!-- TOP BOX: AI INTERVIEWER TOOL -->
-            <div class="tool-box">
-                <h3>AI Interviewer</h3>
-                <p>
-                    This tool asks personalized questions based on your Quora
-                    credentials and previous answers, to help you share your
-                    knowledge and experience.
-                </p>
-                <div class="tool-actions">
-                    <button class="blue-btn-small">Get questions</button>
-                    <button class="outline-btn-small"
-                        >+ Customize questions</button
-                    >
-                </div>
-            </div>
-
-            <!-- CENTER CONTENT: EMPTY STATE -->
-            <div class="empty-state">
-                <div class="person-icon">
-                    <svg
-                        width="48"
-                        height="48"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="#939598"
-                        stroke-width="1.5"
-                    >
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
-                        ></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <line x1="19" y1="8" x2="19" y2="14"></line>
-                        <line x1="22" y1="11" x2="16" y2="11"></line>
-                    </svg>
-                </div>
-
-                <h2>We don't know enough about you yet</h2>
-                <p>
-                    Add credentials to get personalized questions in one tap.
-                    Or, try it out by using 'Customize questions' above to guide
-                    your questions.
-                </p>
-
-                <button class="large-blue-btn">Add credentials</button>
-            </div>
-        </main>
-    </div>
+  <div class="page-layout">
+    <aside class="sidebar-area">
+      <div class="sticky-wrapper">
+        <p class="nav-title">Questions</p>
+        <ul class="nav-list">
+          <li><a href="/answer">Questions for you</a></li>
+          <li><a href="/answer/requests">Answer requests</a></li>
+          <li><a href="/answer/drafts">Drafts</a></li>
+          <li class="active">
+            <a href="/answer/ai_interviewer">AI Interviewer</a>
+          </li>
+        </ul>
+      </div>
+    </aside>
+    <main class="feed-area">
+      <div class="feed-header">
+        <span class="star-icon">🤖</span>
+        <span>AI Interviewer</span>
+      </div>
+      <div class="ai-container">
+        <div class="ai-hero">
+          <div class="ai-icon">🤖</div>
+          <h3>Practice with AI</h3>
+          <p>
+            Sharpen your skills with AI-generated interview questions tailored
+            to your expertise.
+          </p>
+        </div>
+        <div class="ai-topics">
+          <button class="topic-chip" data-topic="JavaScript">JavaScript</button>
+          <button class="topic-chip" data-topic="Python">Python</button>
+          <button class="topic-chip" data-topic="React">React</button>
+          <button class="topic-chip" data-topic="System Design"
+            >System Design</button
+          >
+          <button class="topic-chip" data-topic="Data Structures"
+            >Data Structures</button
+          >
+          <button class="topic-chip" data-topic="Machine Learning"
+            >Machine Learning</button
+          >
+          <button class="topic-chip" data-topic="DevOps">DevOps</button>
+          <button class="topic-chip" data-topic="Cybersecurity"
+            >Cybersecurity</button
+          >
+        </div>
+        <div id="aiQuestion" class="ai-question" style="display:none;">
+          <div class="ai-question-label">Your Question:</div>
+          <p id="aiQuestionText"></p>
+          <div class="ai-actions">
+            <button class="answer-btn-ai" id="showAnswerBtn"
+              >💡 Show Hint</button
+            >
+            <button class="answer-btn-ai secondary" id="nextQuestionBtn"
+              >➡️ Next Question</button
+            >
+          </div>
+          <div id="aiHint" class="ai-hint" style="display:none;">
+            <div class="ai-hint-label">Hint:</div>
+            <p id="aiHintText"></p>
+          </div>
+        </div>
+        <button class="start-btn" id="startBtn">Start Practice →</button>
+      </div>
+    </main>
+    <aside class="right-column"></aside>
+  </div>
 </Layout>
 
 <style>
-    .page-layout {
-        display: flex;
-        justify-content: center;
-        gap: 24px; /* Standard Gap */
-        padding: 20px;
-        background-color: #f1f2f2;
-        min-height: 100vh;
-        align-items: flex-start;
-        max-width: 1100px; /* Standard Page Width */
-        margin: 0 auto;
-    }
-    .sidebar-area {
-        width: 160px; /* Standard Left Sidebar */
-        flex-shrink: 0;
-    }
+  .page-layout {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px 15px;
+    align-items: flex-start;
+  }
+  .sticky-wrapper {
+    position: sticky;
+    top: 70px;
+  }
+  .sidebar-area {
+    width: 160px;
+  }
+  .nav-title {
+    font-weight: bold;
+    font-size: 15px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+  }
+  .nav-list {
+    list-style: none;
+    padding: 0;
+  }
+  .nav-list li {
+    padding: 8px;
+    border-radius: 4px;
+    margin-bottom: 2px;
+  }
+  .nav-list li a {
+    text-decoration: none;
+    color: #636466;
+    font-size: 14px;
+    display: block;
+  }
+  .nav-list li.active {
+    background-color: #f7e8e8;
+  }
+  .nav-list li.active a {
+    color: #b92b27;
+    font-weight: bold;
+  }
+  .nav-list li:hover:not(.active) {
+    background-color: #e6e6e6;
+  }
+  .feed-area {
+    width: 580px;
+  }
+  .feed-header {
+    padding: 12px 15px;
+    border-bottom: 1px solid #dee0e1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    color: #333;
+    background: white;
+    border-radius: 8px 8px 0 0;
+  }
+  .star-icon {
+    font-size: 18px;
+  }
 
-    .feed-area {
-        width: 580px; /* Standard Feed Width */
-        flex-shrink: 0;
-    }
+  .ai-container {
+    border: 1px solid #dee0e1;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    background: white;
+    padding: 40px 30px;
+    text-align: center;
+  }
+  .ai-hero {
+    margin-bottom: 24px;
+  }
+  .ai-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+  .ai-hero h3 {
+    font-size: 20px;
+    color: #1a1a1a;
+    margin: 0 0 8px;
+  }
+  .ai-hero p {
+    font-size: 14px;
+    color: #939598;
+    margin: 0;
+  }
 
-    .right-column {
-        width: 300px; /* Standard Right Sidebar Space */
-        flex-shrink: 0;
-    }
-    .sticky-wrapper {
-        position: sticky;
-        top: 70px;
-        height: fit-content;
-    }
-    .nav-title {
-        font-weight: bold;
-        font-size: 15px;
-        border-bottom: 1px solid #ddd;
-        padding-bottom: 8px;
-        margin-bottom: 10px;
-    }
-    .nav-list {
-        list-style: none;
-        padding: 0;
-    }
-    .nav-list li {
-        padding: 8px;
-        border-radius: 4px;
-        margin-bottom: 2px;
-    }
-    .nav-list li a {
-        text-decoration: none;
-        color: #636466;
-        font-size: 14px;
-        display: block;
-    }
-    .nav-list li.active {
-        background-color: #f7e8e8;
-    }
-    .nav-list li.active a {
-        color: #b92b27;
-        font-weight: bold;
-    }
+  .ai-topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+  .topic-chip {
+    background: #f1f2f2;
+    border: 1px solid #e3e6ea;
+    color: #636466;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .topic-chip:hover,
+  .topic-chip.selected {
+    background: #eef3ff;
+    color: #2e69ff;
+    border-color: rgba(46, 105, 255, 0.3);
+  }
 
-    /* Top Tool Box */
-    .tool-box {
-        background: white;
-        border: 1px solid #dee0e1;
-        border-radius: 4px;
-        padding: 20px;
-        margin-bottom: 30px;
-    }
-    .tool-box h3 {
-        margin: 0 0 10px 0;
-        font-size: 16px;
-        color: #333;
-    }
-    .tool-box p {
-        font-size: 14px;
-        color: #666;
-        line-height: 1.5;
-        margin-bottom: 20px;
-    }
+  .ai-question {
+    background: #f8f9fa;
+    border: 1px solid #e3e6ea;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: left;
+  }
+  .ai-question-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #2e69ff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .ai-question p {
+    font-size: 16px;
+    color: #1a1a1a;
+    margin: 0;
+    line-height: 1.5;
+    font-weight: 600;
+  }
+  .ai-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .answer-btn-ai {
+    background: #2e69ff;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .answer-btn-ai:hover {
+    opacity: 0.85;
+  }
+  .answer-btn-ai.secondary {
+    background: #f1f2f2;
+    color: #636466;
+    border: 1px solid #e3e6ea;
+  }
+  .answer-btn-ai.secondary:hover {
+    background: #e3e6ea;
+  }
+  .ai-hint {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: #fff8e6;
+    border: 1px solid #ffe0a3;
+    border-radius: 8px;
+    text-align: left;
+  }
+  .ai-hint-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #f5a623;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .ai-hint p {
+    font-size: 14px;
+    color: #3a3a3a;
+    margin: 0;
+    line-height: 1.5;
+  }
 
-    .tool-actions {
-        display: flex;
-        gap: 10px;
-    }
-    .blue-btn-small {
-        background: #9bb7ff;
-        color: white;
-        border: none;
-        padding: 8px 20px;
-        border-radius: 20px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-    .outline-btn-small {
-        background: white;
-        border: 1px solid #ddd;
-        color: #666;
-        padding: 8px 20px;
-        border-radius: 20px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-
-    /* Bottom Empty State */
-    .empty-state {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        padding-top: 20px;
-    }
-    .person-icon {
-        margin-bottom: 15px;
-    }
-    .empty-state h2 {
-        font-size: 18px;
-        color: #333;
-        margin-bottom: 10px;
-        font-weight: bold;
-    }
-    .empty-state p {
-        font-size: 15px;
-        color: #666;
-        line-height: 1.4;
-        max-width: 450px;
-        margin-bottom: 25px;
-    }
-
-    .large-blue-btn {
-        background-color: #2e69ff;
-        color: white;
-        border: none;
-        padding: 12px 0;
-        width: 100%;
-        max-width: 450px;
-        border-radius: 24px;
-        font-weight: bold;
-        font-size: 14px;
-        cursor: pointer;
-    }
+  .start-btn {
+    background: linear-gradient(135deg, #2e69ff, #6c5ce7);
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 24px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .start-btn:hover {
+    opacity: 0.85;
+  }
+  .right-column {
+    width: 280px;
+  }
 </style>
+
+<script>
+  const questions: Record<string, { q: string; hint: string }[]> = {
+    JavaScript: [
+      {
+        q: "Explain the difference between `var`, `let`, and `const` in JavaScript. When would you use each?",
+        hint: "Think about scope, hoisting, and reassignment behavior.",
+      },
+      {
+        q: "What is the event loop in JavaScript? How does it handle asynchronous operations?",
+        hint: "Consider the call stack, microtask queue, and macrotask queue.",
+      },
+      {
+        q: "Explain closures in JavaScript with a practical example.",
+        hint: "A closure gives you access to an outer function's scope from an inner function.",
+      },
+      {
+        q: "What is the difference between `==` and `===` in JavaScript?",
+        hint: "One checks type, the other doesn't.",
+      },
+      {
+        q: "How does `Promise.all()` differ from `Promise.allSettled()`?",
+        hint: "One fails fast, the other waits for all.",
+      },
+    ],
+    Python: [
+      {
+        q: "What are Python decorators? Give a real-world use case.",
+        hint: "Think of them as wrappers that modify function behavior without changing the function itself.",
+      },
+      {
+        q: "Explain the GIL (Global Interpreter Lock) in Python. How does it affect multi-threading?",
+        hint: "Only one thread can execute Python bytecode at a time.",
+      },
+      {
+        q: "What is the difference between a list and a tuple in Python?",
+        hint: "Mutability is the key difference.",
+      },
+      {
+        q: "How do generators work in Python? When would you use one?",
+        hint: "They use `yield` instead of `return` and are memory efficient for large datasets.",
+      },
+      {
+        q: "Explain list comprehensions vs generator expressions.",
+        hint: "One creates a full list in memory, the other is lazy.",
+      },
+    ],
+    React: [
+      {
+        q: "What is the difference between `useState` and `useReducer`? When would you pick one over the other?",
+        hint: "Consider complexity of state logic.",
+      },
+      {
+        q: "Explain the virtual DOM in React. Why is it important for performance?",
+        hint: "React batches updates and minimizes real DOM operations.",
+      },
+      {
+        q: "What are React hooks rules? Why can't hooks be called inside conditionals?",
+        hint: "Hooks rely on call order. Changing order breaks React's internal tracking.",
+      },
+      {
+        q: "How does `useEffect` differ from `useLayoutEffect`?",
+        hint: "One runs after paint, the other before paint.",
+      },
+      {
+        q: "Explain server-side rendering (SSR) vs client-side rendering (CSR) in React.",
+        hint: "Think about when the HTML is generated.",
+      },
+    ],
+    "System Design": [
+      {
+        q: "How would you design a URL shortener like bit.ly?",
+        hint: "Think about hashing, database schema, and caching strategies.",
+      },
+      {
+        q: "Design a notification system that supports email, SMS, and push notifications.",
+        hint: "Consider a queue-based architecture with a priority system.",
+      },
+      {
+        q: "How would you design a rate limiter for an API?",
+        hint: "Token bucket or sliding window algorithms.",
+      },
+      {
+        q: "Design a chat application that supports both one-on-one and group messaging.",
+        hint: "WebSockets for real-time, database for message persistence.",
+      },
+      {
+        q: "How would you design a file storage system like Google Drive?",
+        hint: "Think about chunking, deduplication, and metadata management.",
+      },
+    ],
+    "Data Structures": [
+      {
+        q: "When would you use a hash table vs a balanced binary search tree?",
+        hint: "Consider average vs worst-case time complexity and ordering needs.",
+      },
+      {
+        q: "Explain how a LRU cache works and how you would implement one.",
+        hint: "Combine a hash map with a doubly linked list.",
+      },
+      {
+        q: "What is the difference between BFS and DFS? When would you use each?",
+        hint: "Shortest path vs exploring all branches.",
+      },
+      {
+        q: "How does a heap work? Give two real-world use cases.",
+        hint: "Priority queues and finding top K elements.",
+      },
+      {
+        q: "Explain the time complexity of operations in a B-tree vs a binary search tree.",
+        hint: "B-trees are optimized for disk I/O with wider, shallower structures.",
+      },
+    ],
+    "Machine Learning": [
+      {
+        q: "What is the bias-variance tradeoff? How do you balance it?",
+        hint: "High bias = underfitting, high variance = overfitting.",
+      },
+      {
+        q: "Explain the difference between supervised and unsupervised learning with examples.",
+        hint: "Labeled vs unlabeled data.",
+      },
+      {
+        q: "What is gradient descent? How does learning rate affect training?",
+        hint: "Too large = overshooting, too small = slow convergence.",
+      },
+      {
+        q: "Explain overfitting and three techniques to prevent it.",
+        hint: "Regularization, dropout, early stopping, data augmentation...",
+      },
+      {
+        q: "What is the difference between precision and recall? When would you prioritize one?",
+        hint: "Precision = quality, Recall = coverage.",
+      },
+    ],
+    DevOps: [
+      {
+        q: "What is the difference between Docker and a virtual machine?",
+        hint: "Docker shares the host OS kernel; VMs have their own OS.",
+      },
+      {
+        q: "Explain CI/CD. What are the key stages in a CI/CD pipeline?",
+        hint: "Build → Test → Deploy, with automation at each stage.",
+      },
+      {
+        q: "What is Kubernetes? Why would you use it over Docker Compose?",
+        hint: "Orchestration, scaling, and self-healing at scale.",
+      },
+      {
+        q: "Explain Infrastructure as Code (IaC). What tools are commonly used?",
+        hint: "Terraform, CloudFormation, Ansible — defining infrastructure in config files.",
+      },
+      {
+        q: "What is blue-green deployment? How does it reduce downtime?",
+        hint: "Two identical environments, switch traffic between them.",
+      },
+    ],
+    Cybersecurity: [
+      {
+        q: "What is the difference between encryption, hashing, and encoding?",
+        hint: "Encryption is reversible, hashing is one-way, encoding is for format conversion.",
+      },
+      {
+        q: "Explain OWASP Top 3 vulnerabilities and how to prevent each.",
+        hint: "Injection, Broken Authentication, Sensitive Data Exposure.",
+      },
+      {
+        q: "What is a man-in-the-middle attack? How can it be prevented?",
+        hint: "TLS/HTTPS, certificate pinning, and mutual authentication.",
+      },
+      {
+        q: "Explain zero-trust security architecture.",
+        hint: "Never trust, always verify — every request is authenticated.",
+      },
+      {
+        q: "What is SQL injection? Show an example and how to prevent it.",
+        hint: "Unsanitized input in SQL queries. Use parameterized queries.",
+      },
+    ],
+  };
+
+  let selectedTopic = "";
+  let currentIndex = 0;
+  let currentQuestions: { q: string; hint: string }[] = [];
+
+  const aiQuestionEl = document.getElementById("aiQuestion") as HTMLDivElement;
+  const aiQuestionText = document.getElementById(
+    "aiQuestionText",
+  ) as HTMLParagraphElement;
+  const aiHint = document.getElementById("aiHint") as HTMLDivElement;
+  const aiHintText = document.getElementById(
+    "aiHintText",
+  ) as HTMLParagraphElement;
+  const showAnswerBtn = document.getElementById(
+    "showAnswerBtn",
+  ) as HTMLButtonElement;
+  const nextQuestionBtn = document.getElementById(
+    "nextQuestionBtn",
+  ) as HTMLButtonElement;
+  const startBtn = document.getElementById("startBtn") as HTMLButtonElement;
+
+  document.querySelectorAll(".topic-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      document
+        .querySelectorAll(".topic-chip")
+        .forEach((c) => c.classList.remove("selected"));
+      chip.classList.add("selected");
+      selectedTopic = (chip as HTMLElement).getAttribute("data-topic") || "";
+    });
+  });
+
+  startBtn?.addEventListener("click", () => {
+    if (!selectedTopic) {
+      alert("Pick a topic first!");
+      return;
+    }
+    currentQuestions = [...questions[selectedTopic]].sort(
+      () => Math.random() - 0.5,
+    );
+    currentIndex = 0;
+    showQuestion();
+    startBtn.style.display = "none";
+    aiQuestionEl.style.display = "block";
+  });
+
+  showAnswerBtn?.addEventListener("click", () => {
+    aiHint.style.display = "block";
+  });
+
+  nextQuestionBtn?.addEventListener("click", () => {
+    currentIndex++;
+    if (currentIndex >= currentQuestions.length) {
+      currentQuestions = [...questions[selectedTopic]].sort(
+        () => Math.random() - 0.5,
+      );
+      currentIndex = 0;
+    }
+    showQuestion();
+  });
+
+  function showQuestion() {
+    const q = currentQuestions[currentIndex];
+    aiQuestionText.textContent = q.q;
+    aiHintText.textContent = q.hint;
+    aiHint.style.display = "none";
+  }
+</script>

@@ -1,84 +1,42 @@
+// src/data/writers.ts
 export interface Writer {
-    id: string;
-    name: string;
-    expertise: string;
-    topics: string[];
-    avatar: string;
-    initials: string;
-    color: string;
+  id: string;
+  name: string;
+  expertise: string;
+  topics: string[];
+  avatar: string;
+  initials: string;
+  color: string;
 }
 
-export const writers: Writer[] = [
-    {
-        id: "1",
-        name: "Anna Sneha Mathew",
-        expertise: "27 answers in Income",
-        topics: ["Income", "Deaf People", "Employment"],
-        avatar: "",
-        initials: "AS",
-        color: "#b92b27"
-    },
-    {
-        id: "2",
-        name: "Rajeswari Dharesh",
-        expertise: "15 answers in Employment",
-        topics: ["Employment", "Deafness"],
-        avatar: "",
-        initials: "RD",
-        color: "#2e69ff"
-    },
-    {
-        id: "3",
-        name: "Marcus Thorne",
-        expertise: "42 answers in Tech",
-        topics: ["Technology", "AI", "Programming"],
-        avatar: "",
-        initials: "MT",
-        color: "#2b7a3a"
-    },
-    {
-        id: "4",
-        name: "Seck Zhao",
-        expertise: "31 answers in History",
-        topics: ["History", "Education"],
-        avatar: "",
-        initials: "SZ",
-        color: "#8b5cf6"
-    },
-    {
-        id: "5",
-        name: "Juhal Patel",
-        expertise: "8 answers in Stage Management",
-        topics: ["Theatre", "Management"],
-        avatar: "",
-        initials: "JP",
-        color: "#f59e0b"
-    },
-    {
-        id: "6",
-        name: "Jehafin Dev",
-        expertise: "19 answers in Lifestyle",
-        topics: ["Lifestyle", "Health"],
-        avatar: "",
-        initials: "JD",
-        color: "#ec4899"
-    },
-    {
-        id: "7",
-        name: "David Kegite",
-        expertise: "52 answers in Business",
-        topics: ["Business", "Marketing", "Income"],
-        avatar: "",
-        initials: "DK",
-        color: "#10b981"
-    },
-    {
-        id: "8",
-        name: "Steve Noskowicz",
-        expertise: "10 answers in Engineering",
-        topics: ["Engineering", "Technology"],
-        avatar: "",
-        initials: "SN",
-        color: "#6366f1"
+const SHEET_URL =
+  "https://script.google.com/macros/s/AKfycbywCeoEu7CNLZtgRKyy4wsnvGw8B6wpNrP5ke0RoJ6XrVfwgsmBKAlIKvli79IVAWQJxQ/exec";
+
+let cachedWriters: Writer[] | null = null;
+let cacheTime = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+export async function getWriters(): Promise<Writer[]> {
+  // Return cache if fresh
+  if (cachedWriters && Date.now() - cacheTime < CACHE_TTL) {
+    return cachedWriters;
+  }
+
+  try {
+    const res = await fetch(`${SHEET_URL}?action=getWriters`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data: Writer[] = await res.json();
+
+    if (Array.isArray(data) && data.length > 0) {
+      cachedWriters = data;
+      cacheTime = Date.now();
+      return data;
     }
-];
+
+    throw new Error("Empty or invalid response");
+  } catch (e) {
+    console.error("Failed to fetch writers:", e);
+    // Return stale cache if available, otherwise empty array
+    return cachedWriters || [];
+  }
+}
