@@ -54,10 +54,10 @@ const { isLoggedIn = false } = Astro.props;
             fill="none"
             stroke="currentColor"
             stroke-width="2"
-            ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path
+            ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"
+            ></path><path
               d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg
           >
-          <span class="notif-dot" id="desktopNotifDot"></span>
         </a>
       </div>
     </div>
@@ -93,6 +93,7 @@ const { isLoggedIn = false } = Astro.props;
 
     <!-- RIGHT: Buttons & Profile -->
     <div class="header-right">
+      <!-- 1. Search (Mobile Only) -->
       <button
         id="mobileSearchBtn"
         class="mobile-icon-btn mobile-only"
@@ -105,19 +106,17 @@ const { isLoggedIn = false } = Astro.props;
           fill="none"
           stroke="currentColor"
           stroke-width="2"
-          ><circle cx="11" cy="11" r="8"></circle><line
-            x1="21"
-            y1="21"
-            x2="16.65"
-            y2="16.65"></line></svg
         >
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
       </button>
 
+      <!-- 2. Notifications (Badge with Count) -->
       <a
         href="/notifications"
-        class="mobile-icon-btn mobile-only"
+        class="notif-wrapper"
         aria-label="Notifications"
-        style="text-decoration:none;position:relative;"
       >
         <svg
           width="22"
@@ -126,12 +125,15 @@ const { isLoggedIn = false } = Astro.props;
           fill="none"
           stroke="currentColor"
           stroke-width="2"
-          ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path
-            d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg
         >
-        <span class="notif-dot" id="mobileNotifDot"></span>
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"
+          ></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="notif-badge" id="globalNotifCount"></span>
       </a>
 
+      <!-- 3. Ask Button (Primary Action) -->
       <button
         id="askBtn"
         class="ask-btn"
@@ -142,19 +144,18 @@ const { isLoggedIn = false } = Astro.props;
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          stroke-width="2.5"
+          stroke-width="2.8"
           stroke-linecap="round"
           stroke-linejoin="round"
-          ><line x1="12" y1="5" x2="12" y2="19"></line><line
-            x1="5"
-            y1="12"
-            x2="19"
-            y2="12"></line></svg
         >
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
         <span class="ask-text">Ask</span>
       </button>
 
-      <div class="profile-area" id="profileArea">
+      <!-- 4. Profile Area (DESKTOP ONLY) -->
+      <div class="profile-area desktop-only" id="profileArea">
         <div id="profile-trigger" class="profile-trigger">
           <div
             id="guest-icon"
@@ -167,9 +168,11 @@ const { isLoggedIn = false } = Astro.props;
               fill="none"
               stroke="currentColor"
               stroke-width="2"
-              ><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
-              ></path><circle cx="12" cy="7" r="4"></circle></svg
             >
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+              ></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
           </div>
           <img
             id="user-avatar"
@@ -186,69 +189,26 @@ const { isLoggedIn = false } = Astro.props;
           </div>
           <div class="dropdown-divider"></div>
           <a href="/user" class="dropdown-item">
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              ><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
-              ></path><circle cx="12" cy="7" r="4"></circle></svg
-            >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
             Profile
           </a>
           <a href="/notifications" class="dropdown-item">
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"
-              ></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg
-            >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
             Notifications
           </a>
           <a href="/space" class="dropdown-item">
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              ><rect x="3" y="3" width="7" height="7"></rect><rect
-                x="14"
-                y="3"
-                width="7"
-                height="7"></rect><rect x="14" y="14" width="7" height="7"
-              ></rect><rect x="3" y="14" width="7" height="7"></rect></svg
-            >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
             Spaces
           </a>
           <div class="dropdown-divider"></div>
           <button id="signOutBtn" class="dropdown-item logout">
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              ><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
-              ></path><polyline points="16 17 21 12 16 7"></polyline><line
-                x1="21"
-                y1="12"
-                x2="9"
-                y2="12"></line></svg
-            >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
             Sign Out
           </button>
         </div>
       </div>
 
+      <!-- 5. Hamburger Menu (Mobile Only) -->
       <button id="menuToggle" class="hamburger mobile-only" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
@@ -258,45 +218,10 @@ const { isLoggedIn = false } = Astro.props;
   <!-- Mobile search bar -->
   <div id="mobileSearchBar" class="mobile-search-bar">
     <div class="mobile-search-inner">
-      <svg
-        class="mobile-search-icon"
-        width="18"
-        height="18"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="#999"
-        stroke-width="2"
-        ><circle cx="11" cy="11" r="8"></circle><line
-          x1="21"
-          y1="21"
-          x2="16.65"
-          y2="16.65"></line></svg
-      >
-      <input
-        type="text"
-        placeholder="Search questions, topics, code..."
-        id="mobileSearchInput"
-        autocomplete="off"
-      />
-      <button
-        id="mobileSearchClose"
-        class="mobile-search-close"
-        aria-label="Close search"
-      >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          stroke-linecap="round"
-          ><line x1="18" y1="6" x2="6" y2="18"></line><line
-            x1="6"
-            y1="6"
-            x2="18"
-            y2="18"></line></svg
-        >
+      <svg class="mobile-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" placeholder="Search questions, topics, code..." id="mobileSearchInput" autocomplete="off" />
+      <button id="mobileSearchClose" class="mobile-search-close" aria-label="Close search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
       </button>
     </div>
     <div class="search-dropdown mobile-dropdown" id="mobileSearchDropdown">
@@ -316,92 +241,53 @@ const { isLoggedIn = false } = Astro.props;
       <span>Tech Engineer</span>
     </div>
     <button id="closeMenu" class="close-btn" aria-label="Close menu">
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.5"
-        stroke-linecap="round"
-        ><line x1="18" y1="6" x2="6" y2="18"></line><line
-          x1="6"
-          y1="6"
-          x2="18"
-          y2="18"></line></svg
-      >
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
     </button>
   </div>
-  <div class="nav-icons desktop-only">
-    <a
-      href="/"
-      class={`icon-link ${pathname === "/" ? "active" : ""}`}
-      title="Home"
-    >
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"
-        ><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path></svg
-      >
+
+  <!-- Profile Header inside Menu -->
+  <div class="mobile-menu-user-box">
+    <img id="mobile-menu-avatar" src="/assets/icon.png" class="mobile-avatar-large" alt="Profile" />
+    <div class="user-meta">
+      <strong id="mobile-display-name">Guest Engineer</strong>
+      <a href="/user" class="view-prof-link">Manage Account →</a>
+    </div>
+  </div>
+
+  <div class="mobile-menu-divider"></div>
+
+  <div class="mobile-menu-content">
+    <a href="/" class={`mobile-menu-item ${pathname === "/" ? "active" : ""}`}>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path></svg>
+      Home
     </a>
-    <a
-      href="/following"
-      class={`icon-link ${pathname.startsWith("/following") ? "active" : ""}`}
-      title="Following"
-    >
-      <svg
-        width="22"
-        height="22"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        ><rect x="3" y="3" width="7" height="7"></rect><rect
-          x="14"
-          y="3"
-          width="7"
-          height="7"></rect><rect x="14" y="14" width="7" height="7"
-        ></rect><rect x="3" y="14" width="7" height="7"></rect></svg
-      >
+    <a href="/following" class={`mobile-menu-item ${pathname.startsWith("/following") ? "active" : ""}`}>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+      Following
     </a>
-    <!-- ✅ ADD THIS NEW SPACES ICON HERE -->
-    <a
-      href="/space"
-      class={`icon-link ${pathname.startsWith("/space") ? "active" : ""}`}
-      title="Spaces"
-    >
-      <svg
-        width="22"
-        height="22"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        ><circle cx="12" cy="12" r="10"></circle><line
-          x1="2"
-          y1="12"
-          x2="22"
-          y2="12"></line><path
-          d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
-        ></path></svg
-      >
-      <span class="nav-badge">NEW</span>
+    <a href="/space" class={`mobile-menu-item ${pathname.startsWith("/space") ? "active" : ""}`}>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+      Spaces
     </a>
-    <a
-      href="/notifications"
-      class={`icon-link notification ${pathname.startsWith("/notifications") ? "active" : ""}`}
-      title="Notifications"
-    >
-      <svg
-        width="22"
-        height="22"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        ><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path
-          d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg
-      >
-      <span class="notif-dot" id="desktopNotifDot"></span>
+    <a href="/notifications" class={`mobile-menu-item ${pathname.startsWith("/notifications") ? "active" : ""}`}>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+      Notifications
     </a>
+
+    <div class="mobile-menu-divider"></div>
+<!-- 
+    <a href="/settings" class="mobile-menu-item">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      Settings
+    </a> -->
+
+    <button id="mobileSignOut" class="mobile-menu-item logout-item">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+      Sign Out
+    </button>
   </div>
 </div>
 
@@ -411,8 +297,7 @@ const { isLoggedIn = false } = Astro.props;
     <h3>What are you interested in?</h3>
     <p>Choose 3 or more topics to customize your feed.</p>
     <div id="topicGrid" class="topic-grid"></div>
-    <button id="saveInterestsBtn" class="login-submit" disabled>Continue</button
-    >
+    <button id="saveInterestsBtn" class="login-submit" disabled>Continue</button>
   </div>
 </div>
 
@@ -424,40 +309,16 @@ const { isLoggedIn = false } = Astro.props;
     </div>
     <h3>Welcome to Tech Engineer</h3>
     <p>Sign in to ask questions, post, and interact.</p>
-
     <div class="social-login-group">
-      <button
-        id="googleLoginBtn"
-        class="social-login-btn google-btn"
-        type="button"
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24"
-          ><path
-            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
-            fill="#4285F4"></path><path
-            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-            fill="#34A853"></path><path
-            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-            fill="#FBBC05"></path><path
-            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-            fill="#EA4335"></path></svg
-        >
+      <button id="googleLoginBtn" class="social-login-btn google-btn" type="button">
+        <svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"></path><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path></svg>
         Sign in with Google
       </button>
-      <button
-        id="githubLoginBtn"
-        class="social-login-btn github-btn"
-        type="button"
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"
-          ><path
-            d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
-          ></path></svg
-        >
+      <button id="githubLoginBtn" class="social-login-btn github-btn" type="button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg>
         Sign in with GitHub
       </button>
     </div>
-
     <button id="closeModal" class="close-text">Cancel</button>
   </div>
 </div>
@@ -468,15 +329,8 @@ const { isLoggedIn = false } = Astro.props;
     <h3>Set up your profile</h3>
     <p>Tell us a bit about yourself</p>
     <input type="text" id="setupName" placeholder="Your display name..." />
-    <input
-      type="text"
-      id="setupRole"
-      placeholder="Your role (e.g. Full-Stack Developer)"
-      style="margin-top: 10px;"
-    />
-    <button id="saveProfileBtn" class="login-submit" style="margin-top: 15px;"
-      >Save Profile</button
-    >
+    <input type="text" id="setupRole" placeholder="Your role (e.g. Full-Stack Developer)" style="margin-top: 10px;" />
+    <button id="saveProfileBtn" class="login-submit" style="margin-top: 15px;">Save Profile</button>
   </div>
 </div>
 
@@ -484,968 +338,229 @@ const { isLoggedIn = false } = Astro.props;
 <div id="welcomeModal" class="login-modal">
   <div class="modal-content">
     <div class="welcome-icon-wrap">
-      <svg
-        width="48"
-        height="48"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="#2e69ff"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        ><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline
-          points="22 4 12 14.01 9 11.01"></polyline></svg
-      >
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#2e69ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
     </div>
     <h3>Welcome to Tech Engineer!</h3>
-    <p>
-      Your profile is ready. Start asking questions, sharing knowledge, and
-      connecting with engineers.
-    </p>
+    <p>Your profile is ready. Start asking questions, sharing knowledge, and connecting with engineers.</p>
     <button id="welcomeDoneBtn" class="login-submit">Let's Go!</button>
   </div>
 </div>
 
 <style is:global>
   /* ===== TOPIC CHIPS ===== */
-  .interest-content {
-    max-width: 500px;
-  }
-  .topic-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 20px 0;
-    justify-content: center;
-  }
-  .topic-chip {
-    padding: 8px 16px;
-    border: 1px solid #dee0e1;
-    border-radius: 20px;
-    font-size: 13px;
-    cursor: pointer;
-    background: white;
-    color: #636466;
-    transition: all 0.2s;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .topic-chip:hover {
-    border-color: #2e69ff;
-    color: #2e69ff;
-  }
-  .topic-chip.active {
-    background: #eef3ff;
-    border-color: #2e69ff;
-    color: #1f57f0;
-    font-weight: bold;
-  }
+  .interest-content { max-width: 500px; }
+  .topic-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0; justify-content: center; }
+  .topic-chip { padding: 8px 16px; border: 1px solid #dee0e1; border-radius: 20px; font-size: 13px; cursor: pointer; background: white; color: #636466; transition: all 0.2s; user-select: none; }
+  .topic-chip:hover { border-color: #2e69ff; color: #2e69ff; }
+  .topic-chip.active { background: #eef3ff; border-color: #2e69ff; color: #1f57f0; font-weight: bold; }
+
+  /* ===== LOGO UPGRADE ===== */
+  .logo-img { height: 34px; width: auto; }
+  .logo { color: #1a4a7c; font-size: 19px; font-weight: 800; text-decoration: none; letter-spacing: -0.5px; white-space: nowrap; }
+
+  /* ===== NOTIFICATION BADGE ===== */
+  .notif-wrapper { position: relative; display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 8px; min-width: 40px; min-height: 40px; text-decoration: none; color: #6b7280; transition: all 0.15s; }
+  .notif-wrapper:hover { background: #f3f4f6; color: #111827; }
+  .notif-badge { position: absolute; top: 2px; right: 2px; background: #ef4444; color: white; font-size: 10px; font-weight: 800; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 10px; border: 2px solid white; display: none; align-items: center; justify-content: center; }
+  .notif-badge.active { display: flex; }
+
+  /* ===== ASK BUTTON ===== */
+  .ask-btn { background: #2e69ff; color: white; border: none; padding: 8px 18px; border-radius: 999px; font-weight: 700; cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; white-space: nowrap; min-height: 38px; box-shadow: 0 2px 8px rgba(46,105,255,0.25); }
+  .ask-btn:hover { background: #1a54e6; transform: translateY(-1px); }
+  .ask-btn:active { transform: scale(0.97); }
+  .ask-icon { width: 16px; height: 16px; }
+
+  /* ===== AVATAR ===== */
+  .avatar { width: 38px; height: 38px; border-radius: 50%; border: 1px solid #dee0e1; object-fit: cover; cursor: pointer; }
+
+  /* ===== MOBILE MENU USER BOX ===== */
+  .mobile-menu-user-box { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid #f3f4f6; }
+  .mobile-avatar-large { width: 48px; height: 48px; border-radius: 50%; border: 2px solid #2e69ff; object-fit: cover; flex-shrink: 0; }
+  .user-meta strong { display: block; font-size: 16px; color: #111827; }
+  .view-prof-link { font-size: 13px; color: #2e69ff; text-decoration: none; margin-top: 2px; display: block; }
+  .view-prof-link:hover { text-decoration: underline; }
+
+  /* ===== MOBILE SIGN OUT ===== */
+  .logout-item { background: none; border: none; width: 100%; text-align: left; font: inherit; cursor: pointer; color: #ef4444; font-weight: 500; }
 </style>
 
 <style>
   /* ===== HEADER BAR ===== */
-  .header {
-    background: white;
-    border-bottom: 1px solid #e0e0e0;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1000;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  }
-
-  .header-container {
-    max-width: 1100px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 16px;
-    height: 56px;
-    gap: 12px;
-  }
+  .header { background: white; border-bottom: 1px solid #e0e0e0; position: fixed; top: 0; width: 100%; z-index: 1000; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .header-container { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; height: 56px; gap: 12px; }
 
   /* ===== LEFT ===== */
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-shrink: 0;
-  }
-  .logo-wrap {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-  }
-  .logo-img {
-    height: 30px;
-    width: auto;
-  }
-  .logo {
-    color: #1a4a7c;
-    font-size: 17px;
-    font-weight: 800;
-    text-decoration: none;
-    font-family: "Inter", sans-serif;
-    white-space: nowrap;
-  }
+  .header-left { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+  .logo-wrap { display: flex; align-items: center; gap: 8px; text-decoration: none; }
 
-  .nav-icons {
-    display: flex;
-    gap: 4px;
-    color: #666;
-  }
-  .icon-link {
-    color: #6b7280;
-    text-decoration: none;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px;
-    border-radius: 8px;
-    transition: all 0.15s;
-    min-width: 40px;
-    min-height: 40px;
-  }
-  .icon-link:hover {
-    background: #f3f4f6;
-    color: #111827;
-  }
-  .icon-link.active {
-    color: #2e69ff;
-    background: #eef3ff;
-  }
-  .notif-dot {
-    height: 8px;
-    width: 8px;
-    background: #ef4444;
-    border-radius: 50%;
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    border: 2px solid white;
-    display: none;
-  }
-  .notif-dot.has-notif {
-    display: block;
-  }
+  .nav-icons { display: flex; gap: 4px; color: #666; }
+  .icon-link { color: #6b7280; text-decoration: none; position: relative; display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 8px; transition: all 0.15s; min-width: 40px; min-height: 40px; }
+  .icon-link:hover { background: #f3f4f6; color: #111827; }
+  .icon-link.active { color: #2e69ff; background: #eef3ff; }
 
   /* ===== CENTER: SEARCH ===== */
-  .header-center {
-    flex: 1;
-    max-width: 480px;
-    min-width: 0;
-  }
-  .search-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-  .search-icon {
-    position: absolute;
-    left: 12px;
-    pointer-events: none;
-  }
-  .search-wrapper input {
-    width: 100%;
-    padding: 9px 12px 9px 38px;
-    border: 1px solid #e5e7eb;
-    border-radius: 999px;
-    font-size: 14px;
-    outline: none;
-    background: #f9fafb;
-    transition: all 0.15s;
-  }
-  .search-wrapper input:focus {
-    border-color: #2e69ff;
-    background: white;
-    box-shadow: 0 0 0 3px rgba(46, 105, 255, 0.1);
-  }
+  .header-center { flex: 1; max-width: 480px; min-width: 0; }
+  .search-wrapper { position: relative; display: flex; align-items: center; }
+  .search-icon { position: absolute; left: 12px; pointer-events: none; }
+  .search-wrapper input { width: 100%; padding: 9px 12px 9px 38px; border: 1px solid #e5e7eb; border-radius: 999px; font-size: 14px; outline: none; background: #f9fafb; transition: all 0.15s; }
+  .search-wrapper input:focus { border-color: #2e69ff; background: white; box-shadow: 0 0 0 3px rgba(46,105,255,0.1); }
 
   /* ===== RIGHT ===== */
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-  }
+  .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
-  .ask-btn {
-    background: #2e69ff;
-    color: white;
-    border: none;
-    padding: 8px 18px;
-    border-radius: 999px;
-    font-weight: 700;
-    cursor: pointer;
-    font-size: 13px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.15s;
-    white-space: nowrap;
-    min-height: 38px;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .ask-btn:hover {
-    background: #1e5ae6;
-  }
-  .ask-btn:active {
-    transform: scale(0.97);
-  }
-  .ask-icon {
-    width: 16px;
-    height: 16px;
-  }
-
-  .mobile-icon-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #6b7280;
-    padding: 8px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 40px;
-    min-height: 40px;
-    transition: all 0.15s;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .mobile-icon-btn:hover {
-    background: #f3f4f6;
-    color: #111827;
-  }
+  .mobile-icon-btn { background: none; border: none; cursor: pointer; color: #6b7280; padding: 8px; border-radius: 8px; display: flex; align-items: center; justify-content: center; min-width: 40px; min-height: 40px; transition: all 0.15s; }
+  .mobile-icon-btn:hover { background: #f3f4f6; color: #111827; }
 
   /* ===== PROFILE AREA ===== */
-  .profile-area {
-    position: relative;
-  }
-  .profile-trigger {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    padding: 4px;
-    border-radius: 50%;
-    transition: background 0.15s;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .profile-trigger:hover {
-    background: #f3f4f6;
-  }
-  .avatar {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    cursor: pointer;
-    border: 2px solid #e5e7eb;
-    object-fit: cover;
-  }
-  .guest-avatar {
-    color: #6b7280;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: #f3f4f6;
-  }
+  .profile-area { position: relative; }
+  .profile-trigger { cursor: pointer; display: flex; align-items: center; padding: 4px; border-radius: 50%; transition: background 0.15s; }
+  .profile-trigger:hover { background: #f3f4f6; }
+  .guest-avatar { color: #6b7280; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; background: #f3f4f6; }
 
-  .profile-menu-dropdown {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    width: 240px;
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
-    display: none;
-    flex-direction: column;
-    z-index: 2000;
-    padding: 6px 0;
-    animation: dropIn 0.15s ease;
-  }
-  @keyframes dropIn {
-    from {
-      opacity: 0;
-      transform: translateY(-8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  .profile-menu-dropdown.active {
-    display: flex;
-  }
+  .profile-menu-dropdown { position: absolute; top: calc(100% + 8px); right: 0; width: 240px; background: white; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.12); display: none; flex-direction: column; z-index: 2000; padding: 6px 0; }
+  .profile-menu-dropdown.active { display: flex; }
+  .dropdown-info { padding: 14px 16px 10px; }
+  .dropdown-info strong { font-size: 15px; color: #111827; display: block; }
+  .dropdown-view-profile { font-size: 12px; color: #2e69ff; text-decoration: none; }
+  .dropdown-view-profile:hover { text-decoration: underline; }
+  .dropdown-divider { height: 1px; background: #f3f4f6; margin: 4px 0; }
+  .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; color: #374151; text-decoration: none; font-size: 14px; font-weight: 500; background: none; border: none; width: 100%; text-align: left; cursor: pointer; transition: background 0.1s; }
+  .dropdown-item:hover { background: #f9fafb; }
+  .dropdown-item svg { color: #6b7280; flex-shrink: 0; }
+  .dropdown-item.logout { color: #ef4444; }
+  .dropdown-item.logout svg { color: #ef4444; }
 
-  .dropdown-info {
-    padding: 14px 16px 10px;
-    display: flex;
-    flex-direction: column;
-  }
-  .dropdown-info strong {
-    font-size: 15px;
-    color: #111827;
-  }
-  .dropdown-view-profile {
-    font-size: 12px;
-    color: #2e69ff;
-    text-decoration: none;
-    margin-top: 2px;
-  }
-  .dropdown-view-profile:hover {
-    text-decoration: underline;
-  }
-  .dropdown-divider {
-    height: 1px;
-    background: #f3f4f6;
-    margin: 4px 0;
-  }
-  .dropdown-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 16px;
-    color: #374151;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    background: none;
-    border: none;
-    width: 100%;
-    text-align: left;
-    cursor: pointer;
-    transition: background 0.1s;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .dropdown-item:hover {
-    background: #f9fafb;
-  }
-  .dropdown-item svg {
-    color: #6b7280;
-    flex-shrink: 0;
-  }
-  .dropdown-item.logout {
-    color: #ef4444;
-  }
-  .dropdown-item.logout svg {
-    color: #ef4444;
-  }
-
-  .hidden {
-    display: none !important;
-  }
+  .hidden { display: none !important; }
 
   /* ===== MOBILE OVERLAY ===== */
-  .mobile-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: 1999;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s;
-  }
-  .mobile-overlay.active {
-    opacity: 1;
-    pointer-events: auto;
-  }
+  .mobile-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+  .mobile-overlay.active { opacity: 1; pointer-events: auto; }
 
-  /* ===== MOBILE MENU DRAWER ===== */
-  .mobile-menu {
-    position: fixed;
-    top: 0;
-    left: -300px;
-    width: 280px;
-    height: 100%;
-    background: white;
-    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
-    z-index: 2001;
-    transition: left 0.3s ease;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  .mobile-menu.active {
-    left: 0;
-  }
+  /* ===== MOBILE MENU ===== */
+  .mobile-menu { position: fixed; top: 0; left: -300px; width: 280px; height: 100%; background: white; box-shadow: 4px 0 20px rgba(0,0,0,0.15); z-index: 2001; transition: left 0.3s ease; overflow-y: auto; }
+  .mobile-menu.active { left: 0; }
+  .mobile-menu-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #f3f4f6; background: white; position: sticky; top: 0; z-index: 1; }
+  .mobile-menu-brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 16px; color: #1a4a7c; }
+  .mobile-menu-logo { height: 28px; width: auto; }
+  .close-btn { background: none; border: none; cursor: pointer; color: #6b7280; padding: 6px; border-radius: 8px; display: flex; align-items: center; justify-content: center; min-width: 36px; min-height: 36px; }
+  .close-btn:hover { background: #f3f4f6; color: #111827; }
+  .mobile-menu-content { padding: 8px 0; }
+  .mobile-menu-item { display: flex; align-items: center; gap: 12px; padding: 14px 20px; text-decoration: none; color: #333; font-weight: 500; }
+  .mobile-menu-item:hover { background: #f9fafb; }
+  .mobile-menu-item.active { background: #eef3ff; color: #2e69ff; }
+  .mobile-menu-item.active svg { color: #2e69ff; }
+  .mobile-menu-item svg { color: #6b7280; flex-shrink: 0; }
+  .mobile-menu-divider { height: 1px; background: #f3f4f6; margin: 8px 0; }
 
-  .mobile-menu-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 20px;
-    border-bottom: 1px solid #f3f4f6;
-  }
-  .mobile-menu-brand {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 800;
-    font-size: 16px;
-    color: #1a4a7c;
-  }
-  .mobile-menu-logo {
-    height: 28px;
-    width: auto;
-  }
-  .close-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #6b7280;
-    padding: 6px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 36px;
-    min-height: 36px;
-    transition: all 0.15s;
-  }
-  .close-btn:hover {
-    background: #f3f4f6;
-    color: #111827;
-  }
-
-  .mobile-menu-content {
-    padding: 8px 0;
-  }
-  .mobile-menu-item {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 24px;
-    color: #374151;
-    text-decoration: none;
-    font-size: 15px;
-    font-weight: 500;
-    transition: all 0.1s;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .mobile-menu-item:hover {
-    background: #f9fafb;
-  }
-  .mobile-menu-item svg {
-    color: #6b7280;
-    flex-shrink: 0;
-  }
-  .mobile-menu-divider {
-    height: 1px;
-    background: #f3f4f6;
-    margin: 8px 0;
-  }
-
-  /* ===== MOBILE SEARCH BAR ===== */
-  .mobile-search-bar {
-    display: none;
-    padding: 8px 16px 12px;
-    border-top: 1px solid #f3f4f6;
-    background: white;
-  }
-  .mobile-search-bar.active {
-    display: block;
-  }
-  .mobile-search-inner {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-  .mobile-search-icon {
-    position: absolute;
-    left: 12px;
-    pointer-events: none;
-  }
-  .mobile-search-bar input {
-    width: 100%;
-    padding: 10px 40px 10px 38px;
-    border: 1px solid #e5e7eb;
-    border-radius: 999px;
-    font-size: 16px; /* Prevents iOS zoom */
-    outline: none;
-    background: #f9fafb;
-    box-sizing: border-box;
-  }
-  .mobile-search-bar input:focus {
-    border-color: #2e69ff;
-    background: white;
-  }
-  .mobile-search-close {
-    position: absolute;
-    right: 4px;
-    background: none;
-    border: none;
-    color: #6b7280;
-    cursor: pointer;
-    padding: 6px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    min-width: 36px;
-    min-height: 36px;
-  }
+  /* ===== MOBILE SEARCH ===== */
+  .mobile-search-bar { display: none; padding: 8px 16px 12px; border-top: 1px solid #f3f4f6; background: white; }
+  .mobile-search-bar.active { display: block; }
+  .mobile-search-inner { position: relative; display: flex; align-items: center; }
+  .mobile-search-icon { position: absolute; left: 12px; pointer-events: none; }
+  .mobile-search-bar input { width: 100%; padding: 10px 40px 10px 38px; border: 1px solid #e5e7eb; border-radius: 999px; font-size: 16px; outline: none; background: #f9fafb; box-sizing: border-box; }
+  .mobile-search-bar input:focus { border-color: #2e69ff; background: white; }
+  .mobile-search-close { position: absolute; right: 4px; background: none; border: none; color: #6b7280; cursor: pointer; padding: 6px; border-radius: 50%; display: flex; align-items: center; min-width: 36px; min-height: 36px; }
 
   /* ===== HAMBURGER ===== */
-  .hamburger {
-    background: none;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    padding: 8px;
-    min-width: 40px;
-    min-height: 40px;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    -webkit-tap-highlight-color: transparent;
-    transition: background 0.15s;
-  }
-  .hamburger:hover {
-    background: #f3f4f6;
-  }
-  .hamburger span {
-    display: block;
-    width: 20px;
-    height: 2px;
-    background: #374151;
-    border-radius: 2px;
-    transition: all 0.3s;
-  }
-  .hamburger.active span:nth-child(1) {
-    transform: rotate(45deg) translate(5px, 5px);
-  }
-  .hamburger.active span:nth-child(2) {
-    opacity: 0;
-  }
-  .hamburger.active span:nth-child(3) {
-    transform: rotate(-45deg) translate(5px, -5px);
-  }
+  .hamburger { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; gap: 5px; padding: 8px; min-width: 40px; min-height: 40px; align-items: center; justify-content: center; border-radius: 8px; }
+  .hamburger:hover { background: #f3f4f6; }
+  .hamburger span { display: block; width: 20px; height: 2px; background: #374151; border-radius: 2px; transition: all 0.3s; }
+  .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+  .hamburger.active span:nth-child(2) { opacity: 0; }
+  .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
 
   /* ===== LOGIN MODALS ===== */
-  .login-modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 3000;
-    padding: 16px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  .login-modal.active {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding-top: 10vh;
-  }
-  @media (max-height: 600px) {
-    .login-modal.active {
-      padding-top: 16px;
-    }
-  }
-
-  .modal-content {
-    background: white;
-    padding: 28px 24px;
-    border-radius: 16px;
-    width: 100%;
-    max-width: 400px;
-    text-align: center;
-    animation: modalIn 0.2s ease;
-  }
-  @keyframes modalIn {
-    from {
-      opacity: 0;
-      transform: scale(0.95) translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
-  }
-
-  .modal-logo-wrap {
-    margin-bottom: 12px;
-  }
-  .modal-logo {
-    height: 40px;
-    width: auto;
-  }
-  .modal-content h3 {
-    margin: 0 0 6px;
-    font-size: 20px;
-    color: #111827;
-  }
-  .modal-content p {
-    margin: 0 0 16px;
-    font-size: 14px;
-    color: #6b7280;
-    line-height: 1.5;
-  }
-  .modal-content input {
-    width: 100%;
-    padding: 12px 14px;
-    margin: 0 0 12px;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    font-size: 16px; /* Prevents iOS zoom */
-    box-sizing: border-box;
-    outline: none;
-  }
-  .modal-content input:focus {
-    border-color: #2e69ff;
-    box-shadow: 0 0 0 3px rgba(46, 105, 255, 0.1);
-  }
-
-  .social-login-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 8px;
-  }
-  .social-login-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    width: 100%;
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid #e5e7eb;
-    background: white;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 600;
-    color: #333;
-    transition: all 0.15s;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .social-login-btn:active {
-    transform: scale(0.98);
-  }
-  .google-btn:hover {
-    background: #f9fafb;
-  }
-  .github-btn {
-    background: #24292f;
-    color: white;
-    border-color: #24292f;
-  }
-  .github-btn:hover {
-    background: #424a53;
-  }
-
-  .login-submit {
-    background: #2e69ff;
-    color: white;
-    border: none;
-    width: 100%;
-    padding: 12px;
-    border-radius: 999px;
-    font-weight: 700;
-    font-size: 15px;
-    cursor: pointer;
-    transition: all 0.15s;
-    min-height: 46px;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .login-submit:hover {
-    background: #1e5ae6;
-  }
-  .login-submit:active {
-    transform: scale(0.98);
-  }
-  .login-submit:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  .login-submit.loading {
-    position: relative;
-    pointer-events: none;
-    opacity: 0.85;
-    color: transparent !important;
-  }
-  .login-submit.loading::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 22px;
-    height: 22px;
-    margin: -11px 0 0 -11px;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: btn-spin 0.6s linear infinite;
-  }
-  @keyframes btn-spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  .close-text {
-    background: none;
-    border: none;
-    color: #9ca3af;
-    margin-top: 16px;
-    cursor: pointer;
-    font-size: 14px;
-    padding: 8px;
-  }
-  .close-text:hover {
-    color: #6b7280;
-  }
-
-  .welcome-icon-wrap {
-    width: 72px;
-    height: 72px;
-    background: #eef3ff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 12px;
-  }
+  .login-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 3000; padding: 16px; overflow-y: auto; }
+  .login-modal.active { display: flex; align-items: flex-start; justify-content: center; padding-top: 10vh; }
+  .modal-content { background: white; padding: 28px 24px; border-radius: 16px; width: 100%; max-width: 400px; text-align: center; }
+  .modal-logo-wrap { margin-bottom: 12px; }
+  .modal-logo { height: 40px; width: auto; }
+  .modal-content h3 { margin: 0 0 6px; font-size: 20px; color: #111827; }
+  .modal-content p { margin: 0 0 16px; font-size: 14px; color: #6b7280; line-height: 1.5; }
+  .modal-content input { width: 100%; padding: 12px 14px; margin: 0 0 12px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 16px; box-sizing: border-box; outline: none; }
+  .modal-content input:focus { border-color: #2e69ff; box-shadow: 0 0 0 3px rgba(46,105,255,0.1); }
+  .social-login-group { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+  .social-login-btn { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #e5e7eb; background: white; cursor: pointer; font-size: 15px; font-weight: 600; color: #333; transition: all 0.15s; }
+  .social-login-btn:active { transform: scale(0.98); }
+  .google-btn:hover { background: #f9fafb; }
+  .github-btn { background: #24292f; color: white; border-color: #24292f; }
+  .github-btn:hover { background: #424a53; }
+  .login-submit { background: #2e69ff; color: white; border: none; width: 100%; padding: 12px; border-radius: 999px; font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.15s; min-height: 46px; }
+  .login-submit:hover { background: #1e5ae6; }
+  .login-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .login-submit.loading { position: relative; pointer-events: none; opacity: 0.85; color: transparent !important; }
+  .login-submit.loading::after { content: ""; position: absolute; top: 50%; left: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: btn-spin 0.6s linear infinite; }
+  @keyframes btn-spin { to { transform: rotate(360deg); } }
+  .close-text { background: none; border: none; color: #9ca3af; margin-top: 16px; cursor: pointer; font-size: 14px; padding: 8px; }
+  .close-text:hover { color: #6b7280; }
+  .welcome-icon-wrap { width: 72px; height: 72px; background: #eef3ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
 
   /* ===== SEARCH DROPDOWN ===== */
-  .search-dropdown {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    right: 0;
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
-    max-height: 400px;
-    overflow-y: auto;
-    z-index: 1500;
-    display: none;
-  }
-  .search-dropdown.active {
-    display: block;
-  }
-  .search-dropdown-content {
-    padding: 6px 0;
-  }
-  .search-result-item {
-    display: block;
-    padding: 12px 16px;
-    color: #374151;
-    text-decoration: none;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background 0.1s;
-    border-bottom: 1px solid #f9fafb;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .search-result-item:hover {
-    background: #f9fafb;
-  }
-  .search-result-item:last-child {
-    border-bottom: none;
-  }
-  .result-question {
-    font-weight: 600;
-    color: #2e69ff;
-    margin-bottom: 2px;
-  }
-  .result-snippet {
-    font-size: 12px;
-    color: #9ca3af;
-  }
-  .search-no-results {
-    padding: 24px;
-    text-align: center;
-    color: #9ca3af;
-    font-size: 14px;
-  }
-  mark {
-    background: #fef3c7;
-    color: #92400e;
-    padding: 1px 2px;
-    border-radius: 2px;
-    font-weight: 700;
-  }
-  .mobile-dropdown {
-    position: fixed;
-    top: auto;
-    left: 16px;
-    right: 16px;
-    bottom: auto;
-    max-height: 60vh;
-    width: auto;
-    z-index: 1500;
-  }
+  .search-dropdown { position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: white; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.12); max-height: 400px; overflow-y: auto; z-index: 1500; display: none; }
+  .search-dropdown.active { display: block; }
+  .search-dropdown-content { padding: 6px 0; }
+  .search-result-item { display: block; padding: 12px 16px; color: #374151; text-decoration: none; cursor: pointer; font-size: 14px; transition: background 0.1s; border-bottom: 1px solid #f9fafb; }
+  .search-result-item:hover { background: #f9fafb; }
+  .search-result-item:last-child { border-bottom: none; }
+  .result-question { font-weight: 600; color: #2e69ff; margin-bottom: 2px; }
+  .result-snippet { font-size: 12px; color: #9ca3af; }
+  mark { background: #fef3c7; color: #92400e; padding: 1px 2px; border-radius: 2px; font-weight: 700; }
+  .mobile-dropdown { position: fixed; top: auto; left: 16px; right: 16px; max-height: 60vh; width: auto; z-index: 1500; }
 
   /* ===== RESPONSIVE ===== */
-  .desktop-only {
-    display: flex !important;
-  }
-  .desktop-search {
-    display: flex !important;
-  }
-  .mobile-only {
-    display: none !important;
-  }
+  .desktop-only { display: flex !important; }
+   .mobile-only { display: none !important; }
 
   @media (max-width: 768px) {
-    .desktop-only,
-    .desktop-search {
-      display: none !important;
-    }
-    .mobile-only {
-      display: flex !important;
-    }
-
-    .header-container {
-      height: 52px;
-      padding: 0 12px;
-      gap: 6px;
-    }
-    .logo-img {
-      height: 26px;
-    }
-    .logo {
-      font-size: 15px;
-    }
-    .ask-btn {
-      padding: 7px 14px;
-      font-size: 13px;
-    }
-    .ask-text {
-      display: inline;
-    }
-    .avatar {
-      width: 30px;
-      height: 30px;
-    }
-    .guest-avatar {
-      width: 30px;
-      height: 30px;
-    }
-    .profile-menu-dropdown {
-      position: fixed;
-      top: auto;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      width: 100%;
-      border-radius: 16px 16px 0 0;
-      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
-      animation: slideUp 0.2s ease;
-    }
-    @keyframes slideUp {
-      from {
-        transform: translateY(100%);
-      }
-      to {
-        transform: translateY(0);
-      }
-    }
+    .desktop-only, .desktop-search { display: none !important; }
+    .mobile-only { display: flex !important; }
+    .header-container { height: 56px; padding: 0 12px; gap: 6px; }
+    .logo-img { height: 28px !important; }
+    .logo { font-size: 15px !important; }
+    .ask-btn { padding: 8px 14px; font-size: 13px; }
+    .profile-menu-dropdown { position: fixed; top: auto; bottom: 0; left: 0; right: 0; width: 100%; border-radius: 16px 16px 0 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); }
   }
 
   @media (max-width: 380px) {
-    .logo {
-      display: none;
-    }
-    .ask-text {
-      display: none;
-    }
-    .ask-btn {
-      padding: 8px 10px;
-    }
-  }
-
-  /* Safe area for notched phones */
-  @supports (padding-bottom: env(safe-area-inset-bottom)) {
-    .profile-menu-dropdown {
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-    .mobile-menu {
-      padding-bottom: env(safe-area-inset-bottom);
-    }
+    .logo { display: none; }
+    .ask-text { display: none; }
+    .ask-btn { padding: 8px 10px; }
   }
 </style>
 
 <script>
-  const GOOGLE_SHEET_URL =
-    "https://script.google.com/macros/s/AKfycbywCeoEu7CNLZtgRKyy4wsnvGw8B6wpNrP5ke0RoJ6XrVfwgsmBKAlIKvli79IVAWQJxQ/exec";
+  const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbwfpjk3Y2gzDt0T_JS7c2OhQajr_UildmeqEgQVPQxIFAjYnYG8alaQF0XmGjeI-_uzkQ/exec";
 
-  // Cleanup old data
-  if (localStorage.getItem("recentQuestion")) {
-    localStorage.removeItem("recentQuestion");
-  }
+  // ====== CLEANUP ======
+  if (localStorage.getItem("recentQuestion")) localStorage.removeItem("recentQuestion");
 
   // ====== ELEMENTS ======
   const askBtn = document.getElementById("askBtn") as HTMLButtonElement;
   const loginModal = document.getElementById("loginModal") as HTMLDivElement;
-  const interestModal = document.getElementById(
-    "interestModal",
-  ) as HTMLDivElement;
+  const interestModal = document.getElementById("interestModal") as HTMLDivElement;
   const closeModal = document.getElementById("closeModal") as HTMLButtonElement;
-  const saveInterestsBtn = document.getElementById(
-    "saveInterestsBtn",
-  ) as HTMLButtonElement;
+  const saveInterestsBtn = document.getElementById("saveInterestsBtn") as HTMLButtonElement;
   const guestIcon = document.getElementById("guest-icon") as HTMLDivElement;
   const userAvatar = document.getElementById("user-avatar") as HTMLImageElement;
-  const questionModal = document.getElementById(
-    "question-modal",
-  ) as HTMLDialogElement;
-  const mobileSearchBtn = document.getElementById(
-    "mobileSearchBtn",
-  ) as HTMLButtonElement;
-  const mobileSearchBar = document.getElementById(
-    "mobileSearchBar",
-  ) as HTMLDivElement;
-  const mobileSearchClose = document.getElementById(
-    "mobileSearchClose",
-  ) as HTMLButtonElement;
+  const questionModal = document.getElementById("question-modal") as HTMLDialogElement;
+  const mobileSearchBtn = document.getElementById("mobileSearchBtn") as HTMLButtonElement;
+  const mobileSearchBar = document.getElementById("mobileSearchBar") as HTMLDivElement;
+  const mobileSearchClose = document.getElementById("mobileSearchClose") as HTMLButtonElement;
   const menuToggle = document.getElementById("menuToggle") as HTMLButtonElement;
   const mobileMenu = document.getElementById("mobileMenu") as HTMLDivElement;
-  const mobileOverlay = document.getElementById(
-    "mobileOverlay",
-  ) as HTMLDivElement;
-  const closeMenuBtn = document.getElementById(
-    "closeMenu",
-  ) as HTMLButtonElement;
-  const profileTrigger = document.getElementById(
-    "profile-trigger",
-  ) as HTMLDivElement;
-  const userDropdown = document.getElementById(
-    "userDropdown",
-  ) as HTMLDivElement;
+  const mobileOverlay = document.getElementById("mobileOverlay") as HTMLDivElement;
+  const closeMenuBtn = document.getElementById("closeMenu") as HTMLButtonElement;
+  const profileTrigger = document.getElementById("profile-trigger") as HTMLDivElement;
+  const userDropdown = document.getElementById("userDropdown") as HTMLDivElement;
   const signOutBtn = document.getElementById("signOutBtn") as HTMLButtonElement;
-  const displayUserName = document.getElementById(
-    "displayUserName",
-  ) as HTMLElement;
+  const mobileSignOut = document.getElementById("mobileSignOut") as HTMLButtonElement;
+  const displayUserName = document.getElementById("displayUserName") as HTMLElement;
+  const mobileDisplayName = document.getElementById("mobile-display-name") as HTMLElement;
+  const mobileMenuAvatar = document.getElementById("mobile-menu-avatar") as HTMLImageElement;
 
-  // ====== TOPICS DATA ======
-  const availableTopics = [
-    "Full-Stack Development",
-    "JavaScript & Frameworks",
-    "Python & Data Science",
-    "Web Performance & SEO",
-    "DevOps & Cloud (AWS)",
-    "Cybersecurity & InfoSec",
-    "Open Source Projects",
-    "Mobile App Dev",
-    "Bug Fixes & Debugging",
-    "UI/UX Design",
-    "AI & Machine Learning",
-    "Data Structures & Algorithms",
-  ];
+  // ====== TOPICS ======
+  const availableTopics = ["Full-Stack Development", "JavaScript & Frameworks", "Python & Data Science", "Web Performance & SEO", "DevOps & Cloud (AWS)", "Cybersecurity & InfoSec", "Open Source Projects", "Mobile App Dev", "Bug Fixes & Debugging", "UI/UX Design", "AI & Machine Learning", "Data Structures & Algorithms"];
   let selectedTopics: string[] = [];
-
   const topicGrid = document.getElementById("topicGrid");
   availableTopics.forEach((topic) => {
     const chip = document.createElement("div");
@@ -1453,16 +568,25 @@ const { isLoggedIn = false } = Astro.props;
     chip.innerText = topic;
     chip.addEventListener("click", () => {
       chip.classList.toggle("active");
-      if (chip.classList.contains("active")) {
-        selectedTopics.push(topic);
-      } else {
-        selectedTopics = selectedTopics.filter((t) => t !== topic);
-      }
-      if (saveInterestsBtn)
-        saveInterestsBtn.disabled = selectedTopics.length === 0;
+      if (chip.classList.contains("active")) selectedTopics.push(topic);
+      else selectedTopics = selectedTopics.filter((t) => t !== topic);
+      if (saveInterestsBtn) saveInterestsBtn.disabled = selectedTopics.length === 0;
     });
     topicGrid?.appendChild(chip);
   });
+
+  // ====== SYNC PROFILE TO ALL LOCATIONS ======
+  function syncProfile(name: string, avatar: string | null) {
+    const finalAvatar = avatar && avatar !== "null" && avatar !== "icon.png" ? avatar : "/assets/icon.png";
+
+    // Desktop Header
+    if (displayUserName) displayUserName.innerText = name;
+    if (userAvatar) userAvatar.src = finalAvatar.startsWith("http") || finalAvatar.startsWith("data:") ? finalAvatar : `/assets/${finalAvatar}`;
+
+    // Mobile Menu
+    if (mobileDisplayName) mobileDisplayName.innerText = name;
+    if (mobileMenuAvatar) mobileMenuAvatar.src = finalAvatar.startsWith("http") || finalAvatar.startsWith("data:") ? finalAvatar : `/assets/${finalAvatar}`;
+  }
 
   // ====== CHECK EXISTING LOGIN ======
   function checkExistingLogin() {
@@ -1474,79 +598,54 @@ const { isLoggedIn = false } = Astro.props;
       askBtn?.setAttribute("data-logged-in", "true");
       guestIcon?.classList.add("hidden");
       userAvatar?.classList.remove("hidden");
-      if (displayUserName) displayUserName.innerText = savedName;
-      if (savedAvatar && userAvatar) {
-        userAvatar.src =
-          savedAvatar.startsWith("http") || savedAvatar.startsWith("data:")
-            ? savedAvatar
-            : `/assets/${savedAvatar}`;
-      }
-      // Update mobile profile link
-      const mobileProfileLink = document.getElementById(
-        "mobileProfileLink",
-      ) as HTMLAnchorElement;
-      if (mobileProfileLink) {
-        mobileProfileLink.href = `/user?name=${encodeURIComponent(savedName)}`;
-      }
+      syncProfile(savedName, savedAvatar);
     }
   }
   checkExistingLogin();
 
   // ====== MOBILE MENU ======
-  function openMobileMenu() {
-    mobileMenu?.classList.add("active");
-    mobileOverlay?.classList.add("active");
-    menuToggle?.classList.add("active");
-    document.body.style.overflow = "hidden";
-  }
-  function closeMobileMenu() {
-    mobileMenu?.classList.remove("active");
-    mobileOverlay?.classList.remove("active");
-    menuToggle?.classList.remove("active");
-    document.body.style.overflow = "";
-  }
+  function openMobileMenu() { mobileMenu?.classList.add("active"); mobileOverlay?.classList.add("active"); menuToggle?.classList.add("active"); document.body.style.overflow = "hidden"; }
+  function closeMobileMenu() { mobileMenu?.classList.remove("active"); mobileOverlay?.classList.remove("active"); menuToggle?.classList.remove("active"); document.body.style.overflow = ""; }
   menuToggle?.addEventListener("click", openMobileMenu);
   closeMenuBtn?.addEventListener("click", closeMobileMenu);
   mobileOverlay?.addEventListener("click", closeMobileMenu);
 
   // ====== MOBILE SEARCH ======
-  mobileSearchBtn?.addEventListener("click", () => {
-    mobileSearchBar?.classList.add("active");
-    setTimeout(() => {
-      (
-        document.getElementById("mobileSearchInput") as HTMLInputElement
-      )?.focus();
-    }, 100);
-  });
-  mobileSearchClose?.addEventListener("click", () => {
-    mobileSearchBar?.classList.remove("active");
-  });
+  mobileSearchBtn?.addEventListener("click", () => { mobileSearchBar?.classList.add("active"); setTimeout(() => { (document.getElementById("mobileSearchInput") as HTMLInputElement)?.focus(); }, 100); });
+  mobileSearchClose?.addEventListener("click", () => { mobileSearchBar?.classList.remove("active"); });
 
   // ====== ASK BUTTON ======
   askBtn?.addEventListener("click", () => {
     const isLoggedIn = askBtn.getAttribute("data-logged-in") === "true";
-    if (isLoggedIn) {
-      questionModal?.showModal();
-    } else {
-      loginModal?.classList.add("active");
-    }
+    if (isLoggedIn) questionModal?.showModal();
+    else loginModal?.classList.add("active");
   });
 
-  // ====== FIREBASE SOCIAL LOGIN ======
+  // ====== NOTIFICATION COUNT ======
+  async function checkNotifications() {
+    const email = localStorage.getItem("userId");
+    if (!email) return;
+    try {
+      const res = await fetch(`${GOOGLE_SHEET_URL}?action=getNotifications&email=${encodeURIComponent(email)}&filter=unread`);
+      const notifs = await res.json();
+      const count = notifs.length;
+      const badges = document.querySelectorAll(".notif-badge");
+      badges.forEach((badge) => {
+        if (count > 0) { badge.textContent = count > 9 ? "9+" : String(count); badge.classList.add("active"); }
+        else badge.classList.remove("active");
+      });
+    } catch (e) { console.warn("Notif check failed"); }
+  }
+  setInterval(checkNotifications, 60000);
+  checkNotifications();
+
+  // ====== FIREBASE LOGIN ======
   const firebase = (window as any).firebase;
   let currentAuthEmail = "";
   let currentAuthPhoto = "";
 
   if (firebase) {
-    const firebaseConfig = {
-      apiKey: "AIzaSyBNiy6oIGpqDhNKP345-QrhxQ9jKEvTMZI",
-      authDomain: "forums-techengineer.firebaseapp.com",
-      projectId: "forums-techengineer",
-      storageBucket: "forums-techengineer.firebasestorage.app",
-      messagingSenderId: "283633017019",
-      appId: "1:283633017019:web:a8bd10bd207e753543899e",
-    };
-    firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp({ apiKey: "AIzaSyBNiy6oIGpqDhNKP345-QrhxQ9jKEvTMZI", authDomain: "forums-techengineer.firebaseapp.com", projectId: "forums-techengineer", storageBucket: "forums-techengineer.firebasestorage.app", messagingSenderId: "283633017019", appId: "1:283633017019:web:a8bd10bd207e753543899e" });
     const auth = firebase.auth();
 
     async function handleSocialLogin(provider: any) {
@@ -1555,342 +654,150 @@ const { isLoggedIn = false } = Astro.props;
         const user = result.user;
         if (user) {
           const email = user.email || `${user.uid}@social-login`;
-          const userName = user.displayName || "";
-          const userPhoto = user.photoURL || "";
-
-          const checkResponse = await fetch(
-            `${GOOGLE_SHEET_URL}?action=checkUser&email=${encodeURIComponent(email)}`,
-          );
+          const checkResponse = await fetch(`${GOOGLE_SHEET_URL}?action=checkUser&email=${encodeURIComponent(email)}`);
           const userData = await checkResponse.json();
-
           if (userData.isNew) {
             currentAuthEmail = email;
-            currentAuthPhoto = userPhoto;
-            (document.getElementById("setupName") as HTMLInputElement).value =
-              userName;
+            currentAuthPhoto = user.photoURL || "";
+            (document.getElementById("setupName") as HTMLInputElement).value = user.displayName || "";
             loginModal?.classList.remove("active");
-            document
-              .getElementById("profileSetupModal")
-              ?.classList.add("active");
+            document.getElementById("profileSetupModal")?.classList.add("active");
           } else {
             localStorage.setItem("userId", email);
-            localStorage.setItem("currentUser", userData.name || userName);
+            localStorage.setItem("currentUser", userData.name || user.displayName);
             localStorage.setItem("userRole", userData.role || "Tech Engineer");
             localStorage.setItem("userInterests", userData.interests || "");
-            if (userData.avatar || userPhoto)
-              localStorage.setItem("userAvatar", userData.avatar || userPhoto);
-
+            if (userData.avatar || user.photoURL) localStorage.setItem("userAvatar", userData.avatar || user.photoURL);
             loginModal?.classList.remove("active");
-            window.dispatchEvent(new CustomEvent("user-logged-in"));
-            updateUIAfterLogin(
-              userData.name || userName,
-              userData.avatar || userPhoto,
-            );
+            syncProfile(userData.name || user.displayName, userData.avatar || user.photoURL);
+            askBtn?.setAttribute("data-logged-in", "true");
+            guestIcon?.classList.add("hidden");
+            userAvatar?.classList.remove("hidden");
+            checkNotifications();
           }
         }
-      } catch (error: any) {
-        if (error.code !== "auth/popup-closed-by-user") {
-          console.error("Login Error:", error);
-        }
-      }
+      } catch (error: any) { if (error.code !== "auth/popup-closed-by-user") console.error("Login Error:", error); }
     }
 
-    document.getElementById("googleLoginBtn")?.addEventListener("click", () => {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      handleSocialLogin(provider);
-    });
-    document.getElementById("githubLoginBtn")?.addEventListener("click", () => {
-      const provider = new firebase.auth.GithubAuthProvider();
-      handleSocialLogin(provider);
-    });
-  }
-
-  function updateUIAfterLogin(displayName: string, photoURL: string | null) {
-    if (displayUserName) displayUserName.innerText = displayName;
-    askBtn?.setAttribute("data-logged-in", "true");
-    guestIcon?.classList.add("hidden");
-    userAvatar?.classList.remove("hidden");
-    if (photoURL && userAvatar) {
-      userAvatar.src = photoURL;
-      localStorage.setItem("userAvatar", photoURL);
-    }
-    const mobileProfileLink = document.getElementById(
-      "mobileProfileLink",
-    ) as HTMLAnchorElement;
-    if (mobileProfileLink) {
-      mobileProfileLink.href = `/user?name=${encodeURIComponent(displayName)}`;
-    }
+    document.getElementById("googleLoginBtn")?.addEventListener("click", () => handleSocialLogin(new firebase.auth.GoogleAuthProvider()));
+    document.getElementById("githubLoginBtn")?.addEventListener("click", () => handleSocialLogin(new firebase.auth.GithubAuthProvider()));
   }
 
   // ====== PROFILE SETUP ======
-  document
-    .getElementById("saveProfileBtn")
-    ?.addEventListener("click", async () => {
-      const btn = document.getElementById(
-        "saveProfileBtn",
-      ) as HTMLButtonElement;
-      const name = (
-        document.getElementById("setupName") as HTMLInputElement
-      ).value.trim();
-      const role = (
-        document.getElementById("setupRole") as HTMLInputElement
-      ).value.trim();
-
-      if (!name) {
-        alert("Please enter a name");
-        return;
-      }
-
-      if (btn) {
-        btn.classList.add("loading");
-        btn.disabled = true;
-      }
-
-      try {
-        await fetch(GOOGLE_SHEET_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "saveProfile",
-            email: currentAuthEmail,
-            name: name,
-            role: role || "Tech Engineer",
-            avatar: currentAuthPhoto,
-            authProvider: "google",
-          }),
-        });
-
-        localStorage.setItem("userId", currentAuthEmail);
-        localStorage.setItem("currentUser", name);
-        localStorage.setItem("userRole", role || "Tech Engineer");
-        if (currentAuthPhoto)
-          localStorage.setItem("userAvatar", currentAuthPhoto);
-
-        document
-          .getElementById("profileSetupModal")
-          ?.classList.remove("active");
-        interestModal?.classList.add("active");
-      } catch (error) {
-        console.error("Error saving profile:", error);
-      } finally {
-        if (btn) {
-          btn.classList.remove("loading");
-          btn.disabled = false;
-        }
-      }
-    });
+  document.getElementById("saveProfileBtn")?.addEventListener("click", async () => {
+    const btn = document.getElementById("saveProfileBtn") as HTMLButtonElement;
+    const name = (document.getElementById("setupName") as HTMLInputElement).value.trim();
+    const role = (document.getElementById("setupRole") as HTMLInputElement).value.trim();
+    if (!name) { alert("Please enter a name"); return; }
+    if (btn) { btn.classList.add("loading"); btn.disabled = true; }
+    try {
+      await fetch(GOOGLE_SHEET_URL, { method: "POST", body: JSON.stringify({ action: "saveProfile", email: currentAuthEmail, name, role: role || "Tech Engineer", avatar: currentAuthPhoto, authProvider: "google" }) });
+      localStorage.setItem("userId", currentAuthEmail);
+      localStorage.setItem("currentUser", name);
+      localStorage.setItem("userRole", role || "Tech Engineer");
+      if (currentAuthPhoto) localStorage.setItem("userAvatar", currentAuthPhoto);
+      document.getElementById("profileSetupModal")?.classList.remove("active");
+      interestModal?.classList.add("active");
+    } catch (error) { console.error("Error saving profile:", error); }
+    finally { if (btn) { btn.classList.remove("loading"); btn.disabled = false; } }
+  });
 
   // ====== SAVE INTERESTS ======
   saveInterestsBtn?.addEventListener("click", async () => {
     const interestsString = selectedTopics.join(", ");
     const emailToSave = currentAuthEmail || localStorage.getItem("userId");
-
-    if (saveInterestsBtn) {
-      saveInterestsBtn.innerText = "Saving...";
-      saveInterestsBtn.disabled = true;
-    }
-
+    if (saveInterestsBtn) { saveInterestsBtn.innerText = "Saving..."; saveInterestsBtn.disabled = true; }
     try {
-      await fetch(GOOGLE_SHEET_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "saveProfile",
-          email: emailToSave,
-          interests: interestsString,
-        }),
-      });
+      await fetch(GOOGLE_SHEET_URL, { method: "POST", body: JSON.stringify({ action: "saveProfile", email: emailToSave, interests: interestsString }) });
       localStorage.setItem("userInterests", interestsString);
       interestModal?.classList.remove("active");
-
-      if (currentAuthEmail) {
-        document.getElementById("welcomeModal")?.classList.add("active");
-      } else {
-        questionModal?.showModal();
-      }
-    } catch (error) {
-      console.error("Error saving topics:", error);
-    } finally {
-      if (saveInterestsBtn) {
-        saveInterestsBtn.innerText = "Continue";
-        saveInterestsBtn.disabled = false;
-      }
-    }
+      if (currentAuthEmail) document.getElementById("welcomeModal")?.classList.add("active");
+      else questionModal?.showModal();
+    } catch (error) { console.error("Error saving topics:", error); }
+    finally { if (saveInterestsBtn) { saveInterestsBtn.innerText = "Continue"; saveInterestsBtn.disabled = false; } }
   });
 
   // ====== WELCOME DONE ======
   document.getElementById("welcomeDoneBtn")?.addEventListener("click", () => {
     document.getElementById("welcomeModal")?.classList.remove("active");
-    updateUIAfterLogin(
-      localStorage.getItem("currentUser") || "Guest",
-      localStorage.getItem("userAvatar"),
-    );
-    window.dispatchEvent(new CustomEvent("user-logged-in"));
+    syncProfile(localStorage.getItem("currentUser") || "Guest", localStorage.getItem("userAvatar"));
+    askBtn?.setAttribute("data-logged-in", "true");
+    guestIcon?.classList.add("hidden");
+    userAvatar?.classList.remove("hidden");
+    checkNotifications();
   });
 
   // ====== MODAL CLOSE ======
-  closeModal?.addEventListener("click", () =>
-    loginModal?.classList.remove("active"),
-  );
+  closeModal?.addEventListener("click", () => loginModal?.classList.remove("active"));
   window.addEventListener("click", (e) => {
     if (e.target === loginModal) loginModal?.classList.remove("active");
     if (e.target === interestModal) interestModal?.classList.remove("active");
-    if (e.target === document.getElementById("profileSetupModal")) {
-      document.getElementById("profileSetupModal")?.classList.remove("active");
-    }
-    if (e.target === document.getElementById("welcomeModal")) {
-      document.getElementById("welcomeModal")?.classList.remove("active");
-    }
+    if (e.target === document.getElementById("profileSetupModal")) document.getElementById("profileSetupModal")?.classList.remove("active");
+    if (e.target === document.getElementById("welcomeModal")) document.getElementById("welcomeModal")?.classList.remove("active");
   });
 
   // ====== PROFILE DROPDOWN ======
   profileTrigger?.addEventListener("click", (e) => {
     e.stopPropagation();
     const isLoggedIn = askBtn?.getAttribute("data-logged-in") === "true";
-    if (!isLoggedIn) {
-      loginModal?.classList.add("active");
-    } else {
-      userDropdown?.classList.toggle("active");
-    }
+    if (!isLoggedIn) loginModal?.classList.add("active");
+    else userDropdown?.classList.toggle("active");
   });
-  document.addEventListener("click", (e) => {
-    if (!userDropdown?.contains(e.target as Node)) {
-      userDropdown?.classList.remove("active");
-    }
-  });
+  document.addEventListener("click", (e) => { if (!userDropdown?.contains(e.target as Node)) userDropdown?.classList.remove("active"); });
 
-  // ====== SIGN OUT ======
-  signOutBtn?.addEventListener("click", () => {
+  // ====== SIGN OUT (BOTH BUTTONS) ======
+  function handleSignOut() {
     if (firebase) firebase.auth().signOut();
     localStorage.removeItem("userId");
     localStorage.removeItem("currentUser");
     localStorage.removeItem("userInterests");
     localStorage.removeItem("userRole");
     localStorage.removeItem("userAvatar");
-
     askBtn?.setAttribute("data-logged-in", "false");
     document.getElementById("guest-icon")?.classList.remove("hidden");
     document.getElementById("user-avatar")?.classList.add("hidden");
     userDropdown?.classList.remove("active");
-
-    window.dispatchEvent(new CustomEvent("user-logged-out"));
+    closeMobileMenu();
     window.location.reload();
-  });
-
-  // ====== NOTIFICATION DOT ======
-  async function checkNotifications() {
-    const email = localStorage.getItem("userId");
-    if (!email) return;
-    try {
-      const res = await fetch(
-        `${GOOGLE_SHEET_URL}?action=getNotifications&email=${encodeURIComponent(email)}&filter=all`,
-      );
-      const notifs = await res.json();
-      const hasUnread = notifs.some((n: any) => !n.isRead);
-      document.querySelectorAll(".notif-dot").forEach((dot) => {
-        if (hasUnread) dot.classList.add("has-notif");
-        else dot.classList.remove("has-notif");
-      });
-    } catch (e) {}
   }
-  checkNotifications();
+  signOutBtn?.addEventListener("click", handleSignOut);
+  mobileSignOut?.addEventListener("click", handleSignOut);
 
-  // ====== SEARCH LOGIC ======
+  // ====== SEARCH ======
   import { searchQuestions } from "../scripts/questionEngine";
-
-  const searchInput = document.getElementById(
-    "searchInput",
-  ) as HTMLInputElement;
-  const searchDropdown = document.getElementById(
-    "searchDropdown",
-  ) as HTMLElement;
-  const searchResults = document.getElementById("searchResults") as HTMLElement;
-  const mobileSearchInput = document.getElementById(
-    "mobileSearchInput",
-  ) as HTMLInputElement;
-  const mobileSearchDropdown = document.getElementById(
-    "mobileSearchDropdown",
-  ) as HTMLElement;
-  const mobileSearchResults = document.getElementById(
-    "mobileSearchResults",
-  ) as HTMLElement;
 
   function highlight(text: string, query: string): string {
     if (!query) return text;
-    const words = query.split(" ").filter((w) => w.length > 2);
-    let result = text;
-    words.forEach((word) => {
-      const regex = new RegExp(`(${word})`, "gi");
-      result = result.replace(regex, "<mark>$1</mark>");
-    });
-    return result;
+    query.split(" ").filter((w) => w.length > 2).forEach((word) => { text = text.replace(new RegExp(`(${word})`, "gi"), "<mark>$1</mark>"); });
+    return text;
   }
 
-  function renderResults(
-    query: string,
-    container: HTMLElement | null,
-    dropdown: HTMLElement | null,
-  ) {
+  function renderResults(query: string, container: HTMLElement | null, dropdown: HTMLElement | null) {
     if (!container || !dropdown) return;
     const results = searchQuestions(query);
-    if (!query.trim() || results.length === 0) {
-      dropdown.classList.remove("active");
-      return;
-    }
-    container.innerHTML = results
-      .slice(0, 8)
-      .map(
-        (q: any) => `
-        <a href="/question/${q.slug}" class="search-result-item">
-          <div class="result-question">${highlight(q.question, query)}</div>
-          <div class="result-snippet">${q.answers?.length || 0} answers</div>
-        </a>
-      `,
-      )
-      .join("");
+    if (!query.trim() || results.length === 0) { dropdown.classList.remove("active"); return; }
+    container.innerHTML = results.slice(0, 8).map((q: any) => `<a href="/question/${q.slug}" class="search-result-item"><div class="result-question">${highlight(q.question, query)}</div><div class="result-snippet">${q.answers?.length || 0} answers</div></a>`).join("");
     dropdown.classList.add("active");
   }
 
-  searchInput?.addEventListener("input", (e) =>
-    renderResults(
-      (e.target as HTMLInputElement).value,
-      searchResults,
-      searchDropdown,
-    ),
-  );
-  searchInput?.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      const v = (e.target as HTMLInputElement).value.trim();
-      if (v) window.location.href = `/search?q=${encodeURIComponent(v)}`;
-    }
-  });
-  mobileSearchInput?.addEventListener("input", (e) =>
-    renderResults(
-      (e.target as HTMLInputElement).value,
-      mobileSearchResults,
-      mobileSearchDropdown,
-    ),
-  );
-  mobileSearchInput?.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      const v = (e.target as HTMLInputElement).value.trim();
-      if (v) window.location.href = `/search?q=${encodeURIComponent(v)}`;
-    }
-  });
+  const searchInput = document.getElementById("searchInput") as HTMLInputElement;
+  const searchDropdown = document.getElementById("searchDropdown") as HTMLElement;
+  const searchResults = document.getElementById("searchResults") as HTMLElement;
+  const mobileSearchInput = document.getElementById("mobileSearchInput") as HTMLInputElement;
+  const mobileSearchDropdown = document.getElementById("mobileSearchDropdown") as HTMLElement;
+  const mobileSearchResults = document.getElementById("mobileSearchResults") as HTMLElement;
+
+  searchInput?.addEventListener("input", (e) => renderResults((e.target as HTMLInputElement).value, searchResults, searchDropdown));
+  searchInput?.addEventListener("keypress", (e) => { if (e.key === "Enter") { const v = (e.target as HTMLInputElement).value.trim(); if (v) window.location.href = `/search?q=${encodeURIComponent(v)}`; } });
+  mobileSearchInput?.addEventListener("input", (e) => renderResults((e.target as HTMLInputElement).value, mobileSearchResults, mobileSearchDropdown));
+  mobileSearchInput?.addEventListener("keypress", (e) => { if (e.key === "Enter") { const v = (e.target as HTMLInputElement).value.trim(); if (v) window.location.href = `/search?q=${encodeURIComponent(v)}`; } });
+
   document.addEventListener("click", (e) => {
     const t = e.target as Node;
-    if (searchDropdown && !searchDropdown.contains(t) && t !== searchInput)
-      searchDropdown.classList.remove("active");
-    if (
-      mobileSearchDropdown &&
-      !mobileSearchDropdown.contains(t) &&
-      t !== mobileSearchInput
-    )
-      mobileSearchDropdown.classList.remove("active");
+    if (searchDropdown && !searchDropdown.contains(t) && t !== searchInput) searchDropdown.classList.remove("active");
+    if (mobileSearchDropdown && !mobileSearchDropdown.contains(t) && t !== mobileSearchInput) mobileSearchDropdown.classList.remove("active");
   });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      searchDropdown?.classList.remove("active");
-      mobileSearchDropdown?.classList.remove("active");
-      closeMobileMenu();
-    }
+    if (e.key === "Escape") { searchDropdown?.classList.remove("active"); mobileSearchDropdown?.classList.remove("active"); closeMobileMenu(); }
   });
 </script>

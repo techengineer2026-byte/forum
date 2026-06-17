@@ -444,7 +444,7 @@ const userAvatar = "/assets/icon.png";
     return text
       .toLowerCase()
       .trim()
-      .replace(/[^\w ]+/g, "")
+      .replace(/[^\w -]+/g, "")
       .replace(/ +/g, "-");
   }
 

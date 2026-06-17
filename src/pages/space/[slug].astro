@@ -1,7 +1,7 @@
 ---
 export async function getStaticPaths() {
   const SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbywCeoEu7CNLZtgRKyy4wsnvGw8B6wpNrP5ke0RoJ6XrVfwgsmBKAlIKvli79IVAWQJxQ/exec";
+    "https://script.google.com/macros/s/AKfycbwfpjk3Y2gzDt0T_JS7c2OhQajr_UildmeqEgQVPQxIFAjYnYG8alaQF0XmGjeI-_uzkQ/exec";
 
   try {
     const res = await fetch(`${SCRIPT_URL}?action=getSpaces`);
@@ -12,7 +12,7 @@ export async function getStaticPaths() {
           s.slug ||
           s.name
             .toLowerCase()
-            .replace(/[^\w ]+/g, "")
+            .replace(/[^\w -]+/g, "")
             .replace(/ +/g, "-"),
       },
     }));
@@ -615,7 +615,7 @@ import Layout from "../../layouts/Layout.astro";
 
 <script>
   const SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbywCeoEu7CNLZtgRKyy4wsnvGw8B6wpNrP5ke0RoJ6XrVfwgsmBKAlIKvli79IVAWQJxQ/exec";
+    "https://script.google.com/macros/s/AKfycbwfpjk3Y2gzDt0T_JS7c2OhQajr_UildmeqEgQVPQxIFAjYnYG8alaQF0XmGjeI-_uzkQ/exec";
 
   // ✅ Extract SLUG from URL, not ID
   const pathParts = window.location.pathname.split("/").filter(Boolean);
@@ -832,7 +832,7 @@ import Layout from "../../layouts/Layout.astro";
             post.slug ||
             post.heading
               ?.toLowerCase()
-              .replace(/[^\w ]+/g, "")
+              .replace(/[^\w -]+/g, "")
               .replace(/ +/g, "-") ||
             "";
           const time = timeAgo(post.updated_time || post.created_at);

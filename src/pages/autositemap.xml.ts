@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 
 const SITE_URL = "https://forum.techengineer.co";
 const SHEET_URL =
-  "https://script.google.com/macros/s/AKfycbywCeoEu7CNLZtgRKyy4wsnvGw8B6wpNrP5ke0RoJ6XrVfwgsmBKAlIKvli79IVAWQJxQ/exec";
+  "https://script.google.com/macros/s/AKfycbwfpjk3Y2gzDt0T_JS7c2OhQajr_UildmeqEgQVPQxIFAjYnYG8alaQF0XmGjeI-_uzkQ/exec";
 
 export const GET: APIRoute = async () => {
   let posts: any[] = [];
@@ -53,7 +53,7 @@ export const GET: APIRoute = async () => {
         post.slug ||
         post.heading
           ?.toLowerCase()
-          .replace(/[^\w ]+/g, "")
+          .replace(/[^\w -]+/g, "")
           .replace(/ +/g, "-");
       if (slug) {
         const date = post.created_at

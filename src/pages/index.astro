@@ -4,12 +4,12 @@ import Sidebar from "../components/Sidebar.astro";
 import AdCard from "../components/AdCard.astro";
 import CreatePost from "../components/CreatePost.astro";
 import ModalManager from "../components/ModalManager.astro";
-// REMOVED: import postData from "../data/post_demo.json";
-// REMOVED: import PostCard from "../components/PostCard.astro";
-// All posts now load dynamically from Google Sheets
+const seoTitle = "Tech Engineer Forum - Solve, Code, Connect";
+const seoDescription =
+  "The community forum for Tech Engineers. Ask questions, share open-source projects, and get help from expert developers.";
 ---
 
-<Layout title="Forum - Tech engineer">
+<Layout title={seoTitle} description={seoDescription}>
   <div class="page-layout">
     <aside class="sidebar-area">
       <Sidebar />
@@ -866,6 +866,26 @@ import ModalManager from "../components/ModalManager.astro";
     padding-left: 12px !important;
     border-left: 2px solid #e3e6ea !important;
   }
+  .guest-login-prompt {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #f3f4f6;
+    border: 1px dashed #d1d5db;
+    color: #6b7280;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .guest-login-prompt:hover {
+    background: #eef3ff;
+    border-color: #2e69ff;
+    color: #2e69ff;
+  }
   .reply-form {
     display: flex !important;
     gap: 8px !important;
@@ -896,7 +916,7 @@ import ModalManager from "../components/ModalManager.astro";
 
 <script>
   const SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbywCeoEu7CNLZtgRKyy4wsnvGw8B6wpNrP5ke0RoJ6XrVfwgsmBKAlIKvli79IVAWQJxQ/exec";
+    "https://script.google.com/macros/s/AKfycbwfpjk3Y2gzDt0T_JS7c2OhQajr_UildmeqEgQVPQxIFAjYnYG8alaQF0XmGjeI-_uzkQ/exec";
 
   // SVG icon strings for JS-rendered content
   const ICONS = {
@@ -906,19 +926,31 @@ import ModalManager from "../components/ModalManager.astro";
       '<svg class="like-svg liked" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="color:#ef4444"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>',
   };
 
-  // ====== HELPERS ======
-  function getMediaUrl(url: string | null | undefined): string {
-    if (!url || url === "icon.png" || url === "null" || url === "")
+  function getMediaUrl(url) {
+    // If URL is missing, null, or too short to be a real path/base64
+    if (!url || url === "icon.png" || url === "null" || url.length < 5) {
       return "/assets/icon.png";
-    if (url.startsWith("data:")) return url;
-    if (url.startsWith("http://") || url.startsWith("https://")) return url;
-    if (url.startsWith("iVBOR") || url.startsWith("/9j/"))
-      return `data:image/png;base64,${url}`;
-    if (url.includes("googleusercontent.com") || url.includes("github.com"))
+    }
+
+    // 1. If it's already a full URL or Data URI, return it
+    if (url.startsWith("data:") || url.startsWith("http")) {
       return url;
+    }
+
+    // 2. Detect Base64 headers
+    const base64Patterns = ["iVBOR", "/9j/", "UklG", "PHN2Zy"];
+    if (base64Patterns.some((pref) => url.startsWith(pref))) {
+      let mime = "image/png";
+      if (url.startsWith("/9j/")) mime = "image/jpeg";
+      if (url.startsWith("UklG")) mime = "image/webp";
+      if (url.startsWith("PHN2Zy")) mime = "image/svg+xml";
+
+      return `data:${mime};base64,${url}`; // comma is critical here
+    }
+
+    // 3. Treat as local asset
     return `/assets/${url}`;
   }
-
   function formatContent(text: string): string {
     if (!text) return "";
     text = text.replace(
@@ -988,15 +1020,23 @@ import ModalManager from "../components/ModalManager.astro";
   };
 
   const publicFeed = document.getElementById("user-questions-feed");
+  function sanitizeSlug(raw) {
+    if (!raw) return "";
+    return raw
+      .toLowerCase()
+      .replace(/[^\w -]+/g, "")
+      .replace(/ +/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .trim();
+  }
 
   // ====== GENERATE POST CARD HTML ======
   function createPostCardHTML(post: any) {
     const slug =
-      post.slug ||
-      post.heading
-        .toLowerCase()
-        .replace(/[^\w ]+/g, "")
-        .replace(/ +/g, "-");
+      sanitizeSlug(post.slug) ||
+      sanitizeSlug(post.heading) ||
+      String(post.id || "");
 
     // Avatar — use getMediaUrl, fallback to letter avatar
     let avatarHtml = "";
@@ -1020,17 +1060,28 @@ import ModalManager from "../components/ModalManager.astro";
         : displayUpvotes;
 
     // Images — use getMediaUrl for each
+    let imagesRaw = post.images || [];
+    if (typeof imagesRaw === "string") {
+      try {
+        imagesRaw = JSON.parse(imagesRaw);
+      } catch (e) {
+        imagesRaw = imagesRaw.split(",").filter((i) => i.trim() !== "");
+      }
+    }
+
+    const images = ([...new Set(imagesRaw)] as any[]).filter(
+      (img) => img && img !== "null" && img.length > 50,
+    );
     let imagesHtml = "";
-    const images = post.images || [];
     if (images.length > 0) {
       const gridClass = `grid-${Math.min(images.length, 4)}`;
       imagesHtml += `<div class="post-images-grid ${gridClass}">`;
-      images.slice(0, 4).forEach((img: string, index: number) => {
+      images.slice(0, 4).forEach((img, index) => {
         const imgUrl = getMediaUrl(img);
         if (index === 3 && images.length > 4) {
-          imagesHtml += `<div class="grid-item with-overlay"><img src="${imgUrl}" alt="" /><div class="more-count">+${images.length - 3}</div></div>`;
+          imagesHtml += `<div class="grid-item with-overlay"><img src="${imgUrl}" alt="" onerror="this.parentElement.style.display='none'" /><div class="more-count">+${images.length - 3}</div></div>`;
         } else {
-          imagesHtml += `<div class="grid-item"><img src="${imgUrl}" alt="" /></div>`;
+          imagesHtml += `<div class="grid-item"><img src="${imgUrl}" alt="" onerror="this.parentElement.style.display='none'" /></div>`;
         }
       });
       imagesHtml += `</div>`;
@@ -1167,10 +1218,13 @@ import ModalManager from "../components/ModalManager.astro";
 
   // ====== POST LOGIC (upvote, comments, share, more) ======
   function initPostLogic() {
-    const postCards = document.querySelectorAll(".post-card");
+    const postCards = document.querySelectorAll(
+      ".post-card:not([data-initialized])",
+    );
 
     postCards.forEach((card) => {
       const cardEl = card as HTMLElement;
+      cardEl.setAttribute("data-initialized", "true");
       const postId = cardEl.getAttribute("data-id");
       if (!postId) return;
 
@@ -1380,8 +1434,13 @@ import ModalManager from "../components/ModalManager.astro";
           const submitReply = async () => {
             if (!isUserLoggedIn()) return showLoginModal();
             const text = replyInput.value.trim();
-            if (!text) return;
+            if (!text || (replySubmit as HTMLButtonElement).disabled) return;
+
+            // ✅ DISABLE IMMEDIATELY
+            (replySubmit as HTMLButtonElement).disabled = true;
+
             await postComment(text, comment.id);
+
             replyInput.value = "";
             replyForm?.classList.add("hidden");
           };
@@ -1454,10 +1513,21 @@ import ModalManager from "../components/ModalManager.astro";
       }
 
       loadComments();
-
+      // ===== SHOW GUEST LOGIN PROMPT IN COMMENT INPUT =====
+      const addCommentDiv = card.querySelector(".add-comment") as HTMLElement;
+      if (addCommentDiv && !isUserLoggedIn()) {
+        addCommentDiv.innerHTML = `
+    <img src="/assets/icon.png" class="comment-avatar" alt="You" />
+    <button class="guest-login-prompt" type="button">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      Login to post a comment
+    </button>
+  `;
+        const loginBtn = addCommentDiv.querySelector(".guest-login-prompt");
+        loginBtn?.addEventListener("click", () => showLoginModal());
+      }
       if (commentToggle && commentsSection) {
         commentToggle.addEventListener("click", () => {
-          if (!isUserLoggedIn()) return showLoginModal();
           commentsSection.classList.toggle("hidden");
         });
       }
@@ -1468,10 +1538,21 @@ import ModalManager from "../components/ModalManager.astro";
         });
         const handleMainSubmit = async () => {
           const text = commentInput.value.trim();
-          if (!text) return;
-          await postComment(text, null);
-          commentInput.value = "";
+          // If text is empty OR button is already disabled, stop here
+          if (!text || commentSubmit.disabled) return;
+
+          // 1. Disable immediately to stop a second click/event
           commentSubmit.disabled = true;
+          commentSubmit.style.opacity = "0.5";
+          commentSubmit.innerText = "Posting...";
+
+          // 2. Send to Google
+          await postComment(text, null);
+
+          // 3. Reset
+          commentInput.value = "";
+          commentSubmit.innerText = "Post";
+          commentSubmit.style.opacity = "1";
         };
         commentSubmit.addEventListener("click", handleMainSubmit);
         commentInput.addEventListener("keypress", (e) => {
@@ -1576,31 +1657,68 @@ import ModalManager from "../components/ModalManager.astro";
       });
 
       card.querySelectorAll(".more-option").forEach((opt) => {
-        opt.addEventListener("click", () => {
+        opt.addEventListener("click", async () => {
           const action = opt.getAttribute("data-action");
           const slug = cardEl.getAttribute("data-slug");
           const url = `${window.location.origin}/question/${slug}`;
-          if (
-            action === "save" ||
-            action === "hide" ||
-            action === "report" ||
-            action === "not-interested"
-          ) {
-            if (!isUserLoggedIn()) return showLoginModal();
-          }
-          if (action === "save") showToast("Post saved!", "success");
-          else if (action === "hide") cardEl.style.display = "none";
-          else if (action === "report")
-            showToast("Post reported. Thank you!", "success");
-          else if (action === "not-interested") cardEl.style.display = "none";
-          else if (action === "copy-link") {
+
+          if (action === "save") {
+            showToast("Post saved!", "success");
+          } else if (action === "copy-link") {
             navigator.clipboard.writeText(url);
             showToast("Link copied!", "success");
+          } else if (action === "hide") {
+            cardEl.style.display = "none";
+          } else if (action === "report") {
+            if (!isUserLoggedIn()) return showLoginModal();
+            showToast("Post reported. Thank you!", "success");
           }
+          // ✅ NEW: DELETE POST (author only)
+          else if (action === "delete") {
+            if (!isUserLoggedIn()) return showLoginModal();
+
+            const authorName = cardEl.getAttribute("data-author-name") || "";
+            const currentUser = localStorage.getItem("currentUser") || "";
+
+            if (currentUser !== authorName) {
+              showToast("You can only delete your own posts", "error");
+              return;
+            }
+
+            // Confirm before deleting
+            if (
+              !confirm(
+                "Are you sure you want to delete this post? This cannot be undone.",
+              )
+            )
+              return;
+
+            try {
+              const res = await fetch(SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                  action: "deletePost",
+                  postId: postId,
+                }),
+              });
+              const data = await res.json();
+              if (data.status === "success") {
+                showToast("Post deleted", "success");
+                cardEl.style.transition = "opacity 0.3s, transform 0.3s";
+                cardEl.style.opacity = "0";
+                cardEl.style.transform = "scale(0.95)";
+                setTimeout(() => cardEl.remove(), 300);
+              } else {
+                showToast("Could not delete post", "error");
+              }
+            } catch (err) {
+              showToast("Error deleting post", "error");
+            }
+          }
+
           if (moreSection) moreSection.classList.add("hidden");
         });
       });
-
       // ===== EXPAND / COLLAPSE =====
       const desc = card.querySelector(".description") as HTMLElement;
       const readMore = card.querySelector(".read-more") as HTMLElement;

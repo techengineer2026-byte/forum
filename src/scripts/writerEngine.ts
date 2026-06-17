@@ -30,7 +30,7 @@ export async function searchWriters(query: string): Promise<Writer[]> {
     (w) =>
       w.name.toLowerCase().includes(q) ||
       w.expertise.toLowerCase().includes(q) ||
-      w.topics.some((t) => t.toLowerCase().includes(q))
+      w.topics.some((t) => t.toLowerCase().includes(q)),
   );
 }
 
@@ -39,7 +39,7 @@ export async function filterByTopic(topic: string): Promise<Writer[]> {
   const writers = await loadWriters();
   if (topic === "all") return writers;
   return writers.filter((w) =>
-    w.topics.some((t) => t.toLowerCase() === topic.toLowerCase())
+    w.topics.some((t) => t.toLowerCase() === topic.toLowerCase()),
   );
 }
 
@@ -52,56 +52,54 @@ export async function getAllTopics(): Promise<string[]> {
 }
 
 /* Render using DOM methods (NO innerHTML) */
+/* Render using DOM methods */
 export function renderWriters(list: Writer[]): HTMLElement[] {
   return list.map((w) => {
     const item = document.createElement("div");
     item.className = "person-item";
     item.setAttribute("data-id", w.id);
 
-    /* Person Info Container */
-    const personInfo = document.createElement("div");
-    personInfo.className = "person-info";
-
-    /* Avatar */
+    /* 1. Avatar Container */
     const avatar = document.createElement("div");
     avatar.className = "person-avatar";
-    avatar.style.backgroundColor = w.color;
-    avatar.textContent = w.initials;
 
-    /* If writer has a real avatar image, use it */
     if (w.avatar && w.avatar.startsWith("http")) {
       const img = document.createElement("img");
       img.src = w.avatar;
       img.alt = w.name;
-      img.className = "person-avatar-img";
-      avatar.replaceWith(img);
+      avatar.appendChild(img);
+    } else {
+      avatar.style.backgroundColor = w.color || "#b92b27";
+      avatar.textContent = w.initials;
     }
 
-    /* Details */
+    /* 2. Text Details Container */
     const details = document.createElement("div");
     details.className = "person-details";
 
-    const name = document.createElement("p");
-    name.className = "p-name";
+    const name = document.createElement("span");
+    name.className = "person-name";
     name.textContent = w.name;
 
-    const sub = document.createElement("p");
-    sub.className = "p-sub";
+    const sub = document.createElement("span");
+    sub.className = "person-meta";
     sub.textContent = w.expertise;
 
     details.appendChild(name);
     details.appendChild(sub);
-    personInfo.appendChild(avatar);
-    personInfo.appendChild(details);
 
-    /* Check Button */
+    /* 3. Check Button */
     const checkBtn = document.createElement("button");
     checkBtn.className = "check-btn";
     checkBtn.setAttribute("data-id", w.id);
-    checkBtn.textContent = "+";
     checkBtn.type = "button";
+    // Default state is a plus icon
+    checkBtn.innerHTML =
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>';
 
-    item.appendChild(personInfo);
+    /* Assemble: Avatar | Details | Button */
+    item.appendChild(avatar);
+    item.appendChild(details);
     item.appendChild(checkBtn);
 
     return item;

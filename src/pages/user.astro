@@ -435,7 +435,7 @@ const name = Astro.url.searchParams.get("name") || "Guest";
 
 <script define:vars={{ name }}>
   const SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbywCeoEu7CNLZtgRKyy4wsnvGw8B6wpNrP5ke0RoJ6XrVfwgsmBKAlIKvli79IVAWQJxQ/exec";
+    "https://script.google.com/macros/s/AKfycbwfpjk3Y2gzDt0T_JS7c2OhQajr_UildmeqEgQVPQxIFAjYnYG8alaQF0XmGjeI-_uzkQ/exec";
 
   const feedContainer = document.getElementById("activity-feed");
   const tabQuestions = document.getElementById("tab-questions");
@@ -578,7 +578,7 @@ const name = Astro.url.searchParams.get("name") || "Guest";
           item.slug ||
           item.heading
             .toLowerCase()
-            .replace(/[^\w ]+/g, "")
+            .replace(/[^\w -]+/g, "")
             .replace(/ +/g, "-");
         const isQuestion = item.type === "Question";
         const badgeClass = isQuestion ? "" : "post-badge";

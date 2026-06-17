@@ -2,7 +2,7 @@
 export async function GET({ url }) {
   const userEmail = url.searchParams.get("userEmail") || "";
   const SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbwS4kLCU7sm9LX0sGrBC4f8LNAuSyGwjaSS6fEJq3jbwQapxoVnX6Qs2VXQO2ePecs8rA/exec";
+    "https://script.google.com/macros/s/AKfycbwfpjk3Y2gzDt0T_JS7c2OhQajr_UildmeqEgQVPQxIFAjYnYG8alaQF0XmGjeI-_uzkQ/exec";
 
   try {
     const targetUrl = `${SCRIPT_URL}?action=getSpaces&userEmail=${encodeURIComponent(userEmail)}`;

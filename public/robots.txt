@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://forum.techengineer.co/sitemap.xml8
+# Sitemaps
+Sitemap: https://forum.techengineer.co/sitemap-index.xml

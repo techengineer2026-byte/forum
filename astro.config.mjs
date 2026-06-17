@@ -1,12 +1,10 @@
-// astro.config.mjs
 import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  // ✅ REMOVE 'server' and the node adapter.
-  // 'static' is actually the default, so you don't even need to specify it.
-  site: 'https://forum.techengineer.co/',
+  site: 'https://forum.techengineer.co',
+  integrations: [sitemap()],
   trailingSlash: 'never',
-  
   build: {
     inlineStylesheets: 'auto'
   }

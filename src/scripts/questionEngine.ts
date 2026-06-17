@@ -20,7 +20,7 @@ export interface RankedQuestion extends Question {
 export function cleanText(text: string): string[] {
     return text
         .toLowerCase()
-        .replace(/[^\w ]+/g, "")
+        .replace(/[^\w -]+/g, "")
         .split(" ")
         .filter((word: string) => word.length > 3);
 }
@@ -40,7 +40,7 @@ export function slugify(text: string): string {
     const cleanText = text.replace(/```[\s\S]*?```/g, "").replace(/`[^`]+`/g, "").trim();
     return cleanText
         .toLowerCase()
-        .replace(/[^\w ]+/g, "")
+        .replace(/[^\w -]+/g, "")
         .replace(/ +/g, "-");
 }
 

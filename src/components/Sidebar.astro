@@ -3,23 +3,31 @@ import CreateSpaceModal from "./CreateSpaceModal.astro";
 ---
 
 <div class="sidebar-container">
+  <!-- 1. Create Space Action -->
   <button class="create-space-btn" id="createSpaceBtn" type="button">
     <span class="plus-icon">+</span>
     Create Space
   </button>
 
+  <!-- 2. Spaces List Section -->
   <nav class="spaces-list">
+    <h3 class="sidebar-title">FEEDS</h3>
     <ul id="spaces-ul">
-      <li class="loading-spaces">Loading spaces...</li>
+      <li class="loading-spaces">Loading...</li>
     </ul>
   </nav>
 
+  <!-- 3. Toggle Button -->
   <button id="toggle-spaces-btn" class="toggle-btn hidden" type="button">
     Show All Spaces
   </button>
 
+  <!-- 4. Simple Footer -->
   <footer class="sidebar-footer">
-    <p>About · Terms · Privacy · Contact · Advertise</p>
+    <div class="footer-links">
+      <span>About</span> · <span>Terms</span> · <span>Privacy</span>
+    </div>
+    <p>© 2024 Tech Engineer</p>
   </footer>
 </div>
 
@@ -28,37 +36,43 @@ import CreateSpaceModal from "./CreateSpaceModal.astro";
 <style is:global>
   .sidebar-container {
     width: 100%;
-    max-width: 170px;
+    max-width: 180px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
     position: sticky;
-    top: 80px;
+    top: 75px;
+    font-family: "Inter", sans-serif;
+  }
+
+  .sidebar-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #939598;
+    margin: 15px 0 8px 8px;
+    letter-spacing: 0.5px;
   }
 
   .create-space-btn {
     display: flex;
     align-items: center;
-    background-color: #f1f2f2;
-    border: 1px solid #dee0e1;
-    border-radius: 4px;
-    padding: 8px 12px;
+    background-color: #f7f7f8;
+    border: 1px solid #e2e4e6;
+    border-radius: 6px;
+    padding: 10px 12px;
     color: #636466;
     font-size: 13px;
+    font-weight: 500;
     cursor: pointer;
-    margin-bottom: 8px;
-    transition: background 0.2s;
+    transition: all 0.2s;
     width: 100%;
-    text-align: left;
   }
   .create-space-btn:hover {
-    background-color: #e3e5e5;
+    background-color: #ededef;
   }
   .plus-icon {
     font-size: 18px;
-    margin-right: 8px;
+    margin-right: 10px;
     font-weight: 300;
-    line-height: 1;
   }
 
   .spaces-list ul {
@@ -71,63 +85,55 @@ import CreateSpaceModal from "./CreateSpaceModal.astro";
     display: flex;
     align-items: center;
     padding: 8px;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    transition:
-      background 0.2s,
-      opacity 0.3s;
+    transition: background 0.2s;
+    margin-bottom: 2px;
   }
   .space-item:hover {
-    background-color: #e6e6e6;
+    background-color: #f1f2f2;
   }
   .space-item.filtered-out {
     display: none;
   }
 
-  .icon-wrapper {
-    position: relative;
-    width: 22px;
-    height: 22px;
+  .icon-box {
+    width: 24px;
+    height: 24px;
     margin-right: 12px;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: 4px;
     color: white;
+    font-weight: 700;
+    font-size: 12px;
+    overflow: hidden;
   }
-  .icon-wrapper img {
+  .icon-box img {
     width: 100%;
     height: 100%;
-    border-radius: 4px;
     object-fit: cover;
-  }
-  .letter-icon {
-    font-size: 13px;
-    font-weight: 700;
-    color: white;
-    line-height: 1;
-    user-select: none;
-  }
-
-  .member-count {
-    margin-left: auto;
-    background: #e3e6ea;
-    color: #6b7280;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 1px 7px;
-    border-radius: 10px;
   }
 
   .space-name {
     font-size: 13px;
     color: #636466;
-    line-height: 1.2;
+    font-weight: 500;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+  }
+
+  .member-pill {
+    margin-left: auto;
+    background: #eef0f2;
+    color: #858c93;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
   }
 
   .toggle-btn {
@@ -137,7 +143,7 @@ import CreateSpaceModal from "./CreateSpaceModal.astro";
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
-    padding: 8px;
+    padding: 10px 8px;
     text-align: left;
     width: 100%;
   }
@@ -146,109 +152,157 @@ import CreateSpaceModal from "./CreateSpaceModal.astro";
   }
 
   .sidebar-footer {
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid #dee0e1;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eef0f2;
   }
-  .sidebar-footer p {
+  .footer-links {
     font-size: 12px;
     color: #939598;
-    line-height: 1.5;
     cursor: pointer;
+  }
+  .sidebar-footer p {
+    font-size: 11px;
+    color: #bdbebf;
+    margin-top: 5px;
   }
 
   .loading-spaces {
-    padding: 12px 8px;
+    padding: 10px;
     font-size: 12px;
-    color: #9ca3af;
-    text-align: center;
+    color: #bdbebf;
   }
 
   .hidden {
     display: none !important;
   }
 </style>
-<script>
-  // ✅ NOW POINTING TO YOUR LOCAL SURVER, NOT GOOGLE DIRECTLY
-  async function loadSpaces() {
+
+<script is:inline>
+  // ✅ 1. YOUR DEPLOYED GOOGLE SCRIPT URL
+  const SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbwfpjk3Y2gzDt0T_JS7c2OhQajr_UildmeqEgQVPQxIFAjYnYG8alaQF0XmGjeI-_uzkQ/exec";
+  /**
+   * ✅ 2. JSONP FETCH
+   * Bypasses CORS on Firebase
+   */
+  function fetchSpaces() {
     const userEmail = localStorage.getItem("userId") || "";
-    const ul = document.getElementById("spaces-ul");
-    if (!ul) return;
+    const callbackName = "sidebar_cb_" + Date.now();
 
-    try {
-      // ✅ Call your local Astro API route
-      const response = await fetch(
-        `/api/get-spaces?userEmail=${encodeURIComponent(userEmail)}`,
-      );
-      const spaces = await response.json();
+    window[callbackName] = function (data) {
+      renderSidebar(data);
+      delete window[callbackName];
+      document.getElementById(callbackName)?.remove();
+    };
 
-      if (!spaces || !Array.isArray(spaces)) {
-        ul.innerHTML = '<li class="loading-spaces">No spaces found.</li>';
-        return;
-      }
-
-      ul.innerHTML = "";
-
-      spaces.forEach((space) => {
-        const li = document.createElement("li");
-        li.className = "space-item";
-        li.setAttribute("data-topic", space.name || "");
-        li.setAttribute("data-is-member", String(space.isMember));
-
-        const initial = space.name ? space.name.charAt(0).toUpperCase() : "?";
-        const color = space.color || "#2e69ff";
-        const slug = space.slug || "space";
-
-        li.innerHTML = `
-          <div class="icon-wrapper" style="background-color: ${color}; border-radius: 4px;">
-            ${space.icon ? `<img src="/assets/${space.icon}" alt="" onerror="this.style.display='none';" />` : `<span class="letter-icon">${initial}</span>`}
-          </div>
-          <span class="space-name">${space.name}</span>
-          ${space.members > 0 ? `<span class="member-count">${space.members}</span>` : ""}
-        `;
-
-        li.addEventListener("click", () => {
-          window.location.href = `/space/${slug}`;
-        });
-
-        ul.appendChild(li);
-      });
-
-      // Import and run your filter logic here if needed
-      filterSidebar();
-    } catch (err) {
-      console.error("❌ SideBar Error:", err);
-      ul.innerHTML = '<li class="loading-spaces">Error loading sidebar</li>';
-    }
+    const script = document.createElement("script");
+    script.id = callbackName;
+    script.src = `${SCRIPT_URL}?action=getSpaces&userEmail=${encodeURIComponent(userEmail)}&callback=${callbackName}`;
+    document.body.appendChild(script);
   }
 
-  // Reuse your filterSidebar function from before...
-  function filterSidebar() {
-    const userInterests = localStorage.getItem("userInterests") || "";
-    const spaceItems = document.querySelectorAll(".space-item");
-    if (!userInterests || userInterests.trim() === "") {
-      spaceItems.forEach((item) => item.classList.remove("filtered-out"));
+  /**
+   * ✅ 3. RENDER UI
+   */
+  function renderSidebar(spaces) {
+    const ul = document.getElementById("spaces-ul");
+    if (!ul) return;
+    ul.innerHTML = "";
+
+    if (!spaces || !Array.isArray(spaces)) {
+      ul.innerHTML = '<li class="loading-spaces">No feeds available</li>';
       return;
     }
-    const interestsArray = userInterests
+
+    spaces.forEach((space) => {
+      const li = document.createElement("li");
+      li.className = "space-item";
+      li.setAttribute("data-name", space.name || "");
+      li.setAttribute("data-is-member", String(space.isMember));
+
+      const initial = space.name ? space.name.charAt(0).toUpperCase() : "?";
+      const color = space.color || "#2e69ff";
+
+      li.innerHTML = `
+        <div class="icon-box" style="background-color: ${color}">
+          ${space.icon ? `<img src="/assets/${space.icon}" />` : `<span>${initial}</span>`}
+        </div>
+        <span class="space-name">${space.name}</span>
+        ${space.members > 0 ? `<span class="member-pill">${space.members}</span>` : ""}
+      `;
+
+      li.onclick = () => (window.location.href = `/space/${space.slug || ""}`);
+      ul.appendChild(li);
+    });
+
+    applyInterestFilter();
+  }
+
+  /**
+   * ✅ 4. INTEREST FILTERING
+   * Logic: Show space if user is a MEMBER or if it matches INTERESTS
+   */
+  function applyInterestFilter() {
+    const interests = localStorage.getItem("userInterests") || "";
+    const items = document.querySelectorAll(".space-item");
+    const toggleBtn = document.getElementById("toggle-spaces-btn");
+
+    if (!interests) {
+      items.forEach((i) => i.classList.remove("filtered-out"));
+      return;
+    }
+
+    const interestList = interests
       .toLowerCase()
       .split(",")
       .map((i) => i.trim());
-    spaceItems.forEach((item) => {
-      const topic = (item.getAttribute("data-topic") || "").toLowerCase();
+    let hidden = 0;
+
+    items.forEach((item) => {
+      const name = item.getAttribute("data-name").toLowerCase();
       const isMember = item.getAttribute("data-is-member") === "true";
-      const matchesInterest = interestsArray.some((interest) =>
-        topic.includes(interest),
+
+      // Match "UI/UX Design" with "UI/UX" etc.
+      const match = interestList.some(
+        (int) => name.includes(int) || int.includes(name),
       );
-      if (isMember || matchesInterest) item.classList.remove("filtered-out");
-      else item.classList.add("filtered-out");
+
+      if (isMember || match) {
+        item.classList.remove("filtered-out");
+      } else {
+        item.classList.add("filtered-out");
+        hidden++;
+      }
     });
+
+    if (toggleBtn) {
+      if (hidden > 0) {
+        toggleBtn.classList.remove("hidden");
+        toggleBtn.innerText = `Show All (${hidden} more)`;
+      } else {
+        toggleBtn.classList.add("hidden");
+      }
+    }
   }
 
-  // Initial load
-  loadSpaces();
+  // --- Start ---
+  fetchSpaces();
 
-  // Listen for events
-  window.addEventListener("user-logged-in", loadSpaces);
-  window.addEventListener("space-created", loadSpaces);
+  // Listen for login to refresh interests
+  window.addEventListener("user-logged-in", fetchSpaces);
+
+  let showingAll = false;
+  document
+    .getElementById("toggle-spaces-btn")
+    ?.addEventListener("click", function () {
+      const items = document.querySelectorAll(".space-item");
+      showingAll = !showingAll;
+      if (showingAll) {
+        items.forEach((i) => i.classList.remove("filtered-out"));
+        this.innerText = "Show Recommended Only";
+      } else {
+        applyInterestFilter();
+      }
+    });
 </script>

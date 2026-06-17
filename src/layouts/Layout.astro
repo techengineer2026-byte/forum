@@ -3,6 +3,7 @@
 export interface Props {
   title: string;
   description?: string;
+  image?: string; // New prop for social sharing images
   showFooter?: boolean;
 }
 
@@ -10,9 +11,15 @@ import Header from "../components/Header.astro";
 
 const {
   title,
-  description = "Tech Engineer - Community for developers",
+  description = "Tech Engineer - Community for developers to ask, answer, and grow together.",
+  image = "/assets/icon.png",
   showFooter = true,
 } = Astro.props;
+
+// Construct the absolute URL for SEO
+const siteUrl = "https://forum.techengineer.co";
+const canonicalURL = new URL(Astro.url.pathname, siteUrl);
+const socialImageURL = new URL(image, siteUrl);
 ---
 
 <!doctype html>
@@ -20,28 +27,54 @@ const {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Primary Meta Tags -->
     <title>{title}</title>
+    <meta name="title" content={title} />
     <meta name="description" content={description} />
     <link rel="icon" type="image/png" href="/assets/icon.png" />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={socialImageURL} />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={socialImageURL} />
+
+    <!-- Google Search Verification -->
     <meta
       name="google-site-verification"
       content="z6HubTvD3dO5bo7HxpvtRl86cKQdCBsBh65kavbq0ZM"
-    /></head
-  >ss
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-    rel="stylesheet"
-  />
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"
-  ></script>
-  <script
-    src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"
-  ></script>
+    />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Firebase SDKs -->
+    <script
+      src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"
+    ></script>
+    <script
+      src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"
+    ></script>
+  </head>
 
   <body>
     <Header isLoggedIn={false} />
+
     <div class="main-content">
       <slot />
     </div>
@@ -117,7 +150,6 @@ const {
                       Facebook
                     </a>
                   </li>
-
                   <li>
                     <a
                       href="https://x.com/TechEngineer115"
@@ -127,7 +159,6 @@ const {
                       X (Twitter)
                     </a>
                   </li>
-
                   <li>
                     <a
                       href="https://www.youtube.com/@TechEngineerAI/"
@@ -137,7 +168,6 @@ const {
                       YouTube
                     </a>
                   </li>
-
                   <li>
                     <a
                       href="https://www.instagram.com/techengineer_ai/"
@@ -147,7 +177,6 @@ const {
                       Instagram
                     </a>
                   </li>
-
                   <li>
                     <a
                       href="https://wa.me/918544884846"
@@ -163,239 +192,182 @@ const {
           </div>
 
           <div class="footer-bottom">
-            <p>&copy; 2024 Tech Engineer. All rights reserved.</p>
+            <p>&copy; 2026 Tech Engineer. All rights reserved.</p>
           </div>
         </footer>
       )
     }
 
-  </body>
-
-  <style is:global>
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      background-color: #f1f2f2;
-      font-family:
-        "Inter",
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    .main-content {
-      padding-top: 60px;
-      min-height: calc(100vh - 60px);
-    }
-
-    /* ===== FOOTER ===== */
-    .site-footer {
-      background: #1a1a2e;
-      color: #c4c4d4;
-      margin-top: 40px;
-    }
-
-    .footer-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 48px 24px 32px;
-      display: grid;
-      grid-template-columns: 1fr 2fr;
-      gap: 48px;
-    }
-
-    @media (max-width: 700px) {
+    <style is:global>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        background-color: #f1f2f2;
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      .main-content {
+        padding-top: 60px;
+        min-height: calc(100vh - 60px);
+      }
+      .site-footer {
+        background: #1a1a2e;
+        color: #c4c4d4;
+        margin-top: 40px;
+      }
       .footer-inner {
-        grid-template-columns: 1fr;
-        gap: 32px;
-        padding: 36px 20px 24px;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 48px 24px 32px;
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 48px;
       }
-    }
-
-    .footer-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #fff;
-      font-size: 18px;
-      font-weight: 800;
-      margin-bottom: 12px;
-    }
-
-    .footer-logo svg {
-      color: #2e69ff;
-    }
-
-    .footer-tagline {
-      font-size: 14px;
-      line-height: 1.6;
-      color: #8888a4;
-      margin: 0;
-      max-width: 280px;
-    }
-
-    .footer-links-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-    }
-
-    @media (max-width: 500px) {
+      @media (max-width: 700px) {
+        .footer-inner {
+          grid-template-columns: 1fr;
+          gap: 32px;
+        }
+      }
+      .footer-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #fff;
+        font-size: 18px;
+        font-weight: 800;
+        margin-bottom: 12px;
+      }
+      .footer-logo svg {
+        color: #2e69ff;
+      }
+      .footer-tagline {
+        font-size: 14px;
+        line-height: 1.6;
+        color: #8888a4;
+        max-width: 280px;
+      }
       .footer-links-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
       }
-    }
-
-    .footer-col-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: #fff;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin: 0 0 14px 0;
-    }
-
-    .footer-col ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .footer-col a {
-      color: #8888a4;
-      text-decoration: none;
-      font-size: 14px;
-      transition: color 0.15s;
-    }
-
-    .footer-col a:hover {
-      color: #2e69ff;
-    }
-
-    .footer-bottom {
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 18px 24px;
-      text-align: center;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .footer-bottom p {
-      font-size: 13px;
-      color: #5a5a7a;
-      margin: 0;
-    }
-  </style>
-
-  <!-- TYPE-SAFE SCRIPT: syncLoginState only, no firebase reference -->
-  <script>
-    function syncLoginState() {
-      const isLoggedIn = !!localStorage.getItem("userId");
-      const header = document.querySelector("header") as HTMLElement;
-      if (!header) return;
-
-      header.setAttribute("data-logged-in", isLoggedIn ? "true" : "false");
-
-      const loginBtn = header.querySelector(".login-btn") as HTMLElement;
-      const userMenu = header.querySelector(".user-menu") as HTMLElement;
-      const userName = header.querySelector(".user-name") as HTMLElement;
-      const userAvatar = header.querySelector(
-        ".user-avatar",
-      ) as HTMLImageElement;
-
-      if (isLoggedIn) {
-        if (loginBtn) loginBtn.style.display = "none";
-        if (userMenu) userMenu.style.display = "flex";
-        if (userName) {
-          const name = localStorage.getItem("currentUser") || "User";
-          userName.textContent = name;
+      @media (max-width: 500px) {
+        .footer-links-grid {
+          grid-template-columns: 1fr 1fr;
         }
-        if (userAvatar) {
-          const avatar = localStorage.getItem("userAvatar");
-          if (avatar && avatar !== "icon.png" && avatar !== "null") {
-            userAvatar.src =
-              avatar.startsWith("http") || avatar.startsWith("data:")
-                ? avatar
-                : `/assets/${avatar}`;
-          }
-        }
-      } else {
-        if (loginBtn) loginBtn.style.display = "inline-flex";
-        if (userMenu) userMenu.style.display = "none";
       }
+      .footer-col-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #fff;
+        text-transform: uppercase;
+        margin-bottom: 14px;
+      }
+      .footer-col ul {
+        list-style: none;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .footer-col a {
+        color: #8888a4;
+        text-decoration: none;
+        font-size: 14px;
+      }
+      .footer-col a:hover {
+        color: #2e69ff;
+      }
+      .footer-bottom {
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 18px 24px;
+        text-align: center;
+      }
+    </style>
 
-      document.querySelectorAll(".post-card").forEach((card) => {
-        card.setAttribute("data-guest", isLoggedIn ? "false" : "true");
-      });
-    }
+    <script>
+      // We attach this to window so the inline script can see it
+      (window as any).syncLoginState = function () {
+        const isLoggedIn = !!localStorage.getItem("userId");
+        const header = document.querySelector(".header") as HTMLElement;
+        if (!header) return;
 
-    // Run on initial load
-    syncLoginState();
+        header.setAttribute("data-logged-in", isLoggedIn ? "true" : "false");
 
-    // Run after page fully loads
-    window.addEventListener("load", syncLoginState);
+        const loginBtn = header.querySelector(".login-btn") as HTMLElement;
+        const userMenu = header.querySelector(".user-menu") as HTMLElement;
+        const userName = header.querySelector(".user-name") as HTMLElement;
+        const userAvatar = header.querySelector(
+          ".user-avatar",
+        ) as HTMLImageElement;
 
-    // Run when dynamic content is injected
-    window.addEventListener("post-added", syncLoginState);
-
-    // Listen for storage changes (from other tabs)
-    window.addEventListener("storage", syncLoginState);
-  </script>
-
-  <!-- INLINE SCRIPT: Firebase auth + logout (bypasses TypeScript checking) -->
-  <script is:inline>
-    // ===== FIREBASE AUTH STATE LISTENER =====
-    document.addEventListener("DOMContentLoaded", function () {
-      var checkFirebase = setInterval(function () {
-        if (typeof firebase !== "undefined" && firebase.auth) {
-          clearInterval(checkFirebase);
-          firebase.auth().onAuthStateChanged(function (user) {
-            if (user) {
-              if (!localStorage.getItem("userId")) {
-                localStorage.setItem("userId", user.email || "");
-                localStorage.setItem(
-                  "currentUser",
-                  user.displayName ||
-                    (user.email ? user.email.split("@")[0] : "User"),
-                );
-                if (user.photoURL) {
-                  localStorage.setItem("userAvatar", user.photoURL);
-                }
-              }
+        if (isLoggedIn) {
+          if (loginBtn) loginBtn.style.display = "none";
+          if (userMenu) userMenu.style.display = "flex";
+          if (userName)
+            userName.textContent =
+              localStorage.getItem("currentUser") || "User";
+          if (userAvatar) {
+            const avatar = localStorage.getItem("userAvatar");
+            if (avatar && avatar !== "icon.png" && avatar !== "null") {
+              userAvatar.src =
+                avatar.startsWith("http") || avatar.startsWith("data:")
+                  ? avatar
+                  : `/assets/${avatar}`;
             }
-            // Call the sync function defined in the other script block
-            if (typeof syncLoginState === "function") syncLoginState();
-          });
+          }
+        } else {
+          if (loginBtn) loginBtn.style.display = "inline-flex";
+          if (userMenu) userMenu.style.display = "none";
         }
-      }, 200);
-    });
+      };
 
-    // ===== LOGOUT HANDLER =====
-    window.logout = function () {
-      if (typeof firebase !== "undefined" && firebase.auth) {
-        firebase.auth().signOut();
-      }
-      localStorage.removeItem("userId");
-      localStorage.removeItem("currentUser");
-      localStorage.removeItem("userAvatar");
-      if (typeof syncLoginState === "function") syncLoginState();
-      window.location.reload();
-    };
-  </script>
+      // Initial runs
+      (window as any).syncLoginState();
+      window.addEventListener("load", (window as any).syncLoginState);
+      window.addEventListener("storage", (window as any).syncLoginState);
+    </script>
 
+    <script is:inline>
+      document.addEventListener("DOMContentLoaded", function () {
+        var checkFirebase = setInterval(function () {
+          if (typeof firebase !== "undefined" && firebase.auth) {
+            clearInterval(checkFirebase);
+            firebase.auth().onAuthStateChanged(function (user) {
+              if (user && !localStorage.getItem("userId")) {
+                localStorage.setItem("userId", user.email || "");
+                localStorage.setItem("currentUser", user.displayName || "User");
+                if (user.photoURL)
+                  localStorage.setItem("userAvatar", user.photoURL);
+              }
+              if (typeof window.syncLoginState === "function")
+                window.syncLoginState();
+            });
+          }
+        }, 200);
+      });
+
+      window.logout = function () {
+        if (typeof firebase !== "undefined" && firebase.auth)
+          firebase.auth().signOut();
+        localStorage.removeItem("userId");
+        localStorage.removeItem("currentUser");
+        localStorage.removeItem("userAvatar");
+        window.location.reload();
+      };
+    </script>
+  </body>
 </html>

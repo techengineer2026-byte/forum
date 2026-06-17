@@ -8,42 +8,88 @@ const {
   updated_time,
   heading,
   description,
-  images,
+  images: rawImages,
   upvotes,
   comments,
   shares,
   slug,
 } = Astro.props;
+
 import { formatContent } from "../utils/formatContent";
 
-// ✅ Universal helper for both avatars AND post images
+// 1. Convert any data type into a clean string array
+let cleanedImages: string[] = [];
+if (rawImages) {
+  if (typeof rawImages === "string") {
+    const trimmed = rawImages.trim();
+    if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+      try {
+        cleanedImages = JSON.parse(trimmed);
+      } catch (e) {
+        cleanedImages = [trimmed];
+      }
+    } else {
+      cleanedImages = trimmed.split(",").map((i) => i.trim());
+    }
+  } else if (Array.isArray(rawImages)) {
+    cleanedImages = rawImages.map((i) => String(i).trim());
+  }
+}
+
+// 2. THE AGGRESSIVE FILTER
+// This removes duplicates and ONLY keeps strings long enough to be real images
+const images = [...new Set(cleanedImages)].filter((img) => {
+  return (
+    img && img !== "null" && img !== "undefined" && img.length > 30 // A real base64 image is thousands of characters long.
+  );
+});
+
+// 3. DEBUG LOG - Check your Terminal/VS Code console
+console.log(`POST [${heading}]: Found ${images.length} valid images.`);
+
+// 4. THE ULTIMATE MEDIA HELPER
 function getMediaUrl(url: string | null | undefined): string {
-  if (!url || url === "icon.png" || url === "null" || url === "") {
+  // If no data, return fallback logo immediately
+  if (!url || url.length < 5 || url === "null") {
     return "/assets/icon.png";
   }
-  if (url.startsWith("data:")) return url;
-  if (url.startsWith("http://") || url.startsWith("https://")) return url;
-  if (url.startsWith("iVBOR") || url.startsWith("/9j/")) {
-    return `data:image/png;base64,${url}`;
-  }
-  if (url.includes("googleusercontent.com") || url.includes("github.com")) {
+
+  // Already a full URL or already has the data: header? Return as is.
+  if (url.startsWith("http") || url.startsWith("data:")) {
     return url;
   }
+
+  // If it's a raw Base64 string, add the correct header
+  const pngHead = "iVBOR";
+  const jpgHead = "/9j/";
+  const webpHead = "UklG"; // This is the 'UklGR' header for WebP
+
+  if (url.startsWith(pngHead)) return `data:image/png;base64,${url}`;
+  if (url.startsWith(jpgHead)) return `data:image/jpeg;base64,${url}`;
+  if (url.startsWith(webpHead)) return `data:image/webp;base64,${url}`;
+
+  // If it matches nothing else, assume it's a local filename
   return `/assets/${url}`;
 }
 
 const displayUpvotes = upvotes;
-const postSlug =
-  slug ||
-  heading
-    .toLowerCase()
-    .replace(/[^\w ]+/g, "")
-    .replace(/ +/g, "-");
-
 const authorAvatar = getMediaUrl(avatar);
+const postSlug =
+  (slug || heading || String(id || ""))
+    .toLowerCase()
+    .replace(/[^\w -]+/g, "")
+    .replace(/ +/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "") || String(id || "");
 ---
 
-<div class="post-card" data-id={id} data-slug={postSlug} data-heading={heading}>
+<div
+  class="post-card"
+  data-id={id}
+  data-slug={postSlug}
+  data-heading={heading}
+  data-author-name={name}
+>
   <!-- HEADER -->
   <div class="post-header">
     <img src={authorAvatar} alt={name} class="avatar" />
@@ -208,8 +254,21 @@ const authorAvatar = getMediaUrl(avatar);
     <div class="comments-list"></div>
     <div class="add-comment">
       <img src="/assets/icon.png" class="comment-avatar" alt="You" />
-      <input type="text" class="comment-input" placeholder="Add a comment..." />
-      <button class="comment-submit" type="button">Post</button>
+      <button class="guest-login-prompt" type="button">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          ><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path
+            d="M7 11V7a5 5 0 0110 0v4"></path></svg
+        >
+        Login to post a comment
+      </button>
     </div>
   </div>
 
@@ -286,9 +345,30 @@ const authorAvatar = getMediaUrl(avatar);
       >
       <span>Report</span>
     </button>
+    <div class="more-divider"></div>
+    <!-- ✅ DELETE — hidden by default, shown only to post author via JS -->
+    <button
+      class="more-option danger delete-post-btn hidden"
+      data-action="delete"
+    >
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        ><polyline points="3 6 5 6 21 6"></polyline><path
+          d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+        ></path></svg
+      >
+      <span>Delete Post</span>
+    </button>
   </div>
 </div>
-
+.
 <style is:global>
   /* 1. CONTAINER */
   .description-text .code-block {
@@ -423,7 +503,26 @@ const authorAvatar = getMediaUrl(avatar);
     border-color: #2e69ff;
     color: #fff;
   }
-
+  .guest-login-prompt {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #f3f4f6;
+    border: 1px dashed #d1d5db;
+    color: #6b7280;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .guest-login-prompt:hover {
+    background: #eef3ff;
+    border-color: #2e69ff;
+    color: #2e69ff;
+  }
   /* 3. BODY */
   .heading-link {
     text-decoration: none;
@@ -858,540 +957,45 @@ const authorAvatar = getMediaUrl(avatar);
     background: #1e5ae6 !important;
   }
 </style>
-
-<script>
-  const SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbywCeoEu7CNLZtgRKyy4wsnvGw8B6wpNrP5ke0RoJ6XrVfwgsmBKAlIKvli79IVAWQJxQ/exec";
-
-  // ✅ Helper for comment avatars/images rendered dynamically
-  function getMediaUrl(url: string | null | undefined): string {
-    if (!url || url === "icon.png" || url === "null" || url === "")
-      return "/assets/icon.png";
-    if (url.startsWith("data:")) return url;
-    if (url.startsWith("http://") || url.startsWith("https://")) return url;
-    if (url.startsWith("iVBOR") || url.startsWith("/9j/"))
-      return `data:image/png;base64,${url}`;
-    if (url.includes("googleusercontent.com") || url.includes("github.com"))
-      return url;
-    return `/assets/${url}`;
-  }
-
-  function isUserLoggedIn(): boolean {
-    return localStorage.getItem("userId") !== null;
-  }
-  function showLoginModal() {
-    const loginModal = document.getElementById("loginModal");
-    if (loginModal) loginModal.classList.add("active");
-    else window.dispatchEvent(new CustomEvent("show-login-modal"));
-  }
-  function getCurrentUser() {
-    return {
-      email: localStorage.getItem("userId") || "",
-      name: localStorage.getItem("currentUser") || "Anonymous",
-      avatar: localStorage.getItem("userAvatar") || "/assets/icon.png",
-    };
-  }
-  function getTimeAgo(date: Date): string {
-    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
-    if (seconds < 60) return "Just now";
-    if (seconds < 3600) return Math.floor(seconds / 60) + "m ago";
-    if (seconds < 86400) return Math.floor(seconds / 3600) + "h ago";
-    if (seconds < 604800) return Math.floor(seconds / 86400) + "d ago";
-    return Math.floor(seconds / 604800) + "w ago";
-  }
-
-  function initPostLogic() {
-    const postCards = document.querySelectorAll(".post-card");
-
-    postCards.forEach((card) => {
-      const cardEl = card as HTMLElement;
-      const postId = cardEl.getAttribute("data-id");
-      if (!postId) return;
-
-      const upBtn = card.querySelector(".upvote-btn") as HTMLButtonElement;
-      const downBtn = card.querySelector(".downvote-btn") as HTMLButtonElement;
-      const countDisplay = card.querySelector(".upvote-count") as HTMLElement;
-
-      if (upBtn && downBtn && countDisplay) {
-        let upvotes = parseInt(upBtn.getAttribute("data-count") || "0");
-        let isUpvoted = false,
-          isDownvoted = false,
-          isProcessing = false;
-
-        const updateUI = () => {
-          countDisplay.textContent =
-            upvotes >= 1000
-              ? (upvotes / 1000).toFixed(1) + "K"
-              : upvotes.toString();
-        };
-
-        const syncUpvoteToSheet = async (increment: boolean) => {
-          if (isProcessing) return;
-          isProcessing = true;
-          const user = getCurrentUser();
-          try {
-            const response = await fetch(SCRIPT_URL, {
-              method: "POST",
-              body: JSON.stringify({
-                action: "updateUpvote",
-                postId,
-                increment,
-                actorEmail: user.email,
-                actorName: user.name,
-              }),
-            });
-            const result = await response.json();
-            if (result.status === "success") {
-              upvotes = result.newCount;
-              updateUI();
-            } else {
-              isUpvoted = !isUpvoted;
-              upvotes = isUpvoted ? upvotes + 1 : upvotes - 1;
-              upBtn.classList.toggle("active", isUpvoted);
-              updateUI();
-            }
-          } catch (error) {
-            isUpvoted = !isUpvoted;
-            upvotes = isUpvoted ? upvotes + 1 : upvotes - 1;
-            upBtn.classList.toggle("active", isUpvoted);
-            updateUI();
-          } finally {
-            isProcessing = false;
-          }
-        };
-
-        upBtn.addEventListener("click", async (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          if (!isUserLoggedIn()) return showLoginModal();
-          if (isProcessing) return;
-          if (isUpvoted) {
-            isUpvoted = false;
-            upBtn.classList.remove("active");
-            await syncUpvoteToSheet(false);
-          } else {
-            isUpvoted = true;
-            upBtn.classList.add("active");
-            if (isDownvoted) {
-              isDownvoted = false;
-              downBtn.classList.remove("active");
-            }
-            await syncUpvoteToSheet(true);
-          }
-        });
-
-        downBtn.addEventListener("click", async (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          if (!isUserLoggedIn()) return showLoginModal();
-          if (isProcessing) return;
-          if (isDownvoted) {
-            isDownvoted = false;
-            downBtn.classList.remove("active");
-          } else {
-            isDownvoted = true;
-            downBtn.classList.add("active");
-            if (isUpvoted) {
-              isUpvoted = false;
-              upBtn.classList.remove("active");
-              await syncUpvoteToSheet(false);
-            }
-          }
-        });
-      }
-
-      // COMMENTS SYSTEM
-      const commentToggle = card.querySelector(
-        ".comment-toggle",
-      ) as HTMLButtonElement;
-      const commentsSection = card.querySelector(
-        ".comments-section",
-      ) as HTMLElement;
-      const commentInput = card.querySelector(
-        ".comment-input",
-      ) as HTMLInputElement;
-      const commentSubmit = card.querySelector(
-        ".comment-submit",
-      ) as HTMLButtonElement;
-      const commentCountDisplay = card.querySelector(
-        ".comment-toggle .action-count",
-      ) as HTMLElement;
-      const commentsList = card.querySelector(".comments-list") as HTMLElement;
-
-      async function loadComments() {
-        if (!postId || !commentsList) return;
-        const userEmail = localStorage.getItem("userId") || "";
-        try {
-          const response = await fetch(
-            `${SCRIPT_URL}?action=getComments&postId=${postId}&userEmail=${encodeURIComponent(userEmail)}`,
-          );
-          const comments = await response.json();
-          commentsList.innerHTML = "";
-          let totalCount = 0;
-          comments.forEach((comment: any) => {
-            totalCount += 1 + (comment.replies?.length || 0);
-            renderCommentWithReplies(comment, commentsList);
-          });
-          if (commentCountDisplay)
-            commentCountDisplay.textContent = totalCount.toString();
-        } catch (error) {
-          console.error("Error loading comments:", error);
-        }
-      }
-
-      function renderCommentWithReplies(comment: any, container: HTMLElement) {
-        const commentEl = createCommentElement(comment, null);
-        container.appendChild(commentEl);
-        if (comment.replies && comment.replies.length > 0) {
-          const repliesContainer = document.createElement("div");
-          repliesContainer.className = "comment-replies";
-          comment.replies.forEach((reply: any) => {
-            const replyEl = createCommentElement(reply, comment.id);
-            repliesContainer.appendChild(replyEl);
-          });
-          commentEl.appendChild(repliesContainer);
-        }
-      }
-
-      function createCommentElement(
-        comment: any,
-        parentID: string | null,
-      ): HTMLElement {
-        const div = document.createElement("div");
-        div.className = "comment-item";
-        div.setAttribute("data-comment-id", comment.id);
-
-        // ✅ FIX: Use getMediaUrl for dynamically loaded comment avatars
-        const avatarUrl = getMediaUrl(comment.userAvatar);
-        const timeStr = comment.timestamp
-          ? getTimeAgo(new Date(comment.timestamp))
-          : "Just now";
-        const likeClass = comment.userLiked ? "liked" : "";
-        const isReply = parentID !== null;
-
-        div.innerHTML = `
-          <img src="${avatarUrl}" class="comment-avatar" alt="${comment.userName}" />
-          <div class="comment-content">
-            <div class="comment-meta">
-              <span class="comment-name">${comment.userName}</span>
-              <span class="comment-dot">•</span>
-              <span class="comment-time">${timeStr}</span>
-            </div>
-            <p class="comment-text">${comment.text || ""}</p>
-            <div class="comment-actions">
-              ${!isReply ? '<button class="comment-action-btn reply-btn">Reply</button>' : ""}
-              <button class="comment-action-btn like-btn ${likeClass}" data-comment-id="${comment.id}">
-                <span class="like-icon">${comment.userLiked ? "❤️" : "🤍"}</span>
-                <span class="like-count">${comment.likes || 0}</span>
-              </button>
-            </div>
-            ${!isReply ? `<div class="reply-form hidden"><input type="text" class="reply-input" placeholder="Write a reply..." /><button class="reply-submit">Reply</button></div>` : ""}
-          </div>
-        `;
-
-        const likeBtn = div.querySelector(".like-btn");
-        likeBtn?.addEventListener("click", () =>
-          handleCommentLike(comment.id, likeBtn as HTMLButtonElement),
-        );
-
-        if (!isReply) {
-          const replyBtn = div.querySelector(".reply-btn");
-          const replyForm = div.querySelector(".reply-form");
-          const replyInput = div.querySelector(
-            ".reply-input",
-          ) as HTMLInputElement;
-          const replySubmit = div.querySelector(".reply-submit");
-
-          replyBtn?.addEventListener("click", () => {
-            if (!isUserLoggedIn()) return showLoginModal();
-            replyForm?.classList.toggle("hidden");
-            setTimeout(() => replyInput?.focus(), 100);
-          });
-
-          const submitReply = async () => {
-            if (!isUserLoggedIn()) return showLoginModal();
-            const text = replyInput.value.trim();
-            if (!text) return;
-            await postComment(text, comment.id);
-            replyInput.value = "";
-            replyForm?.classList.add("hidden");
-          };
-
-          replySubmit?.addEventListener("click", submitReply);
-          replyInput?.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              submitReply();
-            }
-          });
-        }
-        return div;
-      }
-
-      async function handleCommentLike(
-        commentId: string,
-        btn: HTMLButtonElement,
-      ) {
-        if (!isUserLoggedIn()) return showLoginModal();
-        const userEmail = localStorage.getItem("userId") || "";
-        const likeCountSpan = btn.querySelector(".like-count");
-        const likeIcon = btn.querySelector(".like-icon");
-        try {
-          const response = await fetch(SCRIPT_URL, {
-            method: "POST",
-            body: JSON.stringify({
-              action: "toggleCommentLike",
-              commentId,
-              userEmail,
-            }),
-          });
-          const result = await response.json();
-          if (result.status === "success") {
-            if (likeCountSpan)
-              likeCountSpan.textContent = result.likes.toString();
-            if (likeIcon) likeIcon.textContent = result.liked ? "❤️" : "🤍";
-            btn.classList.toggle("liked", result.liked);
-          }
-        } catch (error) {
-          console.error("Error toggling like:", error);
-        }
-      }
-
-      async function postComment(text: string, parentID: string | null = null) {
-        if (!isUserLoggedIn()) return showLoginModal();
-        const user = getCurrentUser();
-        try {
-          const response = await fetch(SCRIPT_URL, {
-            method: "POST",
-            body: JSON.stringify({
-              action: "addComment",
-              postId,
-              parentID: parentID || "",
-              userEmail: user.email,
-              userName: user.name,
-              userAvatar: user.avatar,
-              commentText: text,
-            }),
-          });
-          const result = await response.json();
-          if (result.status === "success") await loadComments();
-        } catch (error) {
-          console.error("Error posting comment:", error);
-          alert("Could not post comment. Please try again.");
-        }
-      }
-
-      loadComments();
-
-      if (commentToggle && commentsSection) {
-        commentToggle.addEventListener("click", () => {
-          if (!isUserLoggedIn()) return showLoginModal();
-          commentsSection.classList.toggle("hidden");
-        });
-      }
-
-      if (commentInput && commentSubmit) {
-        commentInput.addEventListener("input", () => {
-          commentSubmit.disabled = commentInput.value.trim().length === 0;
-        });
-        const handleMainSubmit = async () => {
-          const text = commentInput.value.trim();
-          if (!text) return;
-          await postComment(text, null);
-          commentInput.value = "";
-          commentSubmit.disabled = true;
-        };
-        commentSubmit.addEventListener("click", handleMainSubmit);
-        commentInput.addEventListener("keypress", (e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            handleMainSubmit();
-          }
-        });
-      }
-
-      // SHARE SYSTEM
-      const shareToggle = card.querySelector(
-        ".share-toggle",
-      ) as HTMLButtonElement;
-      const shareSection = card.querySelector(".share-section") as HTMLElement;
-      const shareToast = card.querySelector(".share-toast") as HTMLElement;
-      const shareCountDisplay = card.querySelector(
-        ".share-toggle .action-count",
-      ) as HTMLElement;
-
-      const syncShareCount = async () => {
-        try {
-          const response = await fetch(SCRIPT_URL, {
-            method: "POST",
-            body: JSON.stringify({
-              action: "updateShareCount",
-              postId,
-              actorEmail: localStorage.getItem("userId") || "",
-              actorName: localStorage.getItem("currentUser") || "Someone",
-            }),
-          });
-          const result = await response.json();
-          if (result.status === "success" && shareCountDisplay)
-            shareCountDisplay.textContent = result.newCount.toString();
-        } catch (error) {
-          console.error("Error syncing share count:", error);
-        }
-      };
-
-      if (shareToggle && shareSection) {
-        shareToggle.addEventListener("click", () => {
-          if (!isUserLoggedIn()) return showLoginModal();
-          shareSection.classList.toggle("hidden");
-        });
-      }
-
-      card.querySelectorAll(".share-option").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          if (!isUserLoggedIn()) return showLoginModal();
-          const action = btn.getAttribute("data-share");
-          const slug = cardEl.getAttribute("data-slug");
-          const heading = cardEl.getAttribute("data-heading") || "";
-          const url = `${window.location.origin}/question/${slug}`;
-          syncShareCount();
-          if (action === "copy") {
-            navigator.clipboard.writeText(url);
-            if (shareToast) {
-              shareToast.classList.remove("hidden");
-              setTimeout(() => shareToast.classList.add("hidden"), 2000);
-            }
-          } else if (action === "twitter") {
-            window.open(
-              `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(heading)}`,
-              "_blank",
-            );
-          }
-        });
-      });
-
-      // MORE OPTIONS
-      const moreBtn = card.querySelector(".more-btn") as HTMLButtonElement;
-      const moreSection = card.querySelector(".more-section") as HTMLElement;
-
-      if (moreBtn && moreSection) {
-        moreBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          document.querySelectorAll(".more-section").forEach((s) => {
-            if (s !== moreSection) s.classList.add("hidden");
-          });
-          moreSection.classList.toggle("hidden");
-        });
-      }
-
-      document.addEventListener("click", (e) => {
-        if (
-          moreSection &&
-          !moreSection.contains(e.target as Node) &&
-          e.target !== moreBtn
-        ) {
-          moreSection.classList.add("hidden");
-        }
-      });
-
-      card.querySelectorAll(".more-option").forEach((opt) => {
-        opt.addEventListener("click", () => {
-          const action = opt.getAttribute("data-action");
-          const slug = cardEl.getAttribute("data-slug");
-          const url = `${window.location.origin}/question/${slug}`;
-          if (
-            action === "save" ||
-            action === "hide" ||
-            action === "report" ||
-            action === "not-interested"
-          ) {
-            if (!isUserLoggedIn()) return showLoginModal();
-          }
-          if (action === "save") alert("Post saved!");
-          else if (action === "hide") cardEl.style.display = "none";
-          else if (action === "report") alert("Post reported. Thank you!");
-          else if (action === "not-interested") cardEl.style.display = "none";
-          else if (action === "copy-link") {
-            navigator.clipboard.writeText(url);
-            alert("Link copied!");
-          }
-          if (moreSection) moreSection.classList.add("hidden");
-        });
-      });
-
-      // EXPAND/COLLAPSE
-      const desc = card.querySelector(".description") as HTMLElement;
-      const readMore = card.querySelector(".read-more") as HTMLElement;
-      const readLess = card.querySelector(".read-less") as HTMLElement;
-
-      if (desc && readMore && readLess) {
-        desc.classList.add("collapsed");
-        readMore.addEventListener("click", () => {
-          desc.classList.remove("collapsed");
-          readMore.classList.add("hidden");
-          readLess.classList.remove("hidden");
-        });
-        readLess.addEventListener("click", () => {
-          desc.classList.add("collapsed");
-          readMore.classList.remove("hidden");
-          readLess.classList.add("hidden");
-        });
-      }
-    });
-  }
-
-  (window as any).initPostLogic = initPostLogic;
-  initPostLogic();
-  document.addEventListener("astro:after-swap", initPostLogic);
-
-  (window as any).toggleFollow = function (btn: HTMLButtonElement) {
-    if (!isUserLoggedIn()) return showLoginModal();
-    const author = btn.getAttribute("data-author") || "";
-    const user = getCurrentUser();
-
-    if (btn.classList.contains("following")) {
-      btn.classList.remove("following");
-      btn.innerText = "Follow";
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "unfollowUser",
-          followerEmail: user.email,
-          targetEmail: author,
-        }),
-      }).catch((err) => console.error("Unfollow error:", err));
-    } else {
-      btn.classList.add("following");
-      btn.innerText = "Following";
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "followUser",
-          followerEmail: user.email,
-          followerName: user.name,
-          targetEmail: author,
-        }),
-      }).catch((err) => console.error("Follow error:", err));
-    }
-  };
-
-  window.addEventListener("load", () => {
-    document.querySelectorAll(".follow-btn").forEach((btn) => {
-      const author = btn.getAttribute("data-author");
-      if (author) {
-        btn.classList.remove("following");
-        btn.textContent = "Follow";
-      }
-    });
-  });
-</script>
-
 <script is:inline>
   document.addEventListener("DOMContentLoaded", () => {
+    const currentUser = localStorage.getItem("currentUser") || "";
     const isGuest = !localStorage.getItem("userId");
-    if (isGuest) {
-      document.querySelectorAll(".post-card").forEach((card) => {
+
+    document.querySelectorAll(".post-card").forEach((card) => {
+      // ✅ Guest state
+      if (isGuest) {
         card.setAttribute("data-guest", "true");
-      });
-    }
+      }
+
+      // ✅ AUTHOR CHECK: Show delete button only to post owner
+      const authorName = card.getAttribute("data-author-name") || "";
+      if (currentUser && authorName && currentUser === authorName) {
+        const deleteBtn = card.querySelector(".delete-post-btn");
+        if (deleteBtn) deleteBtn.classList.remove("hidden");
+      }
+
+      // ✅ COMMENT INPUT: Replace guest prompt with real input if logged in
+      if (!isGuest) {
+        const addComment = card.querySelector(".add-comment");
+        if (addComment) {
+          addComment.innerHTML = `
+            <img src="/assets/icon.png" class="comment-avatar" alt="You" />
+            <input type="text" class="comment-input" placeholder="Add a comment..." />
+            <button class="comment-submit" type="button">Post</button>
+          `;
+        }
+      } else {
+        // Guest: attach login handler to prompt button
+        const loginBtn = card.querySelector(".guest-login-prompt");
+        if (loginBtn) {
+          loginBtn.addEventListener("click", () => {
+            const loginModal = document.getElementById("loginModal");
+            if (loginModal) loginModal.classList.add("active");
+            else window.dispatchEvent(new CustomEvent("show-login-modal"));
+          });
+        }
+      }
+    });
   });
 </script>
