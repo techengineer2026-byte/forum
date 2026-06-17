@@ -64,19 +64,29 @@ function getMediaUrl(url: string | null | undefined): string {
   if (url.startsWith("iVBOR") || url.startsWith("/9j/")) return `data:image/png;base64,${url}`;
   return `/assets/${url}`;
 }
-
 function getSeoImage(p: any): string {
+  // Check post images first
   let images: any = p?.images || [];
-  if (typeof images === "string") { try { images = JSON.parse(images); } catch { images = []; } }
+  if (typeof images === "string") {
+    try { images = JSON.parse(images); } catch { images = []; }
+  }
   if (Array.isArray(images) && images.length > 0 && images[0]) {
     const img = images[0];
-    if (img.startsWith("http")) return img;
-    return `/assets/icon.png`;
+    // Only return HTTP URLs (base64 can't be used in og:image)
+    if (typeof img === "string" && img.startsWith("http")) return img;
   }
-  if (p?.avatar && p.avatar !== "icon.png" && p.avatar !== "null" && p.avatar.length > 5) {
-    if (p.avatar.startsWith("http")) return p.avatar;
-    return `/assets/icon.png`;
+  
+  // Fallback to user avatar
+  if (
+    p?.avatar &&
+    p.avatar !== "icon.png" &&
+    p.avatar !== "null" &&
+    p.avatar.length > 5
+  ) {
+    if (typeof p.avatar === "string" && p.avatar.startsWith("http")) return p.avatar;
   }
+  
+  // No real image available — return default (Layout will hide it from previews)
   return "/assets/icon.png";
 }
 

@@ -1,9 +1,8 @@
 ---
-// src/layouts/Layout.astro
 export interface Props {
   title: string;
   description?: string;
-  image?: string; // New prop for social sharing images
+  image?: string;
   showFooter?: boolean;
 }
 
@@ -16,10 +15,13 @@ const {
   showFooter = true,
 } = Astro.props;
 
-// Construct the absolute URL for SEO
 const siteUrl = "https://forum.techengineer.co";
 const canonicalURL = new URL(Astro.url.pathname, siteUrl);
 const socialImageURL = new URL(image, siteUrl);
+
+// ✅ NEW: Detect if we have a real image or just the default icon
+const isDefaultImage = image === "/assets/icon.png" || !image;
+const twitterCardType = isDefaultImage ? "summary" : "summary_large_image";
 ---
 
 <!doctype html>
@@ -40,15 +42,22 @@ const socialImageURL = new URL(image, siteUrl);
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={socialImageURL} />
-
+    {
+      !isDefaultImage && (
+        <meta property="og:image" content={socialImageURL} />
+      )
+    }
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
+    <!-- Twitter -->
+    <meta property="twitter:card" content={twitterCardType} />
     <meta property="twitter:url" content={canonicalURL} />
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
-    <meta property="twitter:image" content={socialImageURL} />
-
+    {
+      !isDefaultImage && (
+        <meta property="twitter:image" content={socialImageURL} />
+      )
+    }
     <!-- Google Search Verification -->
     <meta
       name="google-site-verification"
