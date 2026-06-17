@@ -1,12 +1,11 @@
 name: Deploy to Firebase
 on:
-  # Rebuilds every day at midnight (free cron job!)
   schedule:
     - cron: '0 0 * * *'
-  # Also rebuilds when you push code
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build_and_deploy:
@@ -18,9 +17,7 @@ jobs:
           node-version: 22
       - run: npm ci
       - run: npm run build
-      - uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' # Setup in Firebase CI
-          projectId: forums-techengineer
-          channelId: live
+      
+      # Install Firebase CLI and deploy using your token
+      - run: npm install -g firebase-tools
+      - run: firebase deploy --only hosting --token ${{ secrets.FIREBASE_TOKEN }}
