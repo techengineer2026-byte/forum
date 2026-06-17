@@ -279,6 +279,53 @@ const filters = [
     max-width: 350px;
     line-height: 1.4;
   }
+  /* ===== MOBILE FIX ===== */
+  @media (max-width: 750px) {
+    .notifications-layout {
+      flex-direction: column;
+      gap: 0;
+      padding: 15px 0;
+    }
+    .filters-sidebar {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 0 15px;
+    }
+    .sticky-wrapper {
+      position: static;
+    }
+    .filters-title {
+      display: none; /* Hide title on mobile */
+    }
+    .filters-list {
+      display: flex;
+      gap: 8px;
+      white-space: nowrap;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #eee;
+    }
+    .filters-list li {
+      margin-bottom: 0;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .filters-list li.active {
+      background-color: #b92b27;
+      color: white;
+      border-color: #b92b27;
+    }
+    .notifications-main {
+      max-width: 100%;
+      padding: 0 15px;
+    }
+    .notif-header {
+      padding-top: 15px;
+    }
+  }
 </style>
 
 <script define:vars={{ activeType }}>
