@@ -30,15 +30,30 @@ export async function getStaticPaths() {
         // Strip base64 from images (prevents 431 error)
         if (safePost.images) {
           try {
-            let imgs = typeof safePost.images === "string" ? JSON.parse(safePost.images) : safePost.images;
+            let imgs =
+              typeof safePost.images === "string"
+                ? JSON.parse(safePost.images)
+                : safePost.images;
             if (Array.isArray(imgs)) {
-              safePost.images = imgs.filter((img: any) => typeof img === "string" && !img.startsWith("iVBOR") && !img.startsWith("/9j/"));
+              safePost.images = imgs.filter(
+                (img: any) =>
+                  typeof img === "string" &&
+                  !img.startsWith("iVBOR") &&
+                  !img.startsWith("/9j/"),
+              );
             }
-          } catch { safePost.images = []; }
+          } catch {
+            safePost.images = [];
+          }
         }
 
         // Strip base64 from avatar
-        if (safePost.avatar && typeof safePost.avatar === "string" && (safePost.avatar.startsWith("iVBOR") || safePost.avatar.startsWith("/9j/"))) {
+        if (
+          safePost.avatar &&
+          typeof safePost.avatar === "string" &&
+          (safePost.avatar.startsWith("iVBOR") ||
+            safePost.avatar.startsWith("/9j/"))
+        ) {
           safePost.avatar = "";
         }
 
@@ -54,63 +69,119 @@ const { post }: { post: any } = Astro.props;
 
 // ===== SEO & MEDIA HELPERS (Keep your existing code below) =====
 function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, "").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&").replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/\s+/g, " ").trim();
+  return html
+    .replace(/<[^>]*>/g, "")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function getMediaUrl(url: string | null | undefined): string {
-  if (!url || url === "icon.png" || url === "null" || url === "") return "/assets/icon.png";
+  if (!url || url === "icon.png" || url === "null" || url === "")
+    return "/assets/icon.png";
   if (url.startsWith("data:")) return url;
   if (url.startsWith("http://") || url.startsWith("https://")) return url;
-  if (url.startsWith("iVBOR") || url.startsWith("/9j/")) return `data:image/png;base64,${url}`;
+  if (url.startsWith("iVBOR") || url.startsWith("/9j/"))
+    return `data:image/png;base64,${url}`;
   return `/assets/${url}`;
 }
-function getSeoImage(p: any): string {
+function getSeoImage(p: any): { url: string; isSquare: boolean } {
   // Check post images first
   let images: any = p?.images || [];
   if (typeof images === "string") {
-    try { images = JSON.parse(images); } catch { images = []; }
+    try {
+      images = JSON.parse(images);
+    } catch {
+      images = [];
+    }
   }
   if (Array.isArray(images) && images.length > 0 && images[0]) {
     const img = images[0];
-    // Only return HTTP URLs (base64 can't be used in og:image)
-    if (typeof img === "string" && img.startsWith("http")) return img;
+    if (typeof img === "string" && img.startsWith("http")) {
+      return { url: img, isSquare: false }; // Post images are usually landscape
+    }
   }
-  
-  // Fallback to user avatar
+
+  // Fallback to user avatar — resize Google avatars from 96px to 800px
   if (
     p?.avatar &&
     p.avatar !== "icon.png" &&
     p.avatar !== "null" &&
     p.avatar.length > 5
   ) {
-    if (typeof p.avatar === "string" && p.avatar.startsWith("http")) return p.avatar;
+    if (typeof p.avatar === "string" && p.avatar.startsWith("http")) {
+      // ✅ Resize Google avatar from =s96-c to =s800-c
+      const resizedAvatar = p.avatar.replace(/=s\d+-c$/, "=s800-c");
+      return { url: resizedAvatar, isSquare: true }; // Avatars are square
+    }
   }
-  
-  // No real image available — return default (Layout will hide it from previews)
-  return "/assets/icon.png";
-}
 
+  return { url: "/assets/icon.png", isSquare: true };
+}
 function parseUrlImages(p: any): string[] {
   let imagesRaw: any = p?.images || [];
   if (typeof imagesRaw === "string") {
-    try { imagesRaw = JSON.parse(imagesRaw); } catch { imagesRaw = imagesRaw.split(",").filter((i: string) => i.trim() !== ""); }
+    try {
+      imagesRaw = JSON.parse(imagesRaw);
+    } catch {
+      imagesRaw = imagesRaw.split(",").filter((i: string) => i.trim() !== "");
+    }
   }
   return [...new Set(imagesRaw as any[])].filter(
-    (img: any) => img && img !== "null" && typeof img === "string" && (img.startsWith("http://") || img.startsWith("https://")),
+    (img: any) =>
+      img &&
+      img !== "null" &&
+      typeof img === "string" &&
+      (img.startsWith("http://") || img.startsWith("https://")),
   ) as string[];
 }
 
 const postImages = parseUrlImages(post);
-const seoTitle = post ? `${post.heading} | Tech Engineer Forum` : "Question | Tech Engineer Forum";
+const seoTitle = post
+  ? `${post.heading} | Tech Engineer Forum`
+  : "Question | Tech Engineer Forum";
 const rawDescription = post?.description || post?.heading || "";
-const seoDescription = stripHtml(rawDescription).substring(0, 160) || "Ask and answer tech questions on Tech Engineer Forum.";
-const seoImage = getSeoImage(post);
-const jsonLd = post ? { "@context": "https://schema.org", "@type": "QAPage", mainEntity: { "@type": "Question", name: post.heading, text: stripHtml(post.description || ""), author: { "@type": "Person", name: post.name || "Anonymous" }, dateCreated: post.updated_time || undefined, answerCount: post.comments || 0, upvoteCount: post.upvotes || 0 } } : null;
-const hasValidAvatar = post?.avatar && post.avatar !== "icon.png" && post.avatar !== "null" && post.avatar !== "";
+let seoDescription = stripHtml(rawDescription).substring(0, 160);
+const { url: seoImageUrl, isSquare: seoImageIsSquare } = getSeoImage(post);
+if (seoDescription.length < 80) {
+  const headingText = post?.heading ? `${post.heading} - ` : "";
+  seoDescription = `${headingText}Ask and answer tech questions on Tech Engineer Forum. Join the community of developers.`;
+  seoDescription = seoDescription.substring(0, 160);
+}
+
+const jsonLd = post
+  ? {
+      "@context": "https://schema.org",
+      "@type": "QAPage",
+      mainEntity: {
+        "@type": "Question",
+        name: post.heading,
+        text: stripHtml(post.description || ""),
+        author: { "@type": "Person", name: post.name || "Anonymous" },
+        dateCreated: post.updated_time || undefined,
+        answerCount: post.comments || 0,
+        upvoteCount: post.upvotes || 0,
+      },
+    }
+  : null;
+const hasValidAvatar =
+  post?.avatar &&
+  post.avatar !== "icon.png" &&
+  post.avatar !== "null" &&
+  post.avatar !== "";
 const avatarLetter = (post?.name || "U").charAt(0).toUpperCase();
 ---
 
-<Layout title={seoTitle} description={seoDescription} image={seoImage}>
+<Layout
+  title={seoTitle}
+  description={seoDescription}
+  image={seoImageUrl}
+  imageIsSquare={seoImageIsSquare}
+>
   <!-- JSON-LD for Google Rich Results -->
   {
     jsonLd && (
