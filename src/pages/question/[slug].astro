@@ -90,38 +90,55 @@ function getMediaUrl(url: string | null | undefined): string {
   return `/assets/${url}`;
 }
 function getSeoImage(p: any): { url: string; isSquare: boolean } {
-  // Check post images first
+  // FIRST: Check post images - but be more thorough!
   let images: any = p?.images || [];
   if (typeof images === "string") {
     try {
       images = JSON.parse(images);
     } catch {
-      images = [];
-    }
-  }
-  if (Array.isArray(images) && images.length > 0 && images[0]) {
-    const img = images[0];
-    if (typeof img === "string" && img.startsWith("http")) {
-      return { url: img, isSquare: false }; // Post images are usually landscape
+      // Try splitting by comma if JSON parse fails
+      images = images.split(",").filter((i: string) => i.trim() !== "");
     }
   }
 
-  // Fallback to user avatar — resize Google avatars from 96px to 800px
+  // Filter images properly
+  if (Array.isArray(images)) {
+    const validImages = images.filter(
+      (img: any) =>
+        img &&
+        typeof img === "string" &&
+        img.length > 10 &&
+        (img.startsWith("http://") ||
+          img.startsWith("https://") ||
+          img.startsWith("data:")),
+    );
+
+    if (validImages.length > 0) {
+      const firstImage = validImages[0];
+      if (typeof firstImage === "string" && firstImage.startsWith("http")) {
+        // ✅ POST IMAGE FOUND - RETURN IT
+        return { url: firstImage, isSquare: false }; // Assuming post images are landscape
+      }
+    }
+  }
+
+  // SECOND: Only if NO post images, use avatar
   if (
     p?.avatar &&
     p.avatar !== "icon.png" &&
     p.avatar !== "null" &&
-    p.avatar.length > 5
+    p.avatar.length > 5 &&
+    typeof p.avatar === "string" &&
+    p.avatar.startsWith("http")
   ) {
-    if (typeof p.avatar === "string" && p.avatar.startsWith("http")) {
-      // ✅ Resize Google avatar from =s96-c to =s800-c
-      const resizedAvatar = p.avatar.replace(/=s\d+-c$/, "=s800-c");
-      return { url: resizedAvatar, isSquare: true }; // Avatars are square
-    }
+    const resizedAvatar = p.avatar.replace(/=s\d+-c$/, "=s800-c");
+    return { url: resizedAvatar, isSquare: true };
   }
 
-  return { url: "/assets/icon.png", isSquare: true };
+  // THIRD: Fallback to default icon
+  return { url: "/assets/NoImage.png", isSquare: false };
 }
+
 function parseUrlImages(p: any): string[] {
   let imagesRaw: any = p?.images || [];
   if (typeof imagesRaw === "string") {
