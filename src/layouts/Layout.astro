@@ -358,31 +358,74 @@ const twitterCardType = isDefaultImage
       window.addEventListener("storage", (window as any).syncLoginState);
     </script>
 
+    <!-- REPLACE BOTH OLD SCRIPTS WITH THIS ONE -->
     <script is:inline>
       document.addEventListener("DOMContentLoaded", function () {
         var checkFirebase = setInterval(function () {
           if (typeof firebase !== "undefined" && firebase.auth) {
             clearInterval(checkFirebase);
+
+            var GOOGLE_SHEET_URL =
+              "https://script.google.com/macros/s/AKfycbwfpjk3Y2gzDt0T_JS7c2OhQajr_UildmeqEgQVPQxIFAjYnYG8alaQF0XmGjeI-_uzkQ/exec";
+
             firebase.auth().onAuthStateChanged(function (user) {
+              // If Firebase says logged in, but localStorage is empty (e.g., user cleared cache)
               if (user && !localStorage.getItem("userId")) {
-                localStorage.setItem("userId", user.email || "");
-                localStorage.setItem("currentUser", user.displayName || "User");
-                if (user.photoURL)
-                  localStorage.setItem("userAvatar", user.photoURL);
+                var email = user.email || user.uid + "@social-login";
+                var name = user.displayName || "";
+                var avatar = user.photoURL || "";
+
+                // Call the backend to properly restore their onboarding state
+                fetch(GOOGLE_SHEET_URL, {
+                  method: "POST",
+                  body: JSON.stringify({
+                    action: "loginUser",
+                    email: email,
+                    name: name,
+                    avatar: avatar,
+                    authProvider: "Session",
+                  }),
+                })
+                  .then(function (res) {
+                    return res.json();
+                  })
+                  .then(function (data) {
+                    if (data.status === "success") {
+                      var dbUser = data.user;
+                      localStorage.setItem("userId", dbUser.id);
+                      localStorage.setItem("userEmail", dbUser.email);
+                      localStorage.setItem("currentUser", dbUser.name);
+                      localStorage.setItem("username", dbUser.username);
+                      localStorage.setItem("userAvatar", dbUser.avatar);
+                      localStorage.setItem(
+                        "isProfileComplete",
+                        String(data.isProfileComplete),
+                      );
+
+                      // Reload so the Header reads the new localStorage and skips the setup modal
+                      window.location.reload();
+                    }
+                  });
               }
-              if (typeof window.syncLoginState === "function")
-                window.syncLoginState();
             });
           }
         }, 200);
       });
 
+      // Updated Logout to clear the new localStorage items
       window.logout = function () {
         if (typeof firebase !== "undefined" && firebase.auth)
           firebase.auth().signOut();
+
         localStorage.removeItem("userId");
+        localStorage.removeItem("userEmail");
         localStorage.removeItem("currentUser");
+        localStorage.removeItem("username");
+        localStorage.removeItem("userInterests");
+        localStorage.removeItem("userRole");
         localStorage.removeItem("userAvatar");
+        localStorage.removeItem("isProfileComplete");
+
         window.location.reload();
       };
     </script>

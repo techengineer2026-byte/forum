@@ -166,7 +166,7 @@ const { isLoggedIn = false } = Astro.props;
             <a href="/profile" class="dropdown-view-profile">View Profile</a>
           </div>
           <div class="dropdown-divider"></div>
-          <a href="/user" class="dropdown-item">
+          <a href="/profile" class="dropdown-item">
             <svg
               width="18"
               height="18"
@@ -505,23 +505,35 @@ const { isLoggedIn = false } = Astro.props;
 </div>
 
 <!-- PROFILE SETUP MODAL -->
+<!-- PROFILE SETUP MODAL -->
 <div id="profileSetupModal" class="login-modal">
   <div class="modal-content">
-    <h3>Set up your profile</h3>
+    <h3>🎉 Welcome to Tech Engineer</h3>
     <p>Tell us a bit about yourself</p>
     <input type="text" id="setupName" placeholder="Your display name..." />
-    <input
-      type="text"
-      id="setupRole"
-      placeholder="Your role (e.g. Full-Stack Developer)"
-      style="margin-top: 10px;"
-    />
+
+    <div class="role-selection">
+      <label>Choose your role:</label>
+      <div class="role-options">
+        <button class="role-chip" data-role="Student">Student</button>
+        <button class="role-chip" data-role="Developer">Developer</button>
+        <button class="role-chip" data-role="Teacher">Teacher</button>
+        <button class="role-chip" data-role="Professional">Professional</button>
+      </div>
+    </div>
+
+    <textarea
+      id="setupBio"
+      placeholder="Write a short bio about yourself..."
+      rows="3"
+      style="margin-top: 10px; width: 100%; padding: 12px 14px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 14px; resize: vertical; box-sizing: border-box; outline: none; font-family: inherit;"
+    ></textarea>
+
     <button id="saveProfileBtn" class="login-submit" style="margin-top: 15px;"
       >Save Profile</button
     >
   </div>
 </div>
-
 <!-- WELCOME MODAL -->
 <div id="welcomeModal" class="login-modal">
   <div class="modal-content">
@@ -1423,6 +1435,44 @@ const { isLoggedIn = false } = Astro.props;
       padding: 8px 10px;
     }
   }
+  /* ===== ROLE CHIPS ===== */
+  .role-selection {
+    text-align: left;
+    margin-top: 16px;
+  }
+  .role-selection label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .role-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .role-chip {
+    padding: 8px 16px;
+    border: 1px solid #dee0e1;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    background: white;
+    color: #636466;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+  .role-chip:hover {
+    border-color: #2e69ff;
+    color: #2e69ff;
+  }
+  .role-chip.active {
+    background: #eef3ff;
+    border-color: #2e69ff;
+    color: #1f57f0;
+    font-weight: bold;
+  }
 </style>
 
 <script>
@@ -1436,69 +1486,36 @@ const { isLoggedIn = false } = Astro.props;
   // ====== ELEMENTS ======
   const askBtn = document.getElementById("askBtn") as HTMLButtonElement;
   const loginModal = document.getElementById("loginModal") as HTMLDivElement;
-  const interestModal = document.getElementById(
-    "interestModal",
-  ) as HTMLDivElement;
+  const interestModal = document.getElementById("interestModal") as HTMLDivElement;
   const closeModal = document.getElementById("closeModal") as HTMLButtonElement;
-  const saveInterestsBtn = document.getElementById(
-    "saveInterestsBtn",
-  ) as HTMLButtonElement;
+  const saveInterestsBtn = document.getElementById("saveInterestsBtn") as HTMLButtonElement;
   const guestIcon = document.getElementById("guest-icon") as HTMLDivElement;
   const userAvatar = document.getElementById("user-avatar") as HTMLImageElement;
-  const questionModal = document.getElementById(
-    "question-modal",
-  ) as HTMLDialogElement;
-  const mobileSearchBtn = document.getElementById(
-    "mobileSearchBtn",
-  ) as HTMLButtonElement;
-  const mobileSearchBar = document.getElementById(
-    "mobileSearchBar",
-  ) as HTMLDivElement;
-  const mobileSearchClose = document.getElementById(
-    "mobileSearchClose",
-  ) as HTMLButtonElement;
+  const questionModal = document.getElementById("question-modal") as HTMLDialogElement;
+  const mobileSearchBtn = document.getElementById("mobileSearchBtn") as HTMLButtonElement;
+  const mobileSearchBar = document.getElementById("mobileSearchBar") as HTMLDivElement;
+  const mobileSearchClose = document.getElementById("mobileSearchClose") as HTMLButtonElement;
   const menuToggle = document.getElementById("menuToggle") as HTMLButtonElement;
   const mobileMenu = document.getElementById("mobileMenu") as HTMLDivElement;
-  const mobileOverlay = document.getElementById(
-    "mobileOverlay",
-  ) as HTMLDivElement;
-  const closeMenuBtn = document.getElementById(
-    "closeMenu",
-  ) as HTMLButtonElement;
-  const profileTrigger = document.getElementById(
-    "profile-trigger",
-  ) as HTMLDivElement;
-  const userDropdown = document.getElementById(
-    "userDropdown",
-  ) as HTMLDivElement;
+  const mobileOverlay = document.getElementById("mobileOverlay") as HTMLDivElement;
+  const closeMenuBtn = document.getElementById("closeMenu") as HTMLButtonElement;
+  const profileTrigger = document.getElementById("profile-trigger") as HTMLDivElement;
+  const userDropdown = document.getElementById("userDropdown") as HTMLDivElement;
   const signOutBtn = document.getElementById("signOutBtn") as HTMLButtonElement;
-  const mobileSignOut = document.getElementById(
-    "mobileSignOut",
-  ) as HTMLButtonElement;
-  const displayUserName = document.getElementById(
-    "displayUserName",
-  ) as HTMLElement;
-  const mobileDisplayName = document.getElementById(
-    "mobile-display-name",
-  ) as HTMLElement;
-  const mobileMenuAvatar = document.getElementById(
-    "mobile-menu-avatar",
-  ) as HTMLImageElement;
+  const mobileSignOut = document.getElementById("mobileSignOut") as HTMLButtonElement;
+  const displayUserName = document.getElementById("displayUserName") as HTMLElement;
+  const mobileDisplayName = document.getElementById("mobile-display-name") as HTMLElement;
+  const mobileMenuAvatar = document.getElementById("mobile-menu-avatar") as HTMLImageElement;
+
+  let currentAuthEmail = "";
+  let selectedRole = "";
 
   // ====== TOPICS ======
   const availableTopics = [
-    "Full-Stack Development",
-    "JavaScript & Frameworks",
-    "Python & Data Science",
-    "Web Performance & SEO",
-    "DevOps & Cloud (AWS)",
-    "Cybersecurity & InfoSec",
-    "Open Source Projects",
-    "Mobile App Dev",
-    "Bug Fixes & Debugging",
-    "UI/UX Design",
-    "AI & Machine Learning",
-    "Data Structures & Algorithms",
+    "Full-Stack Development", "JavaScript & Frameworks", "Python & Data Science",
+    "Web Performance & SEO", "DevOps & Cloud (AWS)", "Cybersecurity & InfoSec",
+    "Open Source Projects", "Mobile App Dev", "Bug Fixes & Debugging",
+    "UI/UX Design", "AI & Machine Learning", "Data Structures & Algorithms",
   ];
   let selectedTopics: string[] = [];
   const topicGrid = document.getElementById("topicGrid");
@@ -1510,43 +1527,45 @@ const { isLoggedIn = false } = Astro.props;
       chip.classList.toggle("active");
       if (chip.classList.contains("active")) selectedTopics.push(topic);
       else selectedTopics = selectedTopics.filter((t) => t !== topic);
-      if (saveInterestsBtn)
-        saveInterestsBtn.disabled = selectedTopics.length === 0;
+      if (saveInterestsBtn) saveInterestsBtn.disabled = selectedTopics.length === 0;
     });
     topicGrid?.appendChild(chip);
   });
 
-  // ====== SYNC PROFILE TO ALL LOCATIONS ======
+  // ====== ROLE CHIPS LOGIC ======
+  document.querySelectorAll(".role-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll(".role-chip").forEach((c) => c.classList.remove("active"));
+      chip.classList.add("active");
+      selectedRole = (chip as HTMLElement).dataset.role || "";
+    });
+  });
+
+  // ====== SYNC PROFILE ======
   function syncProfile(name: string, avatar: string | null) {
-    const finalAvatar =
-      avatar && avatar !== "null" && avatar !== "icon.png"
-        ? avatar
-        : "/assets/icon.png";
-
-    // Desktop Header
+    const finalAvatar = avatar && avatar !== "null" && avatar !== "icon.png" ? avatar : "/assets/icon.png";
     if (displayUserName) displayUserName.innerText = name;
-    if (userAvatar)
-      userAvatar.src =
-        finalAvatar.startsWith("http") || finalAvatar.startsWith("data:")
-          ? finalAvatar
-          : `/assets/${finalAvatar}`;
-
-    // Mobile Menu
+    if (userAvatar) userAvatar.src = finalAvatar.startsWith("http") || finalAvatar.startsWith("data:") ? finalAvatar : `/assets/${finalAvatar}`;
     if (mobileDisplayName) mobileDisplayName.innerText = name;
-    if (mobileMenuAvatar)
-      mobileMenuAvatar.src =
-        finalAvatar.startsWith("http") || finalAvatar.startsWith("data:")
-          ? finalAvatar
-          : `/assets/${finalAvatar}`;
+    if (mobileMenuAvatar) mobileMenuAvatar.src = finalAvatar.startsWith("http") || finalAvatar.startsWith("data:") ? finalAvatar : `/assets/${finalAvatar}`;
   }
 
   // ====== CHECK EXISTING LOGIN ======
   function checkExistingLogin() {
     const savedId = localStorage.getItem("userId");
+    const savedEmail = localStorage.getItem("userEmail"); // ✅ FIX: Get email
     const savedName = localStorage.getItem("currentUser");
     const savedAvatar = localStorage.getItem("userAvatar");
+    const isProfileComplete = localStorage.getItem("isProfileComplete") === "true";
 
     if (savedId && savedName) {
+      if (!isProfileComplete) {
+        currentAuthEmail = savedEmail || savedId; // ✅ FIX: Use email, not UUID
+        (document.getElementById("setupName") as HTMLInputElement).value = savedName;
+        document.getElementById("profileSetupModal")?.classList.add("active");
+        return;
+      }
+
       askBtn?.setAttribute("data-logged-in", "true");
       guestIcon?.classList.add("hidden");
       userAvatar?.classList.remove("hidden");
@@ -1556,34 +1575,15 @@ const { isLoggedIn = false } = Astro.props;
   checkExistingLogin();
 
   // ====== MOBILE MENU ======
-  function openMobileMenu() {
-    mobileMenu?.classList.add("active");
-    mobileOverlay?.classList.add("active");
-    menuToggle?.classList.add("active");
-    document.body.style.overflow = "hidden";
-  }
-  function closeMobileMenu() {
-    mobileMenu?.classList.remove("active");
-    mobileOverlay?.classList.remove("active");
-    menuToggle?.classList.remove("active");
-    document.body.style.overflow = "";
-  }
+  function openMobileMenu() { mobileMenu?.classList.add("active"); mobileOverlay?.classList.add("active"); menuToggle?.classList.add("active"); document.body.style.overflow = "hidden"; }
+  function closeMobileMenu() { mobileMenu?.classList.remove("active"); mobileOverlay?.classList.remove("active"); menuToggle?.classList.remove("active"); document.body.style.overflow = ""; }
   menuToggle?.addEventListener("click", openMobileMenu);
   closeMenuBtn?.addEventListener("click", closeMobileMenu);
   mobileOverlay?.addEventListener("click", closeMobileMenu);
 
   // ====== MOBILE SEARCH ======
-  mobileSearchBtn?.addEventListener("click", () => {
-    mobileSearchBar?.classList.add("active");
-    setTimeout(() => {
-      (
-        document.getElementById("mobileSearchInput") as HTMLInputElement
-      )?.focus();
-    }, 100);
-  });
-  mobileSearchClose?.addEventListener("click", () => {
-    mobileSearchBar?.classList.remove("active");
-  });
+  mobileSearchBtn?.addEventListener("click", () => { mobileSearchBar?.classList.add("active"); setTimeout(() => { (document.getElementById("mobileSearchInput") as HTMLInputElement)?.focus(); }, 100); });
+  mobileSearchClose?.addEventListener("click", () => { mobileSearchBar?.classList.remove("active"); });
 
   // ====== ASK BUTTON ======
   askBtn?.addEventListener("click", () => {
@@ -1594,42 +1594,23 @@ const { isLoggedIn = false } = Astro.props;
 
   // ====== NOTIFICATION COUNT ======
   async function checkNotifications() {
-    const email = localStorage.getItem("userId");
+    const email = localStorage.getItem("userEmail"); // ✅ FIX: Use email for backend query
     if (!email) return;
     try {
-      const res = await fetch(
-        `${GOOGLE_SHEET_URL}?action=getNotifications&email=${encodeURIComponent(email)}&filter=unread`,
-      );
+      const res = await fetch(`${GOOGLE_SHEET_URL}?action=getNotifications&email=${encodeURIComponent(email)}&filter=unread`);
       const notifs = await res.json();
       const count = notifs.length;
       const badges = document.querySelectorAll(".notif-badge");
-      badges.forEach((badge) => {
-        if (count > 0) {
-          badge.textContent = count > 9 ? "9+" : String(count);
-          badge.classList.add("active");
-        } else badge.classList.remove("active");
-      });
-    } catch (e) {
-      console.warn("Notif check failed");
-    }
+      badges.forEach((badge) => { if (count > 0) { badge.textContent = count > 9 ? "9+" : String(count); badge.classList.add("active"); } else badge.classList.remove("active"); });
+    } catch (e) { console.warn("Notif check failed"); }
   }
   setInterval(checkNotifications, 60000);
   checkNotifications();
 
   // ====== FIREBASE LOGIN ======
   const firebase = (window as any).firebase;
-  let currentAuthEmail = "";
-  let currentAuthPhoto = "";
-
   if (firebase) {
-    firebase.initializeApp({
-      apiKey: "AIzaSyBNiy6oIGpqDhNKP345-QrhxQ9jKEvTMZI",
-      authDomain: "forums-techengineer.firebaseapp.com",
-      projectId: "forums-techengineer",
-      storageBucket: "forums-techengineer.firebasestorage.app",
-      messagingSenderId: "283633017019",
-      appId: "1:283633017019:web:a8bd10bd207e753543899e",
-    });
+    firebase.initializeApp({ apiKey: "AIzaSyBNiy6oIGpqDhNKP345-QrhxQ9jKEvTMZI", authDomain: "forums-techengineer.firebaseapp.com", projectId: "forums-techengineer", storageBucket: "forums-techengineer.firebasestorage.app", messagingSenderId: "283633017019", appId: "1:283633017019:web:a8bd10bd207e753543899e" });
     const auth = firebase.auth();
 
     async function handleSocialLogin(provider: any) {
@@ -1638,163 +1619,99 @@ const { isLoggedIn = false } = Astro.props;
         const user = result.user;
         if (user) {
           const email = user.email || `${user.uid}@social-login`;
-          const checkResponse = await fetch(
-            `${GOOGLE_SHEET_URL}?action=checkUser&email=${encodeURIComponent(email)}`,
-          );
-          const userData = await checkResponse.json();
-          if (userData.isNew) {
-            currentAuthEmail = email;
-            currentAuthPhoto = user.photoURL || "";
-            (document.getElementById("setupName") as HTMLInputElement).value =
-              user.displayName || "";
+          const name = user.displayName || "";
+          const avatar = user.photoURL || "";
+          const providerMap: Record<string, string> = { "google.com": "Google", "github.com": "GitHub", "twitter.com": "Twitter", "microsoft.com": "Microsoft" };
+          const authProvider = providerMap[provider.providerId] || "Social";
+
+          const response = await fetch(GOOGLE_SHEET_URL, { method: "POST", body: JSON.stringify({ action: "loginUser", email, name, avatar, authProvider }) });
+          const data = await response.json();
+
+          if (data.status === "success") {
+            const dbUser = data.user;
+            currentAuthEmail = dbUser.email;
+
+            localStorage.setItem("userId", dbUser.id); 
+            localStorage.setItem("userEmail", dbUser.email); 
+            localStorage.setItem("currentUser", dbUser.name);
+            localStorage.setItem("username", dbUser.username);
+            localStorage.setItem("userAvatar", dbUser.avatar);
+            localStorage.setItem("isProfileComplete", String(data.isProfileComplete)); // ✅ FIX: Save completion status
+
             loginModal?.classList.remove("active");
-            document
-              .getElementById("profileSetupModal")
-              ?.classList.add("active");
-          } else {
-            localStorage.setItem("userId", email);
-            localStorage.setItem(
-              "currentUser",
-              userData.name || user.displayName,
-            );
-            localStorage.setItem("userRole", userData.role || "Tech Engineer");
-            localStorage.setItem("userInterests", userData.interests || "");
-            if (userData.avatar || user.photoURL)
-              localStorage.setItem(
-                "userAvatar",
-                userData.avatar || user.photoURL,
-              );
-            loginModal?.classList.remove("active");
-            syncProfile(
-              userData.name || user.displayName,
-              userData.avatar || user.photoURL,
-            );
-            askBtn?.setAttribute("data-logged-in", "true");
-            guestIcon?.classList.add("hidden");
-            userAvatar?.classList.remove("hidden");
-            checkNotifications();
+
+            if (!data.isProfileComplete) {
+              (document.getElementById("setupName") as HTMLInputElement).value = dbUser.name;
+              document.getElementById("profileSetupModal")?.classList.add("active");
+            } else {
+              syncProfile(dbUser.name, dbUser.avatar);
+              askBtn?.setAttribute("data-logged-in", "true");
+              guestIcon?.classList.add("hidden");
+              userAvatar?.classList.remove("hidden");
+              checkNotifications();
+            }
           }
         }
-      } catch (error: any) {
-        if (error.code !== "auth/popup-closed-by-user")
-          console.error("Login Error:", error);
-      }
+      } catch (error: any) { if (error.code !== "auth/popup-closed-by-user") console.error("Login Error:", error); }
     }
-
-    document
-      .getElementById("googleLoginBtn")
-      ?.addEventListener("click", () =>
-        handleSocialLogin(new firebase.auth.GoogleAuthProvider()),
-      );
-    document
-      .getElementById("githubLoginBtn")
-      ?.addEventListener("click", () =>
-        handleSocialLogin(new firebase.auth.GithubAuthProvider()),
-      );
-    document
-      .getElementById("twitterLoginBtn")
-      ?.addEventListener("click", () => {
-        handleSocialLogin(new firebase.auth.TwitterAuthProvider());
-      });
-
-    document
-      .getElementById("microsoftLoginBtn")
-      ?.addEventListener("click", () => {
-        handleSocialLogin(new firebase.auth.OAuthProvider("microsoft.com"));
-      });
+    document.getElementById("googleLoginBtn")?.addEventListener("click", () => handleSocialLogin(new firebase.auth.GoogleAuthProvider()));
+    document.getElementById("githubLoginBtn")?.addEventListener("click", () => handleSocialLogin(new firebase.auth.GithubAuthProvider()));
+    document.getElementById("twitterLoginBtn")?.addEventListener("click", () => handleSocialLogin(new firebase.auth.TwitterAuthProvider()));
+    document.getElementById("microsoftLoginBtn")?.addEventListener("click", () => handleSocialLogin(new firebase.auth.OAuthProvider("microsoft.com")));
   }
 
   // ====== PROFILE SETUP ======
-  document
-    .getElementById("saveProfileBtn")
-    ?.addEventListener("click", async () => {
-      const btn = document.getElementById(
-        "saveProfileBtn",
-      ) as HTMLButtonElement;
-      const name = (
-        document.getElementById("setupName") as HTMLInputElement
-      ).value.trim();
-      const role = (
-        document.getElementById("setupRole") as HTMLInputElement
-      ).value.trim();
-      if (!name) {
-        alert("Please enter a name");
-        return;
-      }
-      if (btn) {
-        btn.classList.add("loading");
-        btn.disabled = true;
-      }
-      try {
-        await fetch(GOOGLE_SHEET_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "saveProfile",
-            email: currentAuthEmail,
-            name,
-            role: role || "Tech Engineer",
-            avatar: currentAuthPhoto,
-            authProvider: "google",
-          }),
-        });
-        localStorage.setItem("userId", currentAuthEmail);
-        localStorage.setItem("currentUser", name);
-        localStorage.setItem("userRole", role || "Tech Engineer");
-        if (currentAuthPhoto)
-          localStorage.setItem("userAvatar", currentAuthPhoto);
-        document
-          .getElementById("profileSetupModal")
-          ?.classList.remove("active");
-        interestModal?.classList.add("active");
-      } catch (error) {
-        console.error("Error saving profile:", error);
-      } finally {
-        if (btn) {
-          btn.classList.remove("loading");
-          btn.disabled = false;
-        }
-      }
-    });
+  document.getElementById("saveProfileBtn")?.addEventListener("click", async () => {
+    const btn = document.getElementById("saveProfileBtn") as HTMLButtonElement;
+    const name = (document.getElementById("setupName") as HTMLInputElement).value.trim();
+    const bio = (document.getElementById("setupBio") as HTMLTextAreaElement).value.trim();
+
+    if (!name) { alert("Please enter a name"); return; }
+    if (!selectedRole) { alert("Please select a role"); return; }
+
+    if (btn) { btn.classList.add("loading"); btn.disabled = true; }
+    try {
+      await fetch(GOOGLE_SHEET_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "saveProfile", email: currentAuthEmail, name, role: selectedRole, bio }),
+      });
+
+      localStorage.setItem("currentUser", name);
+      localStorage.setItem("userRole", selectedRole);
+      localStorage.setItem("isProfileComplete", "false"); // Still need interests
+
+      document.getElementById("profileSetupModal")?.classList.remove("active");
+      interestModal?.classList.add("active"); 
+    } catch (error) { console.error("Error saving profile:", error); } 
+    finally { if (btn) { btn.classList.remove("loading"); btn.disabled = false; } }
+  });
 
   // ====== SAVE INTERESTS ======
   saveInterestsBtn?.addEventListener("click", async () => {
     const interestsString = selectedTopics.join(", ");
-    const emailToSave = currentAuthEmail || localStorage.getItem("userId");
-    if (saveInterestsBtn) {
-      saveInterestsBtn.innerText = "Saving...";
-      saveInterestsBtn.disabled = true;
-    }
+    const emailToSave = currentAuthEmail || localStorage.getItem("userEmail");
+
+    if (saveInterestsBtn) { saveInterestsBtn.innerText = "Saving..."; saveInterestsBtn.disabled = true; }
     try {
       await fetch(GOOGLE_SHEET_URL, {
         method: "POST",
-        body: JSON.stringify({
-          action: "saveProfile",
-          email: emailToSave,
-          interests: interestsString,
-        }),
+        body: JSON.stringify({ action: "saveProfile", email: emailToSave, interests: interestsString }),
       });
+
       localStorage.setItem("userInterests", interestsString);
+      localStorage.setItem("isProfileComplete", "true"); // ✅ FIX: Profile is now fully complete!
       interestModal?.classList.remove("active");
-      if (currentAuthEmail)
-        document.getElementById("welcomeModal")?.classList.add("active");
+
+      if (currentAuthEmail) document.getElementById("welcomeModal")?.classList.add("active");
       else questionModal?.showModal();
-    } catch (error) {
-      console.error("Error saving topics:", error);
-    } finally {
-      if (saveInterestsBtn) {
-        saveInterestsBtn.innerText = "Continue";
-        saveInterestsBtn.disabled = false;
-      }
-    }
+    } catch (error) { console.error("Error saving topics:", error); } 
+    finally { if (saveInterestsBtn) { saveInterestsBtn.innerText = "Continue"; saveInterestsBtn.disabled = false; } }
   });
 
   // ====== WELCOME DONE ======
   document.getElementById("welcomeDoneBtn")?.addEventListener("click", () => {
     document.getElementById("welcomeModal")?.classList.remove("active");
-    syncProfile(
-      localStorage.getItem("currentUser") || "Guest",
-      localStorage.getItem("userAvatar"),
-    );
+    syncProfile(localStorage.getItem("currentUser") || "Guest", localStorage.getItem("userAvatar"));
     askBtn?.setAttribute("data-logged-in", "true");
     guestIcon?.classList.add("hidden");
     userAvatar?.classList.remove("hidden");
@@ -1802,16 +1719,12 @@ const { isLoggedIn = false } = Astro.props;
   });
 
   // ====== MODAL CLOSE ======
-  closeModal?.addEventListener("click", () =>
-    loginModal?.classList.remove("active"),
-  );
+  closeModal?.addEventListener("click", () => loginModal?.classList.remove("active"));
   window.addEventListener("click", (e) => {
     if (e.target === loginModal) loginModal?.classList.remove("active");
     if (e.target === interestModal) interestModal?.classList.remove("active");
-    if (e.target === document.getElementById("profileSetupModal"))
-      document.getElementById("profileSetupModal")?.classList.remove("active");
-    if (e.target === document.getElementById("welcomeModal"))
-      document.getElementById("welcomeModal")?.classList.remove("active");
+    if (e.target === document.getElementById("profileSetupModal")) document.getElementById("profileSetupModal")?.classList.remove("active");
+    if (e.target === document.getElementById("welcomeModal")) document.getElementById("welcomeModal")?.classList.remove("active");
   });
 
   // ====== PROFILE DROPDOWN ======
@@ -1821,19 +1734,19 @@ const { isLoggedIn = false } = Astro.props;
     if (!isLoggedIn) loginModal?.classList.add("active");
     else userDropdown?.classList.toggle("active");
   });
-  document.addEventListener("click", (e) => {
-    if (!userDropdown?.contains(e.target as Node))
-      userDropdown?.classList.remove("active");
-  });
+  document.addEventListener("click", (e) => { if (!userDropdown?.contains(e.target as Node)) userDropdown?.classList.remove("active"); });
 
-  // ====== SIGN OUT (BOTH BUTTONS) ======
+  // ====== SIGN OUT ======
   function handleSignOut() {
     if (firebase) firebase.auth().signOut();
     localStorage.removeItem("userId");
+    localStorage.removeItem("userEmail"); // ✅ FIX: Clear email too
     localStorage.removeItem("currentUser");
+    localStorage.removeItem("username");
     localStorage.removeItem("userInterests");
     localStorage.removeItem("userRole");
     localStorage.removeItem("userAvatar");
+    localStorage.removeItem("isProfileComplete"); // ✅ FIX: Clear completion flag
     askBtn?.setAttribute("data-logged-in", "false");
     document.getElementById("guest-icon")?.classList.remove("hidden");
     document.getElementById("user-avatar")?.classList.add("hidden");
@@ -1846,99 +1759,24 @@ const { isLoggedIn = false } = Astro.props;
 
   // ====== SEARCH ======
   import { searchQuestions } from "../scripts/questionEngine";
-
-  function highlight(text: string, query: string): string {
-    if (!query) return text;
-    query
-      .split(" ")
-      .filter((w) => w.length > 2)
-      .forEach((word) => {
-        text = text.replace(new RegExp(`(${word})`, "gi"), "<mark>$1</mark>");
-      });
-    return text;
-  }
-
-  function renderResults(
-    query: string,
-    container: HTMLElement | null,
-    dropdown: HTMLElement | null,
-  ) {
+  function highlight(text: string, query: string): string { if (!query) return text; query.split(" ").filter((w) => w.length > 2).forEach((word) => { text = text.replace(new RegExp(`(${word})`, "gi"), "<mark>$1</mark>"); }); return text; }
+  function renderResults(query: string, container: HTMLElement | null, dropdown: HTMLElement | null) {
     if (!container || !dropdown) return;
     const results = searchQuestions(query);
-    if (!query.trim() || results.length === 0) {
-      dropdown.classList.remove("active");
-      return;
-    }
-    container.innerHTML = results
-      .slice(0, 8)
-      .map(
-        (q: any) =>
-          `<a href="/question/${q.slug}" class="search-result-item"><div class="result-question">${highlight(q.question, query)}</div><div class="result-snippet">${q.answers?.length || 0} answers</div></a>`,
-      )
-      .join("");
+    if (!query.trim() || results.length === 0) { dropdown.classList.remove("active"); return; }
+    container.innerHTML = results.slice(0, 8).map((q: any) => `<a href="/question/${q.slug}" class="search-result-item"><div class="result-question">${highlight(q.question, query)}</div><div class="result-snippet">${q.answers?.length || 0} answers</div></a>`).join("");
     dropdown.classList.add("active");
   }
-
-  const searchInput = document.getElementById(
-    "searchInput",
-  ) as HTMLInputElement;
-  const searchDropdown = document.getElementById(
-    "searchDropdown",
-  ) as HTMLElement;
+  const searchInput = document.getElementById("searchInput") as HTMLInputElement;
+  const searchDropdown = document.getElementById("searchDropdown") as HTMLElement;
   const searchResults = document.getElementById("searchResults") as HTMLElement;
-  const mobileSearchInput = document.getElementById(
-    "mobileSearchInput",
-  ) as HTMLInputElement;
-  const mobileSearchDropdown = document.getElementById(
-    "mobileSearchDropdown",
-  ) as HTMLElement;
-  const mobileSearchResults = document.getElementById(
-    "mobileSearchResults",
-  ) as HTMLElement;
-
-  searchInput?.addEventListener("input", (e) =>
-    renderResults(
-      (e.target as HTMLInputElement).value,
-      searchResults,
-      searchDropdown,
-    ),
-  );
-  searchInput?.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      const v = (e.target as HTMLInputElement).value.trim();
-      if (v) window.location.href = `/search?q=${encodeURIComponent(v)}`;
-    }
-  });
-  mobileSearchInput?.addEventListener("input", (e) =>
-    renderResults(
-      (e.target as HTMLInputElement).value,
-      mobileSearchResults,
-      mobileSearchDropdown,
-    ),
-  );
-  mobileSearchInput?.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      const v = (e.target as HTMLInputElement).value.trim();
-      if (v) window.location.href = `/search?q=${encodeURIComponent(v)}`;
-    }
-  });
-
-  document.addEventListener("click", (e) => {
-    const t = e.target as Node;
-    if (searchDropdown && !searchDropdown.contains(t) && t !== searchInput)
-      searchDropdown.classList.remove("active");
-    if (
-      mobileSearchDropdown &&
-      !mobileSearchDropdown.contains(t) &&
-      t !== mobileSearchInput
-    )
-      mobileSearchDropdown.classList.remove("active");
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      searchDropdown?.classList.remove("active");
-      mobileSearchDropdown?.classList.remove("active");
-      closeMobileMenu();
-    }
-  });
-</script>
+  const mobileSearchInput = document.getElementById("mobileSearchInput") as HTMLInputElement;
+  const mobileSearchDropdown = document.getElementById("mobileSearchDropdown") as HTMLElement;
+  const mobileSearchResults = document.getElementById("mobileSearchResults") as HTMLElement;
+  searchInput?.addEventListener("input", (e) => renderResults((e.target as HTMLInputElement).value, searchResults, searchDropdown));
+  searchInput?.addEventListener("keypress", (e) => { if (e.key === "Enter") { const v = (e.target as HTMLInputElement).value.trim(); if (v) window.location.href = `/search?q=${encodeURIComponent(v)}`; } });
+  mobileSearchInput?.addEventListener("input", (e) => renderResults((e.target as HTMLInputElement).value, mobileSearchResults, mobileSearchDropdown));
+  mobileSearchInput?.addEventListener("keypress", (e) => { if (e.key === "Enter") { const v = (e.target as HTMLInputElement).value.trim(); if (v) window.location.href = `/search?q=${encodeURIComponent(v)}`; } });
+  document.addEventListener("click", (e) => { const t = e.target as Node; if (searchDropdown && !searchDropdown.contains(t) && t !== searchInput) searchDropdown.classList.remove("active"); if (mobileSearchDropdown && !mobileSearchDropdown.contains(t) && t !== mobileSearchInput) mobileSearchDropdown.classList.remove("active"); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") { searchDropdown?.classList.remove("active"); mobileSearchDropdown?.classList.remove("active"); closeMobileMenu(); } });
+</script>   

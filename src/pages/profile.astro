@@ -1,202 +1,392 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
 ---
 
-<Layout title="My Profile">
-    <div class="profile-container">
-        <div class="profile-card">
-            <h1>Edit Your Profile</h1>
+<Header isLoggedIn={true} />
 
-            <div class="avatar-section">
-                <img
-                    id="avatar-preview"
-                    src="https://i.pravatar.cc/150"
-                    class="profile-pic"
-                />
-                <label for="avatar-input" class="upload-label"
-                    >Change Photo</label
-                >
-                <input type="file" id="avatar-input" accept="image/*" />
-            </div>
+<main class="profile-page">
+  <div class="profile-card">
+    <!-- Cover Image -->
+    <div class="profile-cover"></div>
 
-            <div class="field">
-                <label>Your Name</label>
-                <input
-                    type="text"
-                    id="profile-name"
-                    placeholder="Linus Dovas"
-                />
-            </div>
-
-            <button id="save-profile-btn" class="save-btn">Save Profile</button>
-        </div>
+    <!-- Avatar overlapping the cover -->
+    <div class="profile-avatar-wrap">
+      <img
+        id="pAvatar"
+        src="/assets/icon.png"
+        alt="Profile Avatar"
+        class="profile-avatar-img"
+      />
     </div>
-</Layout>
+
+    <!-- Edit Button -->
+    <a href="/profile-edit" class="edit-profile-btn">Edit Profile</a>
+
+    <!-- User Info -->
+    <div class="profile-info">
+      <h1 id="pName" class="profile-name">Loading...</h1>
+      <span id="pUsername" class="profile-username">@username</span>
+      <span id="pRole" class="profile-role-badge">Role</span>
+
+      <p id="pBio" class="profile-bio">
+        No bio added yet. Click 'Edit Profile' to add one!
+      </p>
+
+      <!-- Details List -->
+      <div class="profile-details-grid">
+        <div class="detail-item" id="detailCollege">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            ><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path
+              d="M6 12v5c3 3 9 3 12 0v-5"></path></svg
+          >
+          <span>No college added</span>
+        </div>
+        <div class="detail-item" id="detailCourse">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            ><path d="M4 19.5A2.5 2.5 0 016.5 17H20"></path><path
+              d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"
+            ></path></svg
+          >
+          <span>No course added</span>
+        </div>
+        <div class="detail-item" id="detailLocation">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            ><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"
+            ></path><circle cx="12" cy="10" r="3"></circle></svg
+          >
+          <span>No location added</span>
+        </div>
+      </div>
+
+      <!-- Social Links -->
+      <div class="profile-links" id="pLinks">
+        <!-- Links will be injected here -->
+      </div>
+    </div>
+
+    <!-- Interests Section -->
+    <div class="profile-section">
+      <h3 class="section-title">Interests</h3>
+      <div id="pInterests" class="interests-container">
+        <span class="interest-chip empty">No interests added</span>
+      </div>
+    </div>
+  </div>
+</main>
 
 <style>
-    .profile-container {
-        max-width: 500px;
-        margin: 50px auto;
-        padding: 20px;
+  .profile-page {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 0 16px;
+  }
+
+  .profile-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    position: relative;
+    padding-bottom: 30px;
+  }
+
+  /* Cover Image */
+  .profile-cover {
+    height: 140px;
+    background: linear-gradient(135deg, #2e69ff 0%, #1a4a7c 100%);
+  }
+
+  /* Avatar */
+  .profile-avatar-wrap {
+    position: absolute;
+    top: 80px;
+    left: 30px;
+  }
+  .profile-avatar-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid white;
+    object-fit: cover;
+    background: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Edit Button */
+  .edit-profile-btn {
+    position: absolute;
+    top: 150px;
+    right: 30px;
+    background: white;
+    color: #2e69ff;
+    border: 2px solid #2e69ff;
+    padding: 8px 20px;
+    border-radius: 999px;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+  .edit-profile-btn:hover {
+    background: #2e69ff;
+    color: white;
+  }
+
+  /* Info Section */
+  .profile-info {
+    margin-top: 60px;
+    padding: 0 30px;
+  }
+  .profile-name {
+    font-size: 28px;
+    font-weight: 800;
+    color: #111827;
+    margin: 0;
+  }
+  .profile-username {
+    font-size: 15px;
+    color: #6b7280;
+    display: block;
+    margin-top: 2px;
+  }
+  .profile-role-badge {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 4px 14px;
+    background: #eef3ff;
+    color: #2e69ff;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .profile-bio {
+    margin-top: 16px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #374151;
+  }
+  .profile-bio.empty {
+    color: #9ca3af;
+    font-style: italic;
+  }
+
+  /* Details Grid */
+  .profile-details-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .detail-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #6b7280;
+  }
+  .detail-item svg {
+    color: #9ca3af;
+    flex-shrink: 0;
+  }
+
+  /* Social Links */
+  .profile-links {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .social-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    color: #374151;
+    transition: all 0.2s;
+  }
+  .social-link:hover {
+    border-color: #2e69ff;
+    color: #2e69ff;
+    background: #f9fafb;
+  }
+
+  /* Interests Section */
+  .profile-section {
+    margin-top: 30px;
+    padding: 0 30px;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 12px;
+  }
+  .interests-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .interest-chip {
+    padding: 6px 16px;
+    background: #f3f4f6;
+    color: #374151;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .interest-chip.empty {
+    color: #9ca3af;
+    font-style: italic;
+    background: transparent;
+    padding: 0;
+  }
+
+  @media (max-width: 600px) {
+    .profile-avatar-wrap {
+      left: 16px;
+      top: 90px;
     }
-    .profile-card {
-        background: white;
-        border: 1px solid #e3e6ea;
-        padding: 30px;
-        border-radius: 12px;
-        text-align: center;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    .profile-avatar-img {
+      width: 90px;
+      height: 90px;
     }
-    .profile-card h1 {
-        font-size: 22px;
-        margin-bottom: 20px;
-        color: #282829;
+    .edit-profile-btn {
+      top: 120px;
+      right: 16px;
+      padding: 6px 14px;
+      font-size: 13px;
     }
-    .avatar-section {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 20px;
+    .profile-info {
+      padding: 0 16px;
+      margin-top: 40px;
     }
-    .profile-pic {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 3px solid #e3e6ea;
-        margin-bottom: 10px;
+    .profile-name {
+      font-size: 22px;
     }
-    .upload-label {
-        color: #2e69ff;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: opacity 0.2s;
+    .profile-section {
+      padding: 0 16px;
     }
-    .upload-label:hover {
-        opacity: 0.7;
-    }
-    /* Hide the ugly default file input */
-    .avatar-section input[type="file"] {
-        display: none;
-    }
-    .field {
-        text-align: left;
-        margin-top: 20px;
-    }
-    .field label {
-        display: block;
-        font-size: 13px;
-        font-weight: bold;
-        margin-bottom: 5px;
-        color: #636466;
-    }
-    .field input {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #dee0e1;
-        border-radius: 4px;
-        font-size: 15px;
-        outline: none;
-        box-sizing: border-box;
-    }
-    .field input:focus {
-        border-color: #2e69ff;
-    }
-    .save-btn {
-        background: #2e69ff;
-        color: white;
-        border: none;
-        padding: 12px 30px;
-        border-radius: 24px;
-        font-weight: bold;
-        cursor: pointer;
-        margin-top: 20px;
-        font-size: 15px;
-        transition: background 0.2s;
-    }
-    .save-btn:hover {
-        background: #1e5ae6;
-    }
-    .save-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
+  }
 </style>
 
 <script>
-    const GOOGLE_SHEET_URL =
-        "https://script.google.com/macros/s/AKfycbwfpjk3Y2gzDt0T_JS7c2OhQajr_UildmeqEgQVPQxIFAjYnYG8alaQF0XmGjeI-_uzkQ/exec?action=getPosts";
+  const GOOGLE_SHEET_URL =
+    "https://script.google.com/macros/s/AKfycbwfpjk3Y2gzDt0T_JS7c2OhQajr_UildmeqEgQVPQxIFAjYnYG8alaQF0XmGjeI-_uzkQ/exec";
 
-    const avatarInput = document.getElementById(
-        "avatar-input",
-    ) as HTMLInputElement;
-    const avatarPreview = document.getElementById(
-        "avatar-preview",
-    ) as HTMLImageElement;
-    const saveBtn = document.getElementById(
-        "save-profile-btn",
-    ) as HTMLButtonElement;
-    const nameInput = document.getElementById(
-        "profile-name",
-    ) as HTMLInputElement;
+  async function loadProfile() {
+    const email = localStorage.getItem("userEmail");
+    if (!email) {
+      window.location.href = "/"; // Not logged in, go home
+      return;
+    }
 
-    // 1. Load existing data (Fix keys to match Header.astro)
-    const savedName = localStorage.getItem("currentUser");
-    const savedPic = localStorage.getItem("userAvatar");
+    try {
+      const res = await fetch(
+        `${GOOGLE_SHEET_URL}?action=getUserProfile&email=${encodeURIComponent(email)}`,
+      );
+      const user = await res.json();
 
-    if (savedName) nameInput.value = savedName;
-    if (savedPic) avatarPreview.src = savedPic;
+      if (user) {
+        // 1. Avatar & Name
+        const avatar =
+          user.avatar && user.avatar !== "null" && user.avatar !== "icon.png"
+            ? user.avatar
+            : "/assets/icon.png";
+        (document.getElementById("pAvatar") as HTMLImageElement).src =
+          avatar.startsWith("http") ? avatar : `/assets/${avatar}`;
+        (document.getElementById("pName") as HTMLElement).innerText =
+          user.name || "Guest Engineer";
+        (document.getElementById("pUsername") as HTMLElement).innerText =
+          `@${user.username || "username"}`;
 
-    // 2. Preview image before upload
-    avatarInput?.addEventListener("change", (e) => {
-        const file = (e.target as HTMLInputElement).files?.[0];
-        if (file) avatarPreview.src = URL.createObjectURL(file);
-    });
+        // 2. Role Badge
+        const roleEl = document.getElementById("pRole") as HTMLElement;
+        roleEl.innerText = user.role || "Member";
 
-    // 3. Save Profile
-    saveBtn?.addEventListener("click", async () => {
-        const name = nameInput.value.trim();
-        const file = avatarInput.files?.[0];
-        const userId = localStorage.getItem("userId");
-
-        if (!name || name.length < 2) {
-            alert("Please enter a valid name.");
-            return;
-        }
-
-        saveBtn.disabled = true;
-        saveBtn.innerText = "Saving...";
-
-        // Function to finish saving
-        const finishSave = async (avatarUrl: string) => {
-            // Save to localStorage (so Header updates instantly)
-            localStorage.setItem("currentUser", name);
-            if (avatarUrl) localStorage.setItem("userAvatar", avatarUrl);
-
-            // Update Name in Google Sheets
-            try {
-                if (userId) {
-                    await fetch(GOOGLE_SHEET_URL, {
-                        method: "POST",
-                        body: JSON.stringify({ id: userId, username: name }),
-                    });
-                }
-            } catch (err) {
-                console.error("Sheet update error:", err);
-            }
-
-            alert("Profile saved successfully!");
-            window.location.href = "/";
-        };
-
-        // Handle Avatar Upload
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = () => finishSave(reader.result as string);
-            reader.readAsDataURL(file);
+        // 3. Bio (Handle empty state beautifully)
+        const bioEl = document.getElementById("pBio") as HTMLElement;
+        if (user.bio) {
+          bioEl.innerText = user.bio;
+          bioEl.classList.remove("empty");
         } else {
-            finishSave(savedPic || "");
+          bioEl.innerText =
+            "No bio added yet. Click 'Edit Profile' to tell us about yourself!";
+          bioEl.classList.add("empty");
         }
-    });
+
+        // 4. Details (College, Course, Location)
+        const collegeEl = document.querySelector(
+          "#detailCollege span",
+        ) as HTMLElement;
+        const courseEl = document.querySelector(
+          "#detailCourse span",
+        ) as HTMLElement;
+        const locationEl = document.querySelector(
+          "#detailLocation span",
+        ) as HTMLElement;
+
+        if (user.college) collegeEl.innerText = user.college;
+        if (user.course) courseEl.innerText = user.course;
+        if (user.location) locationEl.innerText = user.location;
+
+        // 5. Social Links
+        const linksContainer = document.getElementById("pLinks") as HTMLElement;
+        let linksHtml = "";
+
+        if (user.githubUrl) {
+          linksHtml += `<a href="${user.githubUrl}" target="_blank" class="social-link"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg> GitHub</a>`;
+        }
+        if (user.linkedinUrl) {
+          linksHtml += `<a href="${user.linkedinUrl}" target="_blank" class="social-link"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg> LinkedIn</a>`;
+        }
+        if (user.website) {
+          linksHtml += `<a href="${user.website}" target="_blank" class="social-link"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Website</a>`;
+        }
+        linksContainer.innerHTML = linksHtml;
+
+        // 6. Interests (Handle empty state beautifully)
+        const interestsEl = document.getElementById(
+          "pInterests",
+        ) as HTMLElement;
+        if (user.interests && user.interests.trim() !== "") {
+          const interestArray = user.interests
+            .split(",")
+            .map((i: string) => i.trim())
+            .filter(Boolean);
+          interestsEl.innerHTML = interestArray
+            .map((i: string) => `<span class="interest-chip">${i}</span>`)
+            .join("");
+        } else {
+          interestsEl.innerHTML =
+            '<span class="interest-chip empty">No interests added yet</span>';
+        }
+      }
+    } catch (error) {
+      console.error("Error loading profile:", error);
+    }
+  }
+
+  loadProfile();
 </script>

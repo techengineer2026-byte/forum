@@ -1,0 +1,535 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Edit Profile - TechEngineer">
+  <main class="edit-page">
+    <div class="edit-card">
+      <div class="edit-header">
+        <h1>Edit Profile</h1>
+        <p>Update your personal details and preferences</p>
+      </div>
+
+      <form id="editForm" class="edit-form">
+        <!-- Basic Info -->
+        <div class="form-section">
+          <h2 class="section-title">Basic Information</h2>
+
+          <div class="form-group">
+            <label for="editName">Display Name</label>
+            <input
+              type="text"
+              id="editName"
+              placeholder="Your display name"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Role</label>
+            <div class="role-options" id="roleOptions">
+              <button type="button" class="role-chip" data-role="Student"
+                >Student</button
+              >
+              <button type="button" class="role-chip" data-role="Developer"
+                >Developer</button
+              >
+              <button type="button" class="role-chip" data-role="Teacher"
+                >Teacher</button
+              >
+              <button type="button" class="role-chip" data-role="Professional"
+                >Professional</button
+              >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="editBio">Bio</label>
+            <textarea
+              id="editBio"
+              rows="4"
+              placeholder="Tell us a little about yourself..."></textarea>
+          </div>
+        </div>
+
+        <!-- Education & Location -->
+        <div class="form-section">
+          <h2 class="section-title">Education & Location</h2>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="editCollege">College / University</label>
+              <input
+                type="text"
+                id="editCollege"
+                placeholder="e.g. Chandigarh University"
+              />
+            </div>
+            <div class="form-group">
+              <label for="editCourse">Course / Major</label>
+              <input
+                type="text"
+                id="editCourse"
+                placeholder="e.g. BCA Computer Science"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="editLocation">Location</label>
+            <input
+              type="text"
+              id="editLocation"
+              placeholder="e.g. Mohali, India"
+            />
+          </div>
+        </div>
+
+        <!-- Social Links -->
+        <div class="form-section">
+          <h2 class="section-title">Social & Web</h2>
+
+          <div class="form-group">
+            <label for="editGithub">GitHub URL</label>
+            <input
+              type="url"
+              id="editGithub"
+              placeholder="https://github.com/username"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="editLinkedin">LinkedIn URL</label>
+            <input
+              type="url"
+              id="editLinkedin"
+              placeholder="https://linkedin.com/in/username"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="editWebsite">Personal Website</label>
+            <input
+              type="url"
+              id="editWebsite"
+              placeholder="https://yourportfolio.com"
+            />
+          </div>
+        </div>
+
+        <!-- Interests -->
+        <div class="form-section">
+          <h2 class="section-title">Interests</h2>
+          <p class="section-subtitle">
+            Select your interests to customize your feed.
+          </p>
+          <div id="interestGrid" class="interest-grid"></div>
+        </div>
+
+        <!-- Submit Area -->
+        <div class="form-actions">
+          <a href="/profile" class="btn-cancel">Cancel</a>
+          <button type="submit" id="saveBtn" class="btn-save"
+            >Save Changes</button
+          >
+        </div>
+      </form>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .edit-page {
+    max-width: 700px;
+    margin: 30px auto;
+    padding: 0 16px;
+  }
+
+  .edit-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+  }
+
+  .edit-header {
+    padding: 30px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .edit-header h1 {
+    font-size: 24px;
+    font-weight: 800;
+    color: #111827;
+    margin: 0 0 4px;
+  }
+
+  .edit-header p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+  }
+
+  .edit-form {
+    padding: 30px;
+  }
+
+  .form-section {
+    margin-bottom: 32px;
+  }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .section-subtitle {
+    font-size: 13px;
+    color: #6b7280;
+    margin: -8px 0 16px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+    background: #f9fafb;
+    box-sizing: border-box;
+  }
+
+  input:focus,
+  textarea:focus {
+    border-color: #2e69ff;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(46, 105, 255, 0.1);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  /* Role Chips */
+  .role-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .role-chip {
+    padding: 8px 18px;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    background: white;
+    color: #374151;
+    transition: all 0.2s;
+  }
+
+  .role-chip:hover {
+    border-color: #2e69ff;
+    color: #2e69ff;
+  }
+
+  .role-chip.active {
+    background: #2e69ff;
+    color: white;
+    border-color: #2e69ff;
+  }
+
+  /* Interest Grid */
+  .interest-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .interest-chip {
+    padding: 8px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    font-size: 13px;
+    cursor: pointer;
+    background: white;
+    color: #636466;
+    transition: all 0.2s;
+    user-select: none;
+  }
+
+  .interest-chip:hover {
+    border-color: #2e69ff;
+    color: #2e69ff;
+  }
+
+  .interest-chip.active {
+    background: #eef3ff;
+    border-color: #2e69ff;
+    color: #1f57f0;
+    font-weight: bold;
+  }
+
+  /* Buttons */
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 20px;
+    border-top: 1px solid #f3f4f6;
+  }
+
+  .btn-cancel {
+    padding: 10px 24px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration: none;
+    color: #6b7280;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s;
+  }
+
+  .btn-cancel:hover {
+    background: #f9fafb;
+    color: #111827;
+  }
+
+  .btn-save {
+    background: #2e69ff;
+    color: white;
+    border: none;
+    padding: 10px 28px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-save:hover {
+    background: #1e5ae6;
+  }
+
+  .btn-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 600px) {
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+    .edit-header,
+    .edit-form {
+      padding: 20px;
+    }
+  }
+</style>
+
+<script>
+  const GOOGLE_SHEET_URL =
+    "https://script.google.com/macros/s/AKfycbwfpjk3Y2gzDt0T_JS7c2OhQajr_UildmeqEgQVPQxIFAjYnYG8alaQF0XmGjeI-_uzkQ/exec";
+
+  const availableTopics = [
+    "Full-Stack Development",
+    "JavaScript & Frameworks",
+    "Python & Data Science",
+    "Web Performance & SEO",
+    "DevOps & Cloud (AWS)",
+    "Cybersecurity & InfoSec",
+    "Open Source Projects",
+    "Mobile App Dev",
+    "Bug Fixes & Debugging",
+    "UI/UX Design",
+    "AI & Machine Learning",
+    "Data Structures & Algorithms",
+  ];
+
+  let selectedRole = "";
+  let selectedInterests: string[] = [];
+
+  // ====== CHECK AUTH ======
+  const userEmail = localStorage.getItem("userEmail");
+  if (!userEmail) {
+    window.location.href = "/";
+  }
+
+  // ====== RENDER INTEREST CHIPS ======
+  const interestGrid = document.getElementById("interestGrid");
+  availableTopics.forEach((topic) => {
+    const chip = document.createElement("div");
+    chip.className = "interest-chip";
+    chip.innerText = topic;
+    chip.addEventListener("click", () => {
+      chip.classList.toggle("active");
+      if (chip.classList.contains("active")) {
+        selectedInterests.push(topic);
+      } else {
+        selectedInterests = selectedInterests.filter((t) => t !== topic);
+      }
+    });
+    interestGrid?.appendChild(chip);
+  });
+
+  // ====== ROLE CHIPS LOGIC ======
+  document.querySelectorAll(".role-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      document
+        .querySelectorAll(".role-chip")
+        .forEach((c) => c.classList.remove("active"));
+      chip.classList.add("active");
+      selectedRole = (chip as HTMLElement).dataset.role || "";
+    });
+  });
+
+  // ====== LOAD EXISTING PROFILE DATA ======
+  async function loadCurrentProfile() {
+    try {
+      const res = await fetch(
+        `${GOOGLE_SHEET_URL}?action=getUserProfile&email=${encodeURIComponent(userEmail || "")}`,
+      );
+      const profile = await res.json();
+
+      if (profile) {
+        (document.getElementById("editName") as HTMLInputElement).value =
+          profile.name || "";
+        (document.getElementById("editBio") as HTMLTextAreaElement).value =
+          profile.bio || "";
+        (document.getElementById("editCollege") as HTMLInputElement).value =
+          profile.college || "";
+        (document.getElementById("editCourse") as HTMLInputElement).value =
+          profile.course || "";
+        (document.getElementById("editLocation") as HTMLInputElement).value =
+          profile.location || "";
+        (document.getElementById("editGithub") as HTMLInputElement).value =
+          profile.githubUrl || "";
+        (document.getElementById("editLinkedin") as HTMLInputElement).value =
+          profile.linkedinUrl || "";
+        (document.getElementById("editWebsite") as HTMLInputElement).value =
+          profile.website || "";
+
+        // Pre-select Role
+        if (profile.role) {
+          selectedRole = profile.role;
+          document.querySelectorAll(".role-chip").forEach((c) => {
+            if ((c as HTMLElement).dataset.role === profile.role)
+              c.classList.add("active");
+          });
+        }
+
+        // Pre-select Interests
+        if (profile.interests) {
+          const userInterests = profile.interests
+            .split(",")
+            .map((i: string) => i.trim());
+          selectedInterests = userInterests;
+          document.querySelectorAll(".interest-chip").forEach((c) => {
+            if (userInterests.includes(c.textContent?.trim() || "")) {
+              c.classList.add("active");
+            }
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error loading profile:", error);
+    }
+  }
+
+  loadCurrentProfile();
+
+  // ====== SAVE PROFILE ======
+  document.getElementById("editForm")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const saveBtn = document.getElementById("saveBtn") as HTMLButtonElement;
+
+    if (saveBtn) {
+      saveBtn.innerText = "Saving...";
+      saveBtn.disabled = true;
+    }
+
+    const data = {
+      action: "saveProfile",
+      email: userEmail,
+      name: (
+        document.getElementById("editName") as HTMLInputElement
+      ).value.trim(),
+      role: selectedRole,
+      bio: (
+        document.getElementById("editBio") as HTMLTextAreaElement
+      ).value.trim(),
+      college: (
+        document.getElementById("editCollege") as HTMLInputElement
+      ).value.trim(),
+      course: (
+        document.getElementById("editCourse") as HTMLInputElement
+      ).value.trim(),
+      location: (
+        document.getElementById("editLocation") as HTMLInputElement
+      ).value.trim(),
+      githubUrl: (
+        document.getElementById("editGithub") as HTMLInputElement
+      ).value.trim(),
+      linkedinUrl: (
+        document.getElementById("editLinkedin") as HTMLInputElement
+      ).value.trim(),
+      website: (
+        document.getElementById("editWebsite") as HTMLInputElement
+      ).value.trim(),
+      interests: selectedInterests.join(", "),
+    };
+
+    try {
+      await fetch(GOOGLE_SHEET_URL, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+
+      // Update local storage
+      localStorage.setItem("currentUser", data.name);
+      localStorage.setItem("userRole", data.role);
+      localStorage.setItem("userInterests", data.interests);
+      localStorage.setItem("isProfileComplete", "true");
+
+      // Redirect back to view profile
+      window.location.href = "/profile";
+    } catch (error) {
+      console.error("Error saving:", error);
+      alert("Failed to save profile. Please try again.");
+      if (saveBtn) {
+        saveBtn.innerText = "Save Changes";
+        saveBtn.disabled = false;
+      }
+    }
+  });
+</script>
